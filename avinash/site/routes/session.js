@@ -19,5 +19,20 @@ router.get('/', function(req, res, next) {
 	res.render('framework/vc-frame', class_config);
 });
 
+router.get('/config/get', function(req, res, next) {
+	var session_config = { 
+				resources : [
+					{
+						name: 'youtube',
+					},
+					{
+						name: 'chat',
+					},
+				],
+	};
+
+	res.status(200).send(session_config);
+});
+
 module.exports = router;
 
