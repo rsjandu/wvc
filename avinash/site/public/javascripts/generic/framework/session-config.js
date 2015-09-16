@@ -1,8 +1,9 @@
 define(function(require) {
-	var $ = require('jquery');
-	var xhr = require('xhr');
+	var $    = require('jquery');
+	var xhr  = require('xhr');
+	var urls = require('urls');
 
-	var url = '/session/config/get';
+	var url = urls.session.load;
 	var _s = {};
 
 	_s.get = function () {

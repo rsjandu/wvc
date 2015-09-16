@@ -25,7 +25,7 @@ define(function(require) {
 			}
 
 			var _d_mod = _module.handle.init (
-								_module.resource.framework,
+								_module.resource.display_spec,
 								_module.resource.custom,
 								_module.resource.perms
 						);
@@ -67,7 +67,7 @@ define(function(require) {
 	}
 
 	function __attach_module (layout, _module) {
-		var widget = _module.resource.framework.widget;
+		var widget = _module.resource.display_spec.widget;
 		var inner;
 
 		switch (widget) {

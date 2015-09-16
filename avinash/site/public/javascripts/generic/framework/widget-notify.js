@@ -24,7 +24,7 @@ define(function(require) {
 		var id = 'notify-' + _module.name;
 		$(inner).append('<div id="' + id + '" class="box"></div>');
 
-		_module.resource.framework.anchor = $('#' + id);
+		_module.resource.display_spec.anchor = $('#' + id);
 
 		/*
 		 * TODO:

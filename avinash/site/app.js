@@ -8,14 +8,14 @@ var express_winston = require('express-winston');
 
 var config          = require('./config');
 var log             = require('./common/log');
-var vc_session      = require('./routes/session');
+var vc_session_v1   = require('./routes/session-v1');
+var auth_v1         = require('./routes/auth-v1');
 
 var sess = { cookie:
-				{ secure: false },
+				{ },
 				secret: '&^%Gbu45t;#tLa*',
 				saveUninitialized: false,
 				resave: true,
-				cookie: {}
 			};
 
 var app = express();
@@ -51,7 +51,8 @@ app.use(express_winston.logger({
       colorStatus : true,
       }));
 
-app.use('/session', vc_session);
+app.use('/auth/v1', auth_v1);
+app.use('/session/v1', vc_session_v1);
 
 app.use(express_winston.errorLogger({
 			winstonInstance : log,

@@ -1,7 +1,7 @@
 var async     = require('async');
 var config    = require('../config');
 var log       = require('../common/log');
-var cache     = require('../common/cache');
+var cache     = require('../common/cache').init('backend-if', 5*60*60*1000);
 var templates = require('../controllers/templates');
 
 

@@ -10,6 +10,8 @@ config.port = '2178';
  */
 config.top   = __dirname;
 config.views = path.join(config.top, 'views');
+config.core_backend = {};
+config.provisioning_server = {};
 
 function determine_site_addr () {
 		fs.readFile('/etc/hostname', function (err, data) {

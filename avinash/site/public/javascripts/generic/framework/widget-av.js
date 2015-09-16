@@ -12,7 +12,7 @@ define(function(require) {
 		}
 
 		attached = _module;
-		_module.resource.framework.anchor = $(anchor).find('main-inner')[0];
+		_module.resource.display_spec.anchor = $(anchor).find('main-inner')[0];
 
 		/*
 		 * TODO:

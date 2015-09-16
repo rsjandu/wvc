@@ -34,6 +34,7 @@ controller.load_page = function (req, res, next) {
 };
 
 controller.load_config = function (req, res, next) {
+	var session_id = req.params.session_id;
 
 	backend.get_config (session_id, function (err, config) {
 		if (err)
