@@ -1,12 +1,24 @@
 define(function(require) {
-	var $ = require('jquery');
+	var $         = require('jquery');
 	var framework = require('framework');
-	var log = require('log')('core');
+	var cc        = require('cc');
+	var log       = require('log')('core', 'info');
 
 	$.whenall = function(arr) { return $.when.apply($, arr); };
 
 	var core = {};
 	var modules = [];
+
+	core.init = function (sess_config) {
+		var _d = $.Deferred ();
+
+		cc.init (sess_config)
+			.then ( cc.auth, _d.reject.bind(_d) )
+			.then ( framework.init, _d.reject.bind(_d) )
+			.then (_d.resolve.bind(_d), _d.reject.bind(_d) );
+
+		return _d;
+	};
 
 	core.load_modules = function (sess_config) {
 				var resources = sess_config.resources;

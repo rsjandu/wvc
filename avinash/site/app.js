@@ -11,6 +11,8 @@ var log             = require('./common/log');
 var vc_session_v1   = require('./routes/session-v1');
 var auth_v1         = require('./routes/auth-v1');
 
+config.determine_site_addr ();
+
 var sess = { cookie:
 				{ },
 				secret: '&^%Gbu45t;#tLa*',

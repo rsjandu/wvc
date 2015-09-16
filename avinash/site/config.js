@@ -12,8 +12,10 @@ config.top   = __dirname;
 config.views = path.join(config.top, 'views');
 config.core_backend = {};
 config.provisioning_server = {};
+config.session_server = { default_port : 3179 };
+config.redis = { retry_interval : 10000 };
 
-function determine_site_addr () {
+config.determine_site_addr = function () {
 		fs.readFile('/etc/hostname', function (err, data) {
 
 
@@ -35,8 +37,6 @@ function determine_site_addr () {
 			config.site_addr = proto + '://' + host;
 			log.warn ('* Setting Site address to ' + config.site_addr + ' *');
 		});
-}
-
-determine_site_addr ();
+};
 
 module.exports = config;

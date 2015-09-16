@@ -33,7 +33,11 @@ controller.get_config = function (sess_id, callback) {
 	var session_config = { 
 				template : 'default',
 				auth : {},
-				connection_info : {},
+				session_server : {
+					host : 'localhost',
+					port : config.session_server.default_port,
+					auth : {}
+				},
 				resources : [
 					{
 						name: 'youtube',

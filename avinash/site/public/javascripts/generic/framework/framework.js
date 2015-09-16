@@ -6,36 +6,43 @@ define(function(require) {
 	var framework = {};
 	var layout = {};
 
-	framework.init = function () {
+	framework.init = function (sess_config) {
+		var _d = $.Deferred();
+
+		log.log ('init called');
 		__probe_layout();
+
+		_d.resolve(sess_config);
+
+		return _d.promise();
 	};
 
 	framework.init_modules = function (_module) {
-			var err = '';
-			var _d = $.Deferred();
+		var err = '';
+		var _d = $.Deferred();
 
-			log.info ('inserting module - ' + _module.name + ' ...');
+		log.info ('inserting module - ' + _module.name + ' ...');
 
-			if ((err = __attach_module (layout, _module)) !== null) {
+		if ((err = __attach_module (layout, _module)) !== null) {
 
-				log.error ('Failed to attach module ' + _module.name);
+			log.error ('Failed to attach module ' + _module.name);
 
-				_d.reject (err);
-				return _d.promise ();
-			}
+			_d.reject (err);
+			return _d.promise ();
+		}
 
-			var _d_mod = _module.handle.init (
-								_module.resource.display_spec,
-								_module.resource.custom,
-								_module.resource.perms
-						);
+		var _d_mod = _module.handle.init (
+			_module.resource.display_spec,
+			_module.resource.custom,
+			_module.resource.perms
+		);
 
-			_d_mod.then (
-				function() { _d.resolve (_module); },
-				_d.reject
-			);
+		_d_mod.then (
+			function() { _d.resolve (_module); },
+			_d.reject
+		);
 
-			return _d.promise();
+		return _d.promise();
 	};
 
 	/*---------------------------------------------
@@ -77,7 +84,7 @@ define(function(require) {
 
 			default : 
 				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
-				return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
+			return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
 		}
 	}
 

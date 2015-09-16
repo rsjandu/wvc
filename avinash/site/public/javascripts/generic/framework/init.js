@@ -17,14 +17,17 @@ define(function(require) {
 	var framework = require('framework');
 	var log = require('log')('init', 'info');
 
-	framework.init();
-
 	/*
 	 * Initialize the Core
 	 */
 	sess_config.get()
-		.then(core.load_modules)
-		.then(core.init_modules)
+		.then(core.init, fail)
+		.then(core.load_modules, fail)
+		.then(core.init_modules, fail)
 	;
+
+	function fail (err) {
+		log.error ('fatal : ' + err);
+	}
 
 });
