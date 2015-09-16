@@ -14,7 +14,10 @@ define(function(require) {
 	var $    = require('jquery');
 	var core = require('core');
 	var sess_config = require('session-config');
-	var error = require('error');
+	var framework = require('framework');
+	var log = require('log')('init', 'info');
+
+	framework.init();
 
 	/*
 	 * Initialize the Core

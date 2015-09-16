@@ -1,7 +1,8 @@
 define(function(require) {
 	var $ = require('jquery');
 	var av = require('widget-av');
-	var notify = require('notify')('framework');
+	var notify = require('widget-notify');
+	var log = require('log')('framework', 'info');
 	var framework = {};
 	var layout = {};
 
@@ -9,14 +10,18 @@ define(function(require) {
 		__probe_layout();
 	};
 
-	framework.insmod = function (_module) {
+	framework.init_modules = function (_module) {
 			var err = '';
 			var _d = $.Deferred();
 
-			if ((err = __attach_module(layout, _module)) !== null) {
-				notify.warn('Failed to attach module ' + _module.name);
-				_d.reject(err);
-				return _d.promise();
+			log.info ('inserting module - ' + _module.name + ' ...');
+
+			if ((err = __attach_module (layout, _module)) !== null) {
+
+				log.error ('Failed to attach module ' + _module.name);
+
+				_d.reject (err);
+				return _d.promise ();
 			}
 
 			var _d_mod = _module.handle.init (
@@ -25,8 +30,8 @@ define(function(require) {
 								_module.resource.perms
 						);
 
-			_d_mod.then(
-				function() { _d.resolve(_module); },
+			_d_mod.then (
+				function() { _d.resolve (_module); },
 				_d.reject
 			);
 
@@ -63,11 +68,15 @@ define(function(require) {
 
 	function __attach_module (layout, _module) {
 		var widget = _module.resource.framework.widget;
+		var inner;
 
 		switch (widget) {
-			case 'av' : return av.attach(layout.av, _module);
+
+			case 'av'     : return av.attach (layout.av, _module);
+			case 'notify' : return notify.attach (layout.notify, _module);
+
 			default : 
-				notify.warn('_module ' + _module.name + ' requesting non-existent widget ' + widget);
+				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
 				return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
 		}
 	}

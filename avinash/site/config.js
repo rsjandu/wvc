@@ -1,14 +1,15 @@
 var fs  = require('fs');
+var path= require('path');
 var log = require('./common/log');
 var config = {};
 
 config.port = '2178';
-config.do_auth = true;
-config.job_server = {};
-config.job_server.url = 'http://localhost:4000';
-config.pub = '/pub';
-config.cookie = {};
-config.cookie.session_ttl = 1200; /* 20 minutes */
+
+/*
+ * Path related configs
+ */
+config.top   = __dirname;
+config.views = path.join(config.top, 'views');
 
 function determine_site_addr () {
 		fs.readFile('/etc/hostname', function (err, data) {

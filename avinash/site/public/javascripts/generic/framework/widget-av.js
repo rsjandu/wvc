@@ -1,23 +1,25 @@
 define(function(require) {
 	var $ = require('jquery');
-	var notify = require('notify')('widget-av');
+	var log = require('log')('widget-av', 'info');
+
 	var av = {};
-	var _module = null;
+	var attached = null;
 
 	av.attach = function (anchor, _module) {
-		if (!_module) {
-			notify.error ('Can\'t attach _module:', _module.name, ':', _module.name, 'already attached');
+		if (attached) {
+			log.error ('Can\'t attach _module:', _module.name, ':', attached.name, 'already attached');
 			return 'already attached';
 		}
 
-		_module.resource.framework.anchor = $(anchor).find('.main-inner')[0];
+		attached = _module;
+		_module.resource.framework.anchor = $(anchor).find('main-inner')[0];
 
 		/*
 		 * TODO:
 		 * 	If the _module has a template, then attach it under the anchor
 		 */
 
-		notify.info('all eej well')
+		log.info('av.attach ok for ' + _module.name);
 		return null;
 	};
 

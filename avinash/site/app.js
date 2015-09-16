@@ -15,19 +15,19 @@ var sess = { cookie:
 				secret: '&^%Gbu45t;#tLa*',
 				saveUninitialized: false,
 				resave: true,
-				cookie: {},
+				cookie: {}
 			};
 
 var app = express();
 
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', config.views);
 app.set('view engine', 'jade');
 if (app.get('env') === 'production') {
 		app.set('trust proxy', true);
 		sess.cookie.secure = true;
 }
 
-/* app.use(favicon(__dirname + '/public/favicon.ico')); */
+app.use(favicon(__dirname + '/public/favicon.ico'));
 
 var winstonStream = {
     write: function(message, encoding){
