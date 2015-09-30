@@ -8,6 +8,7 @@ av_test.init = function (myinfo, common, handles) {
 };
 
 av_test.notify = function (what, data) {
+
 	switch (what) {
 		case 'auth':
 			log.info ('av-test: got informed: new user: ' + data.ep.i + ' (sender: ' + data.res + ')');
@@ -17,6 +18,10 @@ av_test.notify = function (what, data) {
 			log.error ('unknown notification \"' + what + '\", data : ' + JSON.stringify(data, null, 2));
 			return;
 	}
+};
+
+av_test.session_info = function () {
+	return 'hello';
 };
 
 module.exports = av_test;
