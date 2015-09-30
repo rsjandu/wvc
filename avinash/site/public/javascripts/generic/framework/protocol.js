@@ -72,7 +72,7 @@ define(function(require) {
 		m.v = 1;
 		m.type = 'req';
 		m.to = {};
-		m.to.ep = { t : 'controller' };
+		m.to.ep = { t : 'controller', i : [ '0' ]};
 		m.to.res = 'auth';
 
 		m.from = {

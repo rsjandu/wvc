@@ -12,12 +12,12 @@ define(function(require) {
 	core.init = function (sess_config) {
 		var _d = $.Deferred ();
 
-		cc.init (sess_config)
-			.then ( cc.auth, _d.reject.bind(_d) )
+		cc.init (sess_config, framework)
+			.then ( auth, _d.reject.bind(_d) )
 			.then ( framework.init, _d.reject.bind(_d) )
 			.then (_d.resolve.bind(_d), _d.reject.bind(_d) );
 
-		return _d;
+		return _d.promise();
 	};
 
 	core.load_modules = function (sess_config) {
@@ -61,6 +61,22 @@ define(function(require) {
 	/*----------------------------------------------------------------
 	 * Internals
 	 *----------------------------------------------------------------*/
+
+	function auth (sess_config) {
+		var _d = $.Deferred ();
+
+		cc.auth(sess_config)
+			.then (
+				function (status) {
+					_d.resolve (sess_config);
+				},
+				function (err) {
+					_d.reject (err);
+				}
+			);
+
+		return _d.promise();
+	}
 
 	function __load (resource) {
 			var _d = $.Deferred();

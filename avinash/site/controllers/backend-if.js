@@ -40,17 +40,57 @@ controller.get_config = function (sess_id, callback) {
 				},
 				resources : [
 					{
-						name: 'youtube',
-						display_spec: { widget: "av" },
+						name: 'av-test',
+						display_spec: { widget: "av", template: "av-test" },
+						/*
+						 * perms must be returned per user */
 						perms: { },
-						custom: { url: 'https://youtu.be/A18NJIybVlA' },
+						custom: { 
+							random_string : 'नमस््कार'
+						},
 					},
 					{
 						name: 'notify-box',
 						display_spec: { widget: 'notify' },
+						/*
+						 * perms must be returned per user */
 						perms: { }
 					}
 				],
+				role_map : {
+					teacher : [
+						{
+							name : 'av-test',
+							perms : [
+								'audio.mute:*',
+								'audio.unmute:*',
+							]
+						},
+					],
+					student : [
+						{
+							name : 'av-test',
+							perms : [
+								'audio.mute:*',
+								'audio.unmute:*'
+							]
+						},
+					],
+					observer : {
+					}
+				},
+				attendees : {
+					max : 10,
+					listed : [
+						{
+							name : 'Avinash Bhatia',
+							role : 'teacher',
+							auth : {
+								via : 'noauth' /* noauth, wiziq, local, google+, facebook or other SSOs */
+							}
+						}
+					],
+				}
 	};
 
 
