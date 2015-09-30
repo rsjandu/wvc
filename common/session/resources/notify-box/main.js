@@ -1,6 +1,3 @@
-var log             = require("../../common/log");
-var config          = require("../../config");
-
 var notify = {};
 
 notify.init = function (myinfo, common, handles) {

@@ -24,7 +24,7 @@ res.load = function (sess_config) {
 
 		list[r.name] = {};
 		try {
-			list[r.name].handle = require('./resources/' + r.name);
+			list[r.name].handle = require('./resources/' + r.name + '/main.js');
 			list[r.name].handle.init (r, common, sess_config.handles);
 		}
 		catch (e) {
