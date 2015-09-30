@@ -1,0 +1,28 @@
+include header
+
+body
+
+	.row
+		include widget-top
+
+	.row.vc-mid-row
+		include widget-side-left
+		include widget-tabs
+		div#av-chat-container
+			.row
+				include widget-av
+			.row
+				include widget-chat
+		include widget-side-right
+
+	.row.vc-footer
+		include widget-notify
+	
+	//
+	// Load Templates
+	//
+	//script(type="text/javascript")
+	//	|var templates = {};
+	//	each val in _templates
+	//		!{val}
+
