@@ -2,6 +2,9 @@ var WebSocketServer = require('ws').Server;
 var log             = require("../common/log");
 var config          = require("../config");
 var auth            = require("./auth");
+var resources       = require("./resources");
+var users           = require("./users");
+var cc              = require("./cc");
 
 controller = {};
 controller.process = function (_m) {
@@ -9,7 +12,26 @@ controller.process = function (_m) {
 	switch (_m.m.to.res) {
 
 		case 'auth' :
-			auth.process (_m);
+
+			var user = _m.m.from.ep.i;
+			/*
+			 * 'auth' is the first PDU we get when a new user 
+			 *  connects. The 'from' should identify the user. */
+
+			if (!users.add_user (user, _m.sock))
+				return _m.nack('error', 'कितनी बार आओगे ?');
+
+			auth.process (user);
+			_m.sock.conn_handle.set_user (user);
+
+			resources.notify ('auth', _m.m.from);
+			_m.ack('ok', 'तथास्तु');
+
+			users.all_but (user).forEach (function (curr) {
+				var sock = curr.sock;
+				cc.send_info (sock, curr.user, 'framework', 'auth', 'new-entry', curr.user);
+			});
+
 			break;
 
 		default :

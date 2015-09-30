@@ -1,0 +1,16 @@
+{ 
+	"common" : {
+	},
+
+	"resources" : [
+		{
+			"name" : "av-test",
+			"custom" : { 
+				"random_string" : "This one is coming from the Session Info"
+			}
+		},
+		{
+			"name" : "notify-box"
+		}
+	]
+}

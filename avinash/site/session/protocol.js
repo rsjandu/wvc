@@ -66,8 +66,10 @@ prot.command_pdu = function (to_user, module, from_user, target, op) {
 prot.info_pdu = function (to_user, to_module, from_module, info_id, info) {
 	var m = {};
 
-	if (!to_user || !from_user || !info_id || !info) {
-		log.error ('command_pdu: null argument(s): to_user - ' + to_user + ', from_user - ' + from_user + ', info_id - ' + info_id + ', info -' + info);
+	if (!to_user || !to_module || !from_module || !info_id || !info) {
+		log.error ('command_pdu: null argument(s): to_user - ' + to_user + ', to_module -' + to_module +
+				   ', from_module - ' + from_module + ', info_id - ' + info_id +
+				   ', info -' + info);
 		return null;
 	}
 
@@ -93,9 +95,9 @@ prot.info_pdu = function (to_user, to_module, from_module, info_id, info) {
 
 	if (to_user instanceof Array)
 		for (i = 0; i < to_user.length; i++)
-	m.to.ep.i.push(to_user[i]);
+			m.to.ep.i.push(to_user[i]);
 	else
-		m.to.ep.i.push(to_user);
+			m.to.ep.i.push(to_user);
 
 	m.from = {
 		ep : {
@@ -147,6 +149,23 @@ prot.ack_pdu = function (message, status, data) {
 	};
 
 	return m;
+};
+
+prot.print = function (m) {
+	var to;
+
+	if (m.type === 'ack')
+		to = m.to.ep.i;
+	else
+		to = m.to.ep.i.reduce (function (prev, curr) {
+			return prev + (curr ? ',' + curr : '');
+		});
+
+	log.debug ('___ PDU DUMP ____');
+	log.debug ('  + v' + m.v + ' ' + m.type + '.' + m.seq);
+	log.debug ('  + ' + m.to.ep.t + ':' + to + '-' + m.to.res + ' -> ' +
+			          m.from.ep.t + ':' + m.from.ep.i + '-' + m.from.res);
+	log.debug ('  + ' + JSON.stringify(m.msg));
 };
 
 module.exports = prot;
