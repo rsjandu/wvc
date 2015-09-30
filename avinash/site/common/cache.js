@@ -10,6 +10,7 @@ var cache = {};
 cache.connected = false;
 cache.key_expire_time = 7 * 24 * 60 * 60; /* 7 days */
 
+/*
 redis.on('connect', function () {
 				cache.connected = true;
 				log.info('Connection to Redis Cache ok');
@@ -28,8 +29,12 @@ redis.on('close', function () {
 redis.on('reconnecting', function () {
 				log.info('Re-connecting to Redis Cache ...');
 		});
+*/
 
 cache.init = function (namespace, expire) {
+/*
+ * Disabling this for now, due to irritating reconnect messages
+ *
 		return {
 				set : function (key, value) {
 						if (!cache.connected) {
@@ -57,6 +62,7 @@ cache.init = function (namespace, expire) {
 					redis.del (key);
 				}
 		};
+*/
 };
 
 cache.invalidate = function () {
