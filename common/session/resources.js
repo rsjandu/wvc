@@ -34,10 +34,33 @@ res.load = function (sess_config) {
 };
 
 res.notify = function (what, data) {
+	var _d = $.Deferred ();
+	var d_arr = [];
+	var info = {};
+
 	for (var m in list) {
 		if (list[m].handle.notify)
-			list[m].handle.notify (what, data);
+			d_arr.push ( list[m].handle.notify (what, data) );
 	}
+
+	$.when.apply($, d_arr)
+		.then (
+			function () {
+				var i = 0;
+				for (var m in list) {
+					var module_info = arguments[i++];
+					info[m] = module_info;
+				}
+
+				_d.resolve (info);
+			},
+			function (err) {
+				log.error ('resources:notify: err = ' + err);
+				_d.resolve (info);
+			}
+		);
+	
+	return _d.promise ();
 };
 
 module.exports = res;
