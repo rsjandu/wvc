@@ -1,6 +1,7 @@
 var log             = require("../common/log");
 var config          = require("../config");
 var sess_config     = require("./sess-config");
+var $               = require('jquery-deferred');
 
 var list = {};
 var res = {};
@@ -59,7 +60,7 @@ res.notify = function (what, data) {
 				_d.resolve (info);
 			}
 		);
-	
+
 	return _d.promise ();
 };
 
