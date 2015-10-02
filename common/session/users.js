@@ -1,42 +1,49 @@
-var events          = require('./events');
 var log             = require("../common/log");
 var config          = require("../config");
+var addr            = require("./addr");
 
 var list_active = {};
+var list_removed = {};
 var users = {};
 
-events.on ('connection:closed', function (user) {
-	if (!list_active[user]) {
-		log.error ('user: on connection:closed - no user = ' + user);
-		return;
-	}
-	delete list_active[user];
-	log.info ('user: on connection:closed - removed user: ' + user);
-});
-
-users.add_user = function (user, sock) {
+users.add_user = function (user, conn) {
 	if (list_active[user])
 		return false;
 
 	list_active[user] = {};
 	list_active[user].user = { name : user };
-	list_active[user].sock = sock;
+	list_active[user].conn = conn;
 
-	return list_active[user];
+	return true;
 };
 
-users.all_but = function (user) {
+users.remove_user = function (user) {
+	if (!list_active[user])
+		return false;
+
+	list_removed[user] = {};
+	list_removed[user].user = { name : user };
+
+	delete list_active[user];
+
+	log.info ('user \"' + user + '\" removed');
+
+	return true;
+};
+
+users.broadcast_info = function (from, to, info_id, info, except) {
 	var list = [];
 
 	for (var u in list_active) {
 
-		if (list_active[u].user.name == user)
-			continue;
+		if (except)
+			if (list_active[u].user.name == except)
+				continue;
 
-		list.push (list_active[u]);
+		var user = list_active[u];
+		to = addr.prepend (to, 'user', user.user.name);
+		user.conn.send_info (from, to, info_id, info);
 	}
-
-	return list;
 };
 
 module.exports = users;

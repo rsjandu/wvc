@@ -60,64 +60,6 @@ define(function(require) {
 	};
 
 	/*
-	 * Command structure for the resource:
-	 * 	{
-	 * 		to: <address>,
-	 * 		type: req|info,
-	 *		msg: <message>
-	 *	}
-	 *
-	 *	"caller" just like "to" is of the form:
-	 *		recource-name[:instance #]
-	 */
-
-	framework.send_command = function (caller, command) {
-		var _d = $.Deferred ();
-
-		if (!modules[caller]) {
-			_d.reject ('Unlisted module : ' + caller);
-			return _d.promise ();
-		}
-
-		var user_id  = command.to.split(':')[0];
-		var instance = command.to.split(':')[1];
-
-		/*
-		 * TODO: There should be a perms check here, to see
-		 * if this user:resource is allowed this action. */
-
-		command.type = 'req';
-		command.to   = user_id + ':' + caller + (instance ? ':' + instance : '');
-		command.from = identity.name + ':' + caller;
-
-		cc.send_command (command)
-			.then (
-				_d.resolve.bind(_d),
-				_d.reject.bind(_d)
-			);
-
-		return _d.promise ();
-	};
-
-	framework.send_info = function (caller, info) {
-		if (!modules[called]) {
-			log.error ('Unlisted module : ' + caller);
-			return false;
-		}
-
-		/*
-		 * TODO: There should be a perms check here, to see
-		 * if this user:resource is allowed to send a broadcast
-		 * message. */
-
-		info.type = 'info';
-		info.to = 'user:' + command.to + ':' + caller;
-		info.from = identity.name + ':' + caller;
-
-		return cc.send_info (info);
-	};
-
-	/*
 	 * Called by the CC module to deliver an incoming req.
 	 * Should return a promise. */
 
@@ -168,12 +110,11 @@ define(function(require) {
 	/*
 	 * returns a promise
 	 */
-	function send_command (user, target, op) {
+	function send_command (user, sub_resource, op) {
 		var _d      = $.Deferred ();
-		var from    = indentity.name;
-		var command = protocol.command_pdu (user, this.module_name, from, target, op);
 
-		cc.send_command (command)
+		var to = 'user:' + user + '.resource:' + this.module_name;
+		cc.send_command (to, sub_resource, op, this.module_name)
 			.then (
 				_d.resolve.bind(_d),
 				_d.reject.bind(_d)

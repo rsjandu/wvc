@@ -41,18 +41,33 @@ define(function(require) {
 		
 		log.info ('Auth to ws://' + host + ':' + port);
 
-		var message = protocol.auth_pdu (identity.name);
+		var from = 'user:' + identity.name;
+		var message = protocol.auth_pdu ('controller.auth', from, {});
 
 		message.seq = seq++;
 
 		return send (message, true);
 	};
 
-	cc.send_command = function (message) {
-		
-		message.seq = seq++;
+	cc.send_command = function (to, sub_resource, op, from_module) {
+		var _d = $.Deferred ();
+		var from = 'user:' + identity.name + 'resource:' + from_module;
 
-		return send (message, true);
+		var message = prot.command_pdu (to, sub_resource, op, from);
+		if (!message) {
+			_d.reject ('protocol parse error');
+			return _d.promise ();
+		}
+
+		message.seq = ++seq;
+
+		send (message, true)
+			.then (
+				_d.resolve.bind(_d),
+				_d.reject.bind(_d)
+			);
+
+		return _d.promise ();
 	};
 
 	cc.send_info = function (message) {
@@ -101,17 +116,12 @@ define(function(require) {
 			message = protocol.parse (e.data);
 		}
 		catch (ex) {
-			if (ex.who === 'protocol') {
-				if (message.type === 'req')
-					ack (message, 'error', ex.reson);
-			}
-
 			log.error ('protocol error = ', ex);
 			return;
 		}
 
 		/* is the message addressed to me ? */
-		if (!addressed_to_me (message)) {
+		if (!addressed_to_me (message.to)) {
 			log.error ('RX: illegal to addr (' + message.to + '): message = ', message);
 
 			if (message.type === 'req')
@@ -145,10 +155,10 @@ define(function(require) {
 		log.error ('socket close : NOT IMPLEMENTED');
 	}
 
-	function addressed_to_me (message) {
-		var ep = message.to.ep;
+	function addressed_to_me (to) {
+		var _to = to.split(':');
 
-		if (ep.t == 'user' && ep.i == identity.name)
+		if ((_to[0] === 'user') && (_to[1] == identity.name))
 			return true;
 
 		return false;

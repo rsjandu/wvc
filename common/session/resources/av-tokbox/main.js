@@ -13,22 +13,15 @@ av_tokbox.init = function (myinfo, common, handles) {
 	return _d.promise ();
 };
 
-av_tokbox.notify = function (what, data) {
+av_tokbox.init_user = function (user) {
 	var _d = $.Deferred ();
 
-	switch (what) {
-		case 'auth':
-			log.info ('av-tokbox: got informed: new user: ' + data.ep.i + ' (sender: ' + data.res + ')');
-			/*
-			 * Do your thing .. */
-
-			_d.resolve (data);
-			break;
-
-		default:
-			log.error ('unknown notification \"' + what + '\", data : ' + JSON.stringify(data, null, 2));
-			return;
-	}
+	_d.resolve ({ 
+		u : user,
+		service : 'tokbox',
+		login : 'randomloginscreen',
+		room : 'random-room-name'
+	});
 
 	return _d.promise ();
 };

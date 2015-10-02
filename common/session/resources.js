@@ -1,3 +1,4 @@
+var $               = require("jquery-deferred");
 var log             = require("../common/log");
 var config          = require("../config");
 var sess_config     = require("./sess-config");
@@ -33,33 +34,47 @@ res.load = function (sess_config) {
 	}
 };
 
-res.notify = function (what, data) {
+res.init_user = function (user) {
 	var _d = $.Deferred ();
 	var d_arr = [];
 	var info = {};
+	var info_err  = {};
+	var counter = 0;
 
-	for (var m in list) {
-		if (list[m].handle.notify)
-			d_arr.push ( list[m].handle.notify (what, data) );
+	function mod_ok (m, data) {
+		info[m] = data;
+		counter--;
+		if (!counter)
+			finish ();
 	}
 
-	$.when.apply($, d_arr)
-		.then (
-			function () {
-				var i = 0;
-				for (var m in list) {
-					var module_info = arguments[i++];
-					info[m] = module_info;
-				}
+	function mod_err (m, err) {
+		info_err[m] = err;
+		counter--;
+		if (!counter)
+			finish ();
+	}
 
-				_d.resolve (info);
-			},
-			function (err) {
-				log.error ('resources:notify: err = ' + err);
-				_d.resolve (info);
-			}
-		);
-	
+	function finish () {
+		_d.resolve ({
+			info : info,
+			info_err : info_err
+		});
+	}
+
+	for (var m in list) {
+		if (list[m].handle.init_user) {
+			counter++;
+
+			var d_mod = list[m].handle.init_user (user);
+
+			d_mod.then (
+				mod_ok.bind(d_mod, m),
+				mod_err.bind(d_mod, m)
+			);
+		}
+	}
+
 	return _d.promise ();
 };
 

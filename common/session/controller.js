@@ -1,45 +1,81 @@
 var WebSocketServer = require('ws').Server;
+var $               = require('jquery-deferred');
 var log             = require("../common/log");
 var config          = require("../config");
 var auth            = require("./auth");
 var resources       = require("./resources");
+var protocol        = require("./protocol");
 var users           = require("./users");
-var cc              = require("./cc");
+var addr            = require("./addr");
+var connection      = require('./connection');
+
+connection.events.on ('closed', function (user) {
+	handle_user_remove (user);
+});
 
 controller = {};
-controller.process = function (_m) {
+controller.process = function (conn, from, to, msg) {
 
-	switch (_m.m.to.res) {
+	var _d = $.Deferred ();
+	/*
+	 * format of addresses (from/to):
+	 * 		resourceA[:instanceA][resourceB[:instanceB]] ... */
+
+	var _to = addr.inspect_top(to);
+
+	switch (_to.resource) {
 
 		case 'auth' :
 
-			var user = _m.m.from.ep.i;
-			/*
-			 * 'auth' is the first PDU we get when a new user 
-			 *  connects. The 'from' should identify the user. */
-
-			if (!users.add_user (user, _m.sock))
-				return _m.nack('error', 'कितनी बार आओगे ?');
-
-			auth.process (user);
-			_m.sock.conn_handle.set_user (user);
-
-			resources.notify ('auth', _m.m.from);
-			_m.ack('ok', 'तथास्तु');
-
-			users.all_but (user).forEach (function (curr) {
-				var sock = curr.sock;
-				cc.send_info (sock, curr.user, 'framework', 'auth', 'new-entry', curr.user);
-			});
-
+			handle_auth (_d, conn, from, msg);
 			break;
 
 		default :
-			log.error ('illegal to.res = ' + _m.m.to.res);
-			log.error ('    message = ' + JSON.stringify(_m.m, null, 2));
-			_m.send_error ('controller', 'error', 'illegal to.res');
-			return;
+			log.error ('illegal to.resource = ' + to.resource);
+			_d.reject ('illegal to.reource', 'controller');
+			return _d.promise ();
 	}
+
+	return _d.promise ();
 };
+
+function handle_auth (_d, conn, from, msg) {
+
+	var user = protocol.get_user_from_addr (from);
+
+	/*
+	 * 'auth' is the first PDU we get when a new user 
+	 *  connects. */
+
+	if (!user)
+		return _d.reject ('no user', 'auth');
+
+	if (!users.add_user (user, conn))
+		return _d.reject ('कितनी बार आओगे ?', 'auth');
+
+	if (!auth.process (user)) {
+		users.remove_user (user);
+		return _d.reject ('auth failed', 'auth');
+	}
+
+	if (!conn.set_user (user)) {
+		users.remove_user (user);
+		return _d.reject ('internal error', 'connection');
+	}
+
+	resources.init_user (user)
+		.then (
+			function (info) {
+				_d.resolve (info);
+				users.broadcast_info ('controller', null, 'new-johnny', user, user);
+			}
+		);
+
+}
+
+function handle_user_remove (user) {
+	users.remove_user (user);
+	users.broadcast_info ('controller', null, 'johnny-go-went-gone', user, null);
+}
 
 module.exports = controller;

@@ -8,82 +8,56 @@ define(function(require) {
 		var message = JSON.parse(e); 
 
 		if (message.v !== 1)
-			throw {
-				who     : 'protocol',
-				reason  : 'illegal protocol v'
-			};
+			throw new Error ('illegal protocol v');
+
+		if (!message.to || !message.from)
+			throw new Error ('illegal protocol (from/to) address');
+
+		if ((message.type != 'auth') &&
+			(message.type != 'req') &&
+			(message.type != 'info') &&
+			(message.type != 'ack'))
+			throw new Error ('illegal protocol message type');
 
 		return message;
 	};
 
-	prot.command_pdu = function (to_user, module, from_user, target, op) {
+	prot.command_pdu = function (to, sub_resource, op, from) {
 		var m = {};
 
-		if (!to_user || !from_user || !target || !op) {
-			log.error ('command_pdu: null argument(s): to_user - ' + to_user + ', from_user - ' + from_user + ', target - ' + target + ', op -' + op);
+		if (!to || !sub_resource || !op || !from) {
+			log.error ('command_pdu: null argument(s): ' +
+					   		'to = ' + to +
+					   		', sub_resource = ' + sub_resource +
+					   		', op = ' + op +
+					   		', from = ' + from
+					  );
+
 			return null;
 		}
 
 		m.v     = '1';
 		m.type  = 'req';
 
-		/*
-		 * "to" is of the form:
-		 * 		{
-		 * 			ep:	{
-		 * 					t : type ==> 'user' | 'server'
-		 * 					i : identifier (NA in case of 'server' and is an array:
-		 * 							- [ name1, name2 .. ]
-		 * 							- [ * ]
-		 * 				}
-		 * 			res : resource-name
-		 * 		}
-		 */
-
-		m.to     = {};
-		m.to.ep  = { t : 'user', i : [] };
-		m.to.res = module;
-
-		if (to_user instanceof Array)
-			for (i = 0; i < to_user.length; i++)
-				m.to.ep.i.push(to_user[i]);
-		else
-				m.to.ep.i.push(to_user);
-
-		m.from = {
-			ep : {
-				t : 'user',
-				i : from_user
-			},
-			res : module
-		};
+		m.to    = to;
+		m.from  = from;
 
 		m.msg  = {
-			target : target,
+			target : sub_resource,
 			op     : op
 		};
 
 		return m;
 	};
 
-	prot.auth_pdu = function (from_user) {
+	prot.auth_pdu = function (to, from, data) {
 		var m = {};
 
 		m.v = 1;
 		m.type = 'req';
-		m.to = {};
-		m.to.ep = { t : 'controller', i : [ '0' ]};
-		m.to.res = 'auth';
-
-		m.from = {
-			ep : {
-				t : 'user',
-				i : from_user
-			},
-			res : 'framework'
-		};
-
-		m.msg = {};
+		m.to = to;
+		m.from = from;
+		m.msg = data;
 
 		return m;
 	};

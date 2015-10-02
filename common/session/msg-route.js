@@ -1,31 +1,40 @@
 var WebSocketServer = require('ws').Server;
+var $               = require("jquery-deferred");
 var log             = require("../common/log");
 var config          = require("../config");
-var cc              = require("./cc");
+var addr            = require("./addr");
 var controller      = require("./controller");
 
 route = {};
-route.route = function (_m) {
+route.route_req = function (conn, from, to, msg) {
 
+	var _d = $.Deferred ();
 	/*
-	 *
-	 * REMEMBER 
-	 * 	TO CONVERT ALL '*' TO ADDRESSES TO SPECIFIC ADDRESSES
-	 *
-	 */
-	switch (_m.m.to.ep.t) {
+	 * format of addresses (from/to):
+	 * 		resourceA[:instanceA][resourceB[:instanceB]] ... */
+
+	var _to = addr.inspect_top (to);
+
+	switch (_to.resource) {
 		case 'user' :
-			_m.nack ('msg-route', 'error', 'not implemented');
+			_d.reject ('not implemented', 'msg-route');
 			return;
 
 		case 'controller' :
-			controller.process (_m);
+
+			controller.process (conn, from, addr.pop(to), msg)
+				.then (
+					_d.resolve.bind(_d),
+					_d.reject.bind(_d)
+				);
 			break;
 
 		default:
-			_m.nack (m, 'msg-route', 'error', 'unknown recipient');
+			_d.reject ('bad address', 'msg-route');
 			return;
 	}
+
+	return _d.promise ();
 };
 
 module.exports = route;

@@ -2,12 +2,25 @@ var EventEmitter    = require('events').EventEmitter;
 var emitter = new EventEmitter();
 
 var events = {};
-events.emit = function (e, data) {
-	emitter.emit ('global:' + e, data);
-};
+function emit (prefix, e, data) {
+	log.debug ('event - EMIT - ' + prefix + '.' + e);
+	emitter.emit (prefix + '.' + e, data);
+}
 
-events.on = function (e, callback) {
-	emitter.on ('global:' + e, callback);
-};
+function on (prefix, e, callback) {
+	emitter.on (prefix + '.' + e, function (data) {
+		log.debug ('event - TRIG - ' + prefix + '.' + e + ', data = ', data);
+		callback (data);
+	});
+}
 
-module.exports = events;
+function ev (name) {
+	var prefix = name;
+
+	return {
+		emit : emit.bind(this, prefix),
+		on   : on.bind(this, prefix),
+	};
+}
+
+module.exports = ev;

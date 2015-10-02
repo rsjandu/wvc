@@ -1,3 +1,5 @@
+var $               = require("jquery-deferred");
+
 var av_test = {};
 var log;
 
@@ -7,17 +9,15 @@ av_test.init = function (myinfo, common, handles) {
 	log.info ('av-test: init ok');
 };
 
-av_test.notify = function (what, data) {
+av_test.init_user = function (user) {
+	var _d = $.Deferred ();
 
-	switch (what) {
-		case 'auth':
-			log.info ('av-test: got informed: new user: ' + data.ep.i + ' (sender: ' + data.res + ')');
-			break;
+	_d.reject ({
+		u : user,
+		comment : 'this is a test string from the av-test module'
+	});
 
-		default:
-			log.error ('unknown notification \"' + what + '\", data : ' + JSON.stringify(data, null, 2));
-			return;
-	}
+	return _d.promise ();
 };
 
 av_test.session_info = function () {

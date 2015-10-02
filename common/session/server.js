@@ -8,7 +8,7 @@ var config          = require("../config");
 var sess_config     = require("./sess-config");
 var cc              = require("./cc");
 var resources       = require("./resources");
-var route           = require("./msg-route");
+var connection      = require("./connection");
 var port            = config.session_server.default_port;
 
 function start () {
@@ -25,7 +25,7 @@ function start () {
 		}
 
 		resources.load (data);
-		cc.init (server, route, data);
+		cc.init (server, connection, data);
 	});
 }
 

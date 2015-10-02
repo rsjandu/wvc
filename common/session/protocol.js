@@ -10,6 +10,9 @@ prot.parse = function (e) {
 	if (message.v !== 1)
 		throw new Error ('illegal protocol');
 
+	if ((message.type != 'req') && (message.type != 'info'))
+		throw new Error ('illegal type');
+
 	return message;
 };
 
@@ -63,49 +66,23 @@ prot.command_pdu = function (to_user, module, from_user, target, op) {
 	return m;
 };
 
-prot.info_pdu = function (to_user, to_module, from_module, info_id, info) {
+prot.info_pdu = function (from, to, info_id, info) {
 	var m = {};
 
-	if (!to_user || !to_module || !from_module || !info_id || !info) {
-		log.error ('command_pdu: null argument(s): to_user - ' + to_user + ', to_module -' + to_module +
-				   ', from_module - ' + from_module + ', info_id - ' + info_id +
-				   ', info -' + info);
+	if (!to || !from || !info_id || !info) {
+		log.error ('protocol.info_pdu: null arguments(s):' +
+				   'to - ' + to +
+				   'from - ' + from +
+				   'info_id - ' + info_id +
+				   'info - ' + info
+				  );
 		return null;
 	}
 
 	m.v     = '1';
 	m.type  = 'info';
-
-	/*
-	 * "to" is of the form:
-	 * 		{
-	 * 			ep:	{
-	 * 					t : type ==> 'user' | 'server'
-	 * 					i : identifier (NA in case of 'server' and is an array:
-	 * 							- [ name1, name2 .. ]
-	 * 							- [ * ]
-	 * 				}
-	 * 			res : resource-name
-	 * 		}
-	 */
-
-	m.to     = {};
-	m.to.ep  = { t : 'user', i : [] };
-	m.to.res = to_module;
-
-	if (to_user instanceof Array)
-		for (i = 0; i < to_user.length; i++)
-			m.to.ep.i.push(to_user[i]);
-	else
-			m.to.ep.i.push(to_user);
-
-	m.from = {
-		ep : {
-			t : 'controller'
-		},
-		res : from_module
-	};
-
+	m.to    = to;
+	m.from  = from;
 	m.msg  = {
 		info_id : info_id,
 		info    : info
@@ -136,13 +113,13 @@ prot.auth_pdu = function (from_user) {
 	return m;
 };
 
-prot.ack_pdu = function (message, status, data) {
+prot.ack_pdu = function (message, status, data, from) {
 	var m = {};
 
 	m.v = 1;
 	m.type = 'ack';
 	m.to   = message.from;
-	m.from = message.to;
+	m.from = (from ? from : message.to);
 	m.msg  = {
 		status : status,
 		data   : data
@@ -153,19 +130,38 @@ prot.ack_pdu = function (message, status, data) {
 
 prot.print = function (m) {
 	var to;
+	log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
+	log.debug ('     ' + JSON.stringify(m.msg));
+};
 
-	if (m.type === 'ack')
-		to = m.to.ep.i;
-	else
-		to = m.to.ep.i.reduce (function (prev, curr) {
-			return prev + (curr ? ',' + curr : '');
-		});
+prot.make_addr = function (user, resource, instance) {
+	if (!user) {
+		log.error ('protocol.make_addr: null user');
+		return null;
+	}
 
-	log.debug ('___ PDU DUMP ____');
-	log.debug ('  + v' + m.v + ' ' + m.type + '.' + m.seq);
-	log.debug ('  + ' + m.to.ep.t + ':' + to + '-' + m.to.res + ' -> ' +
-			          m.from.ep.t + ':' + m.from.ep.i + '-' + m.from.res);
-	log.debug ('  + ' + JSON.stringify(m.msg));
+	var _u = 'user:' + user;
+	var _r = '';
+	var _i = '';
+
+	if (resource)
+		_r = '.' + resource;
+
+	if (instance)
+		_i = ':' + instance;
+
+	return _u + _r + _i;
+};
+
+prot.get_user_from_addr = function (addr) {
+	/* Addresses should be of the form
+	 * 		- 'user.<user-name>[.resource.<res-name>][.instance.<instance>] */
+
+	var s = addr.split(':');
+	if (s[0] != 'user')
+		return null;
+
+	return s[1];
 };
 
 module.exports = prot;

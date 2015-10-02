@@ -1,8 +1,8 @@
 var WebSocketServer = require('ws').Server;
+var $               = require("jquery-deferred");
 var log             = require("../common/log");
 var config          = require("../config");
 var protocol        = require("./protocol");
-var connection      = require("./connection");
 
 var wss;
 
@@ -23,7 +23,7 @@ cc.init = function (server, route, sess_config) {
 	wss.on('connection', function (ws) {
 
 		/* Add connection to list */
-		ws.conn_handle = new connection (ws);
+		upstream.new_connection (ws);
 
 		ws.on ('message', function (message) {
 			handle_incoming (ws, message);
@@ -34,22 +34,20 @@ cc.init = function (server, route, sess_config) {
 		});
 
 		ws.on ('close', function (err) {
-			ws.conn_handle.close ();
+			upstream.close (ws);
 		});
 	});
 };
 
-cc.send_info = function (sock, to_user, to_module, from_module, info_id, info) {
-	var m = protocol.info_pdu (to_user, to_module, from_module, info_id, info);
+cc.send_info = function (sock, from, to, info_id, info) {
+	var m = protocol.info_pdu (from, to, info_id, info);
 	m.seq = seq++;
-	sock.send (m);
-	log.debug ('sent info: ' + JSON.stringify(m, null, 2));
+	log.debug ('cc.send_info: to ' + to);
+	sock.send (JSON.stringify(m));
 	protocol.print(m);
-	sock.conn_handle.show();
 };
 
 function verify (info, callback) {
-	log.info ('Incoming ' + info.origin + ' ' + info.req.url);
 	callback (true, 0, null);
 }
 
@@ -66,52 +64,39 @@ function handle_incoming (ws, message) {
 
 	protocol.print(m);
 
-	var _m = {
-		m          : m,
-		sock       : ws,
-		nack       : nack,
-		ack        : ack
-	};
+	switch (m.type) {
 
-	upstream.route (_m);
-}
+		case 'req':
+			upstream.route_req (ws, m.from, m.to, m.msg)
+				.then (
+					function (data) {
+						ack (ws, m, data);
+					},
+					function (data, from) {
+						nack (ws, m, data, from);
+					}
+				);
 
-function nack (from_module, info_id, info) {
-
-	switch (this.m.type) {
-		case 'req' :
-			this.ack ('error', info);
 			break;
 
-		/*
-		 * If this wasn't a request then the originator of this 
-		 * message isn't expecting an ACK. Just construct an unsolicited INFO
-		 * message and send. */
-
-		default :
-			var to_user = this.m.to.ep.i;
-			var to_module = this.m.to.ep.res;
-			if (!to_user || !to_module) {
-				log.warn ('no user/module to send_error to');
-				log.warn ('    message = ' + JSON.stringify(this.m, null, 2));
-				return;
-			}
-
-			var m = prot.info_pdu (to_user, to_module, from_module, info_id, info);
-			var sock = this.sock;
-
-			m.seq = seq++;
-			sock.send (JSON.stringify(m));
-			log.debug ('sent nack (info)');
-			protocol.print(m);
+		case 'info':
+			upstream.route_info (_m);
+			break;
 	}
 }
 
-function ack (status, data) {
-	var m = protocol.ack_pdu (this.m, status, data);
-	var sock = this.sock;
+function ack (sock, _m, data) {
+	return __ack (sock, _m, 'ok', data);
+}
 
-	m.seq = this.m.seq;
+function nack (sock, _m, data, from) {
+	return __ack (sock, _m, 'not-ok', data, from);
+}
+
+function __ack (sock, _m, status, data, from) {
+	var m = protocol.ack_pdu (_m, status, data, from);
+
+	m.seq = _m.seq;
 	sock.send(JSON.stringify(m));
 
 	log.debug ('sent ack');

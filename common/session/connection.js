@@ -1,53 +1,91 @@
 var url             = require('url');
 var log             = require("../common/log");
-var events          = require('./events');
+var events          = require('./events')('connection');
+var cc              = require('./cc');
 
-var counter = 1;
+var sock_id = 1;
 var list = {};
 
 function set_user (user) {
-	var conn_id = this.conn_id;
+	var conn_id = this.c.id;
 
 	if (!list[conn_id]) {
 		log.error ('connection:set_user: unknown conn_id = ' + conn_id);
-		return;
+		return false;
 	}
 
-	list[conn_id].user = user;
+	this.c.user = user;
+	return true;
 }
 
 function close () {
-	log.debug ('connection: closed: removing conn_id = ' + this.id);
-	events.emit ('connection:closed', this.user);
-	delete list[this.id];
+	log.debug ('connection: closed: removing connection # ' + this.c.id);
+	events.emit ('closed', this.c.user);
+	delete list[this.c.id];
 }
 
-function show_conn () {
-	log.debug ('____ connection info ____');
-	log.debug ('    id       : ' + this.id);
-	log.debug ('    user     : ' + this.user);
-	log.debug ('    state    : ' + this.state);
-	log.debug ('    location : ' + this.id);
+function show_conn (c, comment) {
+	if (!c)
+		c = this.c;
+
+	if (comment)
+		comment = ' (' + comment +') ';
+
+	log.debug ('connection' + comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.user ? c.user : '-') + ')');
 }
 
-module.exports = function (sock) {
+function send_info (from, to, info_id, info) {
+	var user = this.c.user;
+
+	cc.send_info (this.c.sock, from, to, info_id, info);
+}
+
+var connection = {};
+
+connection.route_req = function (sock, from, to, msg) {
+	/*
+	 * A hack to resolve the circular dependencies. TODO: clean
+	 * this up. */
+	var msg_route = require ('./msg-route');
+	return msg_route.route_req (sock.conn_handle, from, to, msg);
+};
+
+connection.events = events;
+connection.close  = function (sock) {
+	var conn_handle = sock.conn_handle;
+	conn_handle.close ();
+};
+
+connection.new_connection = function (sock) {
 
 	var location = url.parse (sock.upgradeReq.url, true);
 	var c = {
-		id       : counter++,
+		id       : sock_id++,
 		sock     : sock,
 		location : location.path,
+		addr     : sock.upgradeReq.connection.remoteAddress,
+		port     : sock.upgradeReq.connection.remotePort,
 		state    : 'connected'
 	};
+
+	show_conn(c, 'new');
 
 	if (list[c.id])
 		log.error ('connection:new: possibly over-writing connection info: id = ' + c.id);
 
 	list[c.id] = c;
-	return {
-		conn_id  : c.id,
-		set_user : set_user,
-		close    : close,
-		show     : show_conn
+
+	var handle =  {
+		c         : c,
+		send_info : send_info,
+		show_conn : show_conn,
+		set_user  : set_user,
+		close     : close
 	};
+
+	sock.conn_handle = handle;
+
+	return handle;
 };
+
+module.exports = connection;
