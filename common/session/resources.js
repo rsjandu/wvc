@@ -2,6 +2,7 @@ var $               = require("jquery-deferred");
 var log             = require("../common/log");
 var config          = require("../config");
 var sess_config     = require("./sess-config");
+var $               = require('jquery-deferred');
 
 var list = {};
 var res = {};
