@@ -42,7 +42,6 @@ cc.init = function (server, route, sess_config) {
 cc.send_info = function (sock, from, to, info_id, info) {
 	var m = protocol.info_pdu (from, to, info_id, info);
 	m.seq = seq++;
-	log.debug ('cc.send_info: to ' + to);
 	sock.send (JSON.stringify(m));
 	protocol.print(m);
 };

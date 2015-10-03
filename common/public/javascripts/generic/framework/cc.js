@@ -15,7 +15,7 @@ define(function(require) {
 	var _req_channel;
 	var msg_q = {};
 
-	cc.init = function (sess_config, framwork_handle) {
+	cc.init = function (framwork_handle, sess_config) {
 
 		log.info ('init : args = ', sess_config);
 		var _d = $.Deferred ();
@@ -77,6 +77,7 @@ define(function(require) {
 		return send (message, false);
 	};
 
+
 	/*----------------------------------------------------------------
 	 * Internals
 	 *----------------------------------------------------------------*/
@@ -109,7 +110,6 @@ define(function(require) {
 	}
 
 	function on_message (e) {
-		log.info ('on_message : ' + e.data);
 		var message;
 
 		try {
@@ -156,7 +156,7 @@ define(function(require) {
 	}
 
 	function addressed_to_me (to) {
-		var _to = to.split(':');
+		var _to = to.split('.')[0].split(':');
 
 		if ((_to[0] === 'user') && (_to[1] == identity.name))
 			return true;
@@ -216,7 +216,8 @@ define(function(require) {
 		 * is an 'info' type message, which requires no ACK, we don't
 		 * expect any promise from the framework. */
 
-		_req_channel.rx_info (message);
+		message.to = message.to.replace(/^[^\.]\./, '');
+		_req_channel.rx_info (message.from, message.to, message.msg.info_id, message.msg.info);
 	}
 
 	function ack (m, status, data) {

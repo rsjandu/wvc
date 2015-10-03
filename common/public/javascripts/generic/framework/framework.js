@@ -12,7 +12,7 @@ define(function(require) {
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
 
-		log.log ('init called');
+		log.log ('init called with ', sess_config);
 		__probe_layout();
 
 		_d.resolve(sess_config);
@@ -59,6 +59,44 @@ define(function(require) {
 		return _d.promise();
 	};
 
+	framework.start_module = function (session_info, _module) {
+		var name = _module.name;
+
+		if (!_module.handle.start) {
+			log.error ('module \"' + name + '\": \"start\" method undefined');
+			return;
+		}
+
+		if (!session_info.info[name]) {
+			log.error ('module \"' + name + '\": session info not defined');
+			return;
+		}
+
+		log.info ('starting module \"' + name + '\" ...');
+
+		try { _module.handle.start (session_info.info[name]); }
+		catch (e) {
+			log.error ('module \"' + name + '\": start err = ' + e);
+		}
+	};
+
+	var _d_start;
+	framework.wait_for_start = function () {
+		_d_start = $.Deferred ();
+
+		/*
+		 * Nothing to be done here, except when we recieve the 
+		 * message from the session controller. We trigger this
+		 * promise then. */
+
+		return _d_start.promise ();
+	};
+
+	function started (sess_info) {
+		log.info ('class started : ', sess_info);
+		_d_start.resolve (sess_info);
+	}
+
 	/*
 	 * Called by the CC module to deliver an incoming req.
 	 * Should return a promise. */
@@ -89,7 +127,13 @@ define(function(require) {
 		return _d.promise ();
 	};
 
-	framework.rx_info = function (message) {
+	framework.rx_info = function (from, to, id, data) {
+
+		switch (id) {
+			case 'session-info': started (data); break;
+			default :
+				log.error ('handler for info \"' + id + '\" NOT IMPLEMENTED');
+		}
 	};
 
 	framework.handle = function (module_name) {

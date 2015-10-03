@@ -40,21 +40,14 @@ controller.get_config = function (sess_id, callback) {
 				},
 				resources : [
 					{
-						name: 'av-test',
-						display_spec: { widget: "av", template: "av-test" },
+						name: 'av-tokbox',
+						display_spec: { widget: "av", template: "av-tokbox" },
 						/*
 						 * perms must be returned per user */
 						perms: { },
 						custom: { 
 							random_string : 'नमस््कार'
 						},
-					},
-					{
-						name: 'notify-box',
-						display_spec: { widget: 'notify' },
-						/*
-						 * perms must be returned per user */
-						perms: { }
 					}
 				],
 				role_map : {

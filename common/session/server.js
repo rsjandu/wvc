@@ -5,9 +5,9 @@ var express         = require('express');
 var app             = express();
 var log             = require("../common/log");
 var config          = require("../config");
-var sess_config     = require("./sess-config");
+var sess_info       = require("./session-info");
 var cc              = require("./cc");
-var resources       = require("./resources");
+var controller      = require("./controller");
 var connection      = require("./connection");
 var port            = config.session_server.default_port;
 
@@ -18,13 +18,13 @@ function start () {
 		process.exit(1);
 	}
 
-	sess_config.load (file, function (err, data) {
+	sess_info.load (file, function (err, data) {
 		if (err) {
-			log.error ('sess_config.load: err = ' + err);
+			log.error ('sess_info.load: err = ' + err);
 			return;
 		}
 
-		resources.load (data);
+		controller.init (data);
 		cc.init (server, connection, data);
 	});
 }

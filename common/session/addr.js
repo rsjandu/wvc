@@ -10,7 +10,7 @@ addr.prepend = function (a, resource, instance) {
 	if (instance)
 		_instance = ':' + instance;
 
-	return resource + _instance + _a;
+	return resource + _instance + '.' + _a;
 };
 
 addr.append = function (a, resource, instance) {

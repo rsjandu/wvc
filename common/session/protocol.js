@@ -79,7 +79,7 @@ prot.info_pdu = function (from, to, info_id, info) {
 		return null;
 	}
 
-	m.v     = '1';
+	m.v     = 1;
 	m.type  = 'info';
 	m.to    = to;
 	m.from  = from;
@@ -129,9 +129,10 @@ prot.ack_pdu = function (message, status, data, from) {
 };
 
 prot.print = function (m) {
-	var to;
 	log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
+	/*
 	log.debug ('     ' + JSON.stringify(m.msg));
+	*/
 };
 
 prot.make_addr = function (user, resource, instance) {

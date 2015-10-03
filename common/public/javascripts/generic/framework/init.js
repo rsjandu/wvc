@@ -13,21 +13,17 @@ requirejs.config({
 define(function(require) {
 	var $    = require('jquery');
 	var core = require('core');
-	var sess_config = require('session-config');
-	var framework = require('framework');
 	var log = require('log')('init', 'info');
 
 	/*
 	 * Initialize the Core
 	 */
-	sess_config.get()
-		.then(core.init, fail)
-		.then(core.load_modules, fail)
-		.then(core.init_modules, fail)
-	;
-
-	function fail (err) {
-		log.error ('fatal : ' + err);
-	}
-
+	core.init (
+		function () {
+			log.info ('init ok');
+		},
+		function (err) {
+			log.error ('fatal : ' + err);
+		}
+	);
 });

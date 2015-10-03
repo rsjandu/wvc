@@ -25,6 +25,10 @@ define(function(require) {
 			return _d.promise();
 	};
 
+	test.start = function (sess_info) {
+		log.info ('My Stuff = ', session_info);
+	};
+
 	function send_audio_mute () {
 		f_handle.send_command ('*', 'audio.mute', 'on')
 			.then (

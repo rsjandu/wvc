@@ -4,6 +4,7 @@ var log             = require("../common/log");
 var config          = require("../config");
 var auth            = require("./auth");
 var resources       = require("./resources");
+var class_          = require("./class");
 var protocol        = require("./protocol");
 var users           = require("./users");
 var addr            = require("./addr");
@@ -13,7 +14,17 @@ connection.events.on ('closed', function (user) {
 	handle_user_remove (user);
 });
 
+class_.events.on ('active', function () {
+	users.all_waiting ().forEach (function (user) {
+		actually_join_user (user);
+	});
+});
+
 controller = {};
+controller.init = function (sess_info) {
+	class_.init (sess_info);
+};
+
 controller.process = function (conn, from, to, msg) {
 
 	var _d = $.Deferred ();
@@ -46,9 +57,11 @@ function handle_auth (_d, conn, from, msg) {
 	/*
 	 * 'auth' is the first PDU we get when a new user 
 	 *  connects. */
-
 	if (!user)
 		return _d.reject ('no user', 'auth');
+
+	if (!class_.ready ())
+		return _d.reject ('not started', 'auth');
 
 	if (!users.add_user (user, conn))
 		return _d.reject ('कितनी बार आओगे ?', 'auth');
@@ -63,14 +76,27 @@ function handle_auth (_d, conn, from, msg) {
 		return _d.reject ('internal error', 'connection');
 	}
 
+	/*
+	 * Send Ack */
+	_d.resolve ('तथास्तु');
+
+	if (class_.ready()) {
+		process.nextTick (actually_join_user.bind(null, user));
+	}
+}
+
+function actually_join_user (user) {
+
+	users.mark_joined (user);
+
 	resources.init_user (user)
 		.then (
 			function (info) {
-				_d.resolve (info);
+				users.send_info (user, 'controller', 'framework', 'session-info', info);
 				users.broadcast_info ('controller', null, 'new-johnny', user, user);
 			}
+			/* resources.init should _not_ return an error */
 		);
-
 }
 
 function handle_user_remove (user) {

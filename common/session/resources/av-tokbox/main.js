@@ -37,7 +37,7 @@ av_tokbox.init = function (myinfo, common, handles) {
       return _d.reject('opentok session creation failed');
     }
 
-	log.debug ('av-tokbox: createSession ok');
+	log.info ('av-tokbox: createSession ok');
     _session = session;
     sessionid = session.sessionId;
     key = key;

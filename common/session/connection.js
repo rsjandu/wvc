@@ -35,8 +35,6 @@ function show_conn (c, comment) {
 }
 
 function send_info (from, to, info_id, info) {
-	var user = this.c.user;
-
 	cc.send_info (this.c.sock, from, to, info_id, info);
 }
 
