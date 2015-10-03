@@ -73,8 +73,8 @@ users.broadcast_info = function (from, to, info_id, info, except) {
 			continue;
 
 		var user = list_active[u];
-		to = addr.prepend (to, 'user', user.user.name);
-		user.conn.send_info (from, to, info_id, info);
+		var _to = addr.prepend (to, 'user', user.user.name);
+		user.conn.send_info (from, _to, info_id, info);
 	}
 };
 
