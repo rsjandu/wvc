@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic Bootstrap Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<link rel="stylesheet" href="/css/boot.css" />
+<!-- Optional Bootstrap theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<!--<script src="javascripts/lib/app-bundle.js"></script>-->
+<script src="/javascripts/generic/ext/require.js", data-main='/javascripts/generic/framework/resource/av/av-user'></script>
+
+
+</head>
+<body>
+	<div class="container">
+	<div class="row">
+<div id = "jt" class="jumbotron1">
+	<div class="container-fluid">
+		<h2>VC demo using WebRTC</h2>
+		<p>Welcome to WizIQ Virtual ClassRoom. No Flash Plugins now !  Audio Video Chat demo built on WebRTC.
+		</p>
+	</div>
+	</div>
+
+
+	<nav role="navigation" class="navbar navbar-inverse navbar-fixed-bottom">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+				</button>
+
+				<div class="btn-group" role="group" aria-label="..."> 
+					<div id="joinClass" class="navbar-left">
+						<button type="button" class="btn btn-success">Join</button>
+					</div>
+					<div id="endClass" class="navbar-left">
+						<button type="button" class="btn btn-danger">End Class</button>
+					</div>
+					<div id="resizeVideo" class="navbar-left">
+						<button type="button" class="btn btn-warning">Resize Video</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Collection of nav links and other content for toggling -->
+			<div id="navbarCollapse" class="collapse navbar-collapse">
+			</div>
+		</div>
+	</nav>
+</div>
+
+	<div class="row">
+
+<div id="avContainer" class="avContainer">
+		<div id="subscribersContainer" class="subscribersContainer">
+		</div>
+		<div id="publisherContainer" class="publisherContainer" style="display:none;opacity: 0; 
+			-webkit-transition-property: opacity;
+			-webkit-transition-duration: 2s;">
+			</video>
+		</div>
+	</div>
+</div>
+</div>
+
+	</body>
+	</html>                                		

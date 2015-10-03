@@ -1,0 +1,28 @@
+module.exports = ; 
+error codes can thus be shared between frontend and backend.
+
+// flow.
+app.browserCheck()
+app.deviceCheck()
+app.networkCheck()
+app.mediaResSupported()
+app.config()
+app.init()
+app.connect()
+stream.publish()
+
+// define events below
+ui.events()
+rtc.events()
+api.commands()
+resource.events()
+app.server-msg() // from sock-io
+
+// common modules can be placed in a common directory.
+public/js/app-bundle.min.js (minified, uglified and requirified and browserified version of the combined client side javascript. Would this result in difficult debugging of javascript on browser console ?)
+error-codes()
+room-join-errors {}
+media-resolutions {}
+
+
+

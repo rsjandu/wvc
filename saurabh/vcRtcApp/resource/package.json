@@ -1,0 +1,13 @@
+{
+  "name": "vc-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "bunyan": "^1.4.0",
+    "node-uuid": "^1.4.3",
+    "opentok": "^2.3.0"
+  }
+}

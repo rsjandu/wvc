@@ -1,0 +1,28 @@
+Test warning on different browsers. Like talky.io or Jitsi meet.
+
+class config in a database.
+
+schedule class. As good as creating and reserving a room.
+create a tokbok session. save tokbox session-id. generate room-id. 
+This could be a Restful, no need of persistent socket at this time.
+
+create room
+i/p - room-name.
+o/p - roomId. mapped to tokbox sessionId.
+
+delete room
+i/p -  roomId.
+
+get roomInfo
+i/p - roomId.
+
+users start coming in. tokbox tokenid.
+create a sockio channel if token access is granted and user connected to tokbox room.
+
+get token:
+return tokenid.
+
+client steps.
+
+------
+
