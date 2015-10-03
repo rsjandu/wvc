@@ -13,6 +13,7 @@ class_.init = function (sess_info) {
 	var _d = $.Deferred ();
 
 	log.info ('class: transition ->  PROVISIONING');
+	state = 'provisioning';
 	provision (sess_info)
 		.then (
 			function () {
@@ -37,7 +38,11 @@ class_.init = function (sess_info) {
 };
 
 class_.ready = function () {
-	return state === 'active';
+	return (state === 'active') || (state === 'provisioning');
+};
+
+class_.started = function () {
+	return (state === 'active');
 };
 
 function provision (sess_info) {

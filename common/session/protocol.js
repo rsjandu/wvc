@@ -129,7 +129,12 @@ prot.ack_pdu = function (message, status, data, from) {
 };
 
 prot.print = function (m) {
-	log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
+	if (m.type === 'info')
+		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.info_id + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+	else if (m.type === 'ack')
+		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.status + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+	else
+		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
 	/*
 	log.debug ('     ' + JSON.stringify(m.msg));
 	*/

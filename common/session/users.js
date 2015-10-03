@@ -39,9 +39,10 @@ users.mark_joined = function (user) {
 users.all_waiting = function () {
 	var arr = [];
 
-	for (var u in list_active)
+	for (var u in list_active) {
 		if (list_active[u].state === 'waiting')
 			arr.push(list_active[u].user.name);
+	}
 
 	return arr;
 };
@@ -68,7 +69,7 @@ users.broadcast_info = function (from, to, info_id, info, except) {
 			if (list_active[u].user.name == except)
 				continue;
 
-		if (!joined(list[u]))
+		if (!joined(list_active[u]))
 			continue;
 
 		var user = list_active[u];

@@ -4,21 +4,12 @@
 
 	"resources" : [
 		{
-			"name" : "av-test",
-			"custom" : { 
-				"random_string" : "This one is coming from the Session Info"
-			}
-		},
-		{
 			"name" : "av-tokbox",
 			"custom" : { 
 				"apikey" : "45343012",
 				"apisecret" : "cf5bafc2af0fcc269bfb8e19b6def2d1558aa212",
 				"p2p"	: false
 			}
-		},
-		{
-			"name" : "notify-box"
 		}
 	]
 }

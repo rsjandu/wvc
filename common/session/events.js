@@ -1,4 +1,5 @@
 var EventEmitter    = require('events').EventEmitter;
+var log             = require("../common/log");
 var emitter = new EventEmitter();
 
 var events = {};
@@ -9,7 +10,7 @@ function emit (prefix, e, data) {
 
 function on (prefix, e, callback) {
 	emitter.on (prefix + '.' + e, function (data) {
-		log.debug ('event - TRIG - ' + prefix + '.' + e + ', data = ', data);
+		log.debug ('event - TRIG - ' + prefix + '.' + e + ', data = ', (data ? data : 'none'));
 		callback (data);
 	});
 }

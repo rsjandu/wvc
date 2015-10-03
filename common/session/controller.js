@@ -80,7 +80,7 @@ function handle_auth (_d, conn, from, msg) {
 	 * Send Ack */
 	_d.resolve ('तथास्तु');
 
-	if (class_.ready()) {
+	if (class_.started()) {
 		process.nextTick (actually_join_user.bind(null, user));
 	}
 }
@@ -93,7 +93,7 @@ function actually_join_user (user) {
 		.then (
 			function (info) {
 				users.send_info (user, 'controller', 'framework', 'session-info', info);
-				users.broadcast_info ('controller', null, 'new-johnny', user, user);
+				users.broadcast_info ('controller', 'framework', 'new-johnny', user, user);
 			}
 			/* resources.init should _not_ return an error */
 		);
@@ -101,7 +101,7 @@ function actually_join_user (user) {
 
 function handle_user_remove (user) {
 	users.remove_user (user);
-	users.broadcast_info ('controller', null, 'johnny-go-went-gone', user, null);
+	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', user, null);
 }
 
 module.exports = controller;
