@@ -127,7 +127,7 @@ define(function(require) {
 		/*
 		 * Push into 'modules' only those which have been succesfully loaded
 		 */
-		require([ resource.name ],
+		require([ 'resources/' + resource.name + '/main' ],
 			function (arg) {
 				log.info ('loaded module', resource.name);
 				var module = {
