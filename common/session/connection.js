@@ -40,12 +40,23 @@ function send_info (from, to, info_id, info) {
 
 var connection = {};
 
-connection.route_req = function (sock, from, to, msg) {
+var msg_route;
+connection.init = function () {
 	/*
 	 * A hack to resolve the circular dependencies. TODO: clean
 	 * this up. */
-	var msg_route = require ('./msg-route');
+	msg_route = require ('./msg-route');
+};
+
+connection.route_req = function (sock, from, to, msg) {
 	return msg_route.route_req (sock.conn_handle, from, to, msg);
+};
+
+connection.route_info = function (sock, from, to, msg) {
+	/*
+	 * A hack to resolve the circular dependencies. TODO: clean
+	 * this up. */
+	return msg_route.route_info (sock.conn_handle, from, to, msg);
 };
 
 connection.events = events;

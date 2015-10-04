@@ -38,7 +38,7 @@ class_.init = function (sess_info) {
 };
 
 class_.ready = function () {
-	return (state === 'active') || (state === 'provisioning');
+	return (state === 'active') || (state === 'provisioned');
 };
 
 class_.started = function () {
@@ -51,8 +51,8 @@ function provision (sess_info) {
 
 function start () {
 	state = 'active';
-	events.emit ('active');
 	log.info ('class: transition ->  ACTIVE');
+	events.emit ('active');
 }
 
 module.exports = class_;

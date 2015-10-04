@@ -48,6 +48,16 @@ controller.get_config = function (sess_id, callback) {
 						custom: { 
 							random_string : 'नमस््कार'
 						},
+					},
+					{
+						name: 'wboard-basic',
+						display_spec: { widget: "tabs", template: "wboard-basic-default" },
+						/*
+						 * perms must be returned per user */
+						perms: { },
+						custom: { 
+							random_string : 'नमस््कार'
+						},
 					}
 				],
 				role_map : {

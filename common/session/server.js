@@ -25,6 +25,7 @@ function start () {
 		}
 
 		controller.init (data);
+		connection.init ();
 		cc.init (server, connection, data);
 	});
 }

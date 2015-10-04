@@ -51,4 +51,16 @@ addr.pop = function (a) {
 	return _a.join('.');
 };
 
+addr.user = function (a) {
+	if (!a)
+		return null;
+
+	var _a = a.split('.');
+	var user = _a.splice(0, 1)[0].split(':');
+	if (user[0] !== 'user')
+		return null;
+
+	return user[1];
+};
+
 module.exports = addr;

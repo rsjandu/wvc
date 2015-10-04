@@ -41,6 +41,9 @@ cc.init = function (server, route, sess_config) {
 
 cc.send_info = function (sock, from, to, info_id, info) {
 	var m = protocol.info_pdu (from, to, info_id, info);
+	if (!m)
+		return;
+
 	m.seq = seq++;
 	sock.send (JSON.stringify(m));
 	protocol.print(m);
@@ -79,7 +82,7 @@ function handle_incoming (ws, message) {
 			break;
 
 		case 'info':
-			upstream.route_info (_m);
+			upstream.route_info (ws, m.from, m.to, m.msg);
 			break;
 	}
 }
@@ -98,7 +101,6 @@ function __ack (sock, _m, status, data, from) {
 	m.seq = _m.seq;
 	sock.send(JSON.stringify(m));
 
-	log.debug ('sent ack');
 	protocol.print(m);
 }
 

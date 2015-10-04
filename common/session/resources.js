@@ -1,8 +1,8 @@
 var $               = require("jquery-deferred");
 var log             = require("../common/log");
 var config          = require("../config");
-var sess_info       = require("./session-info");
-var $               = require('jquery-deferred');
+var users           = require("./users");
+var addr            = require("./addr");
 
 var list = {};
 var res = {};
@@ -37,14 +37,17 @@ res.load = function (sess_info) {
 		return;
 	}
 
-	/* Add additional utility handles */
-	sess_info.handles = {};
-	sess_info.handles.log = log;
-
 	for (var i = 0; i < resources.length; i++) {
 		var r = resources[i];
 
 		list[r.name] = {};
+
+		/* Add additional utility handles */
+		sess_info.handles = {};
+		sess_info.handles.log = log;
+		sess_info.handles.coms = {};
+		sess_info.handles.coms.broadcast_info = users.broadcast_info.bind (users, r.name, r.name);
+
 		try {
 			list[r.name].handle = require('./resources/' + r.name + '/main.js');
 			list[r.name].handle.init (r, common, sess_info.handles)
@@ -52,6 +55,7 @@ res.load = function (sess_info) {
 		}
 		catch (e) {
 			mod_err.call(r.name, e);
+			delete list[r.name];
 		}
 	}
 
@@ -59,11 +63,11 @@ res.load = function (sess_info) {
 };
 
 res.init_user = function (user) {
-	var _d = $.Deferred ();
-	var d_arr = [];
-	var info = {};
+	var _d        = $.Deferred ();
+	var d_arr     = [];
+	var info      = {};
 	var info_err  = {};
-	var counter = 0;
+	var counter   = 0;
 
 	function mod_ok (m, data) {
 		info[m] = data;
@@ -88,18 +92,47 @@ res.init_user = function (user) {
 
 	for (var m in list) {
 		if (list[m].handle.init_user) {
-			counter++;
+			var d_mod;
 
-			var d_mod = list[m].handle.init_user (user);
+			try {
+				d_mod = list[m].handle.init_user (user);
+			}
+			catch (e) {
+				log.error ('resources:init_user: \"' + m + '\" err = ' + e);
+			}
 
-			d_mod.then (
-				mod_ok.bind(d_mod, m),
-				mod_err.bind(d_mod, m)
-			);
+			if (d_mod) {
+				counter++;
+				d_mod.then (
+					mod_ok.bind(d_mod, m),
+					mod_err.bind(d_mod, m)
+				);
+			}
 		}
 	}
 
 	return _d.promise ();
+};
+
+res.route_info = function (from, to, msg) {
+	if (!list[to]) {
+		log.error ('resources.route_info: info for non-existent module \"' + to + '\"');
+		return;
+	}
+
+	if (!list[to].handle.info) {
+		log.error ('resources.route_info: info method undefined for module \"' + to + '\"');
+		return;
+	}
+
+	var user = addr.user(from);
+
+	if (!user) {
+		log.error ('resources.route_info: unacceptable from address: \"' + from + '\"');
+		return;
+	}
+
+	list[to].handle.info (user, msg.info_id, msg.info);
 };
 
 module.exports = res;
