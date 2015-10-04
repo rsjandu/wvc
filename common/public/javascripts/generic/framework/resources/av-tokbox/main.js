@@ -526,13 +526,32 @@ define(function(require) {
       }
 
       var sub = _ses.subscribe( ev.stream, div, options );
-      avc.layout();
+      sub.on('videoDisabled', function (ev) {
+        log.info('videoDisabled event on id : ' + sub.id);
+        log.info('videoDisabled event reason : ' + ev.reason);
+        /* You may want to hide the subscriber video element:
+           domElement = document.getElementById(sub.id);
+           domElement.style['visibility'] = 'hidden';
+           You may want to add or adjust other UI.
+        */
+      });
+      sub.on('videoEnabled', function (ev) {
+        log.info('videoEnabled event on id : ' + sub.id);
+        log.info('videoEnabled event reason : ' + ev.reason);
+        /* You may want to show the subscriber video element:
+           domElement = document.getElementById(sub.id);
+           domElement.style['visibility'] = 'visible';
+           You may want to add or adjust other UI.
+        */
+      });
 
       /* TODO  save sub object */
       var connectionid = ev.stream.connection.connectionid ;
       var streamid = ev.stream.streamid ;
       log.info('incoming stream streamid: ' + ev.stream.streamId);
       log.info('incoming stream connectionid: ' + ev.stream.connection.connectionId);
+
+      avc.layout();
     },
 
     streamDestroyed : function (ev) {

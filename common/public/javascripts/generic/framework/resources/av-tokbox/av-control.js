@@ -7,10 +7,20 @@ define(function(require) {
   var otd = require('ot-layout');
 
   var avc = {};
+  var layout = false;
 
   var avcontainer = document.getElementById('widget-av');
   var pubsc = document.getElementById('widget-av');
   var subsc = document.getElementById('widget-av');
+
+  /* TODO We want this object for on the fly video resizing */
+  window.onresize = __resize;
+
+  function __resize() {
+    if ( layout ) {
+      avc.layout();
+    }
+  }
 
   avc.init = function(display_spec, handle) {
     var _d = $.Deferred();
@@ -72,6 +82,7 @@ define(function(require) {
       /* TODO */
 
       otd.initLayoutContainer(avcontainer, lo);
+      layout = true;
   }
 
 
