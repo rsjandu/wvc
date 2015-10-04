@@ -1,13 +1,15 @@
 define(function(require) {
-	var $ = require('jquery');
-	var av = require('widget-av');
-	var cc = require('cc');
-	var identity = require('identity');
-	var notify = require('widget-notify');
-	var log = require('log')('framework', 'info');
+	var $         = require('jquery');
+	var av        = require('widget-av');
+	var cc        = require('cc');
+	var identity  = require('identity');
+	var notify    = require('widget-notify');
+	var tabs      = require('widget-tabs');
+	var log       = require('log')('framework', 'info');
+
 	var framework = {};
-	var layout = {};
-	var modules = {};
+	var layout    = {};
+	var modules   = {};
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -129,10 +131,17 @@ define(function(require) {
 
 	framework.rx_info = function (from, to, id, data) {
 
-		switch (id) {
-			case 'session-info': started (data); break;
+		switch (to) {
+			case 'framework' :
+				switch (id) {
+					case 'session-info': started (data); break;
+					default :
+						log.error ('handler for info \"' + id + '\" NOT IMPLEMENTED (to: ' + to + ')');
+				}
+				break;
+
 			default :
-				log.error ('handler for info \"' + id + '\" NOT IMPLEMENTED');
+				deliver_info (from, to, id, data);
 		}
 	};
 
@@ -140,7 +149,8 @@ define(function(require) {
 
 		var handle = {
 			module_name    : module_name,
-			send_comamnd   : send_command,
+			send_command   : send_command,
+			send_info      : send_info
 		};
 
 		return handle;
@@ -166,6 +176,39 @@ define(function(require) {
 
 
 		return _d.promise();
+	}
+
+	function send_info (user, info_id, data, from_instance) {
+
+		var module_suffix = '.' + this.module_name + ':' + (from_instance? from_instance: '0');
+
+		/*
+		 * if user is null or empty, the intended recipient is
+		 * the server counterpart of the module. */
+
+		to = (!user || user.length === 0) ?
+			this.module_name :
+			'user:' + user + module_suffix;
+
+		var from = 'user:' + identity.name + module_suffix;
+
+		cc.send_info (from, to, info_id, data);
+
+		return;
+	}
+
+	function deliver_info (from, to, id, data) {
+		if (!modules[to]) {
+			log.error ('deliver_info: unknown module \"' + to + '\"');
+			return;
+		}
+
+		try {
+			modules[to].handle.info (from, id, data);
+		}
+		catch (e) {
+			log.error ('deliver_info: \"' + to + '\" err = ' + e);
+		}
 	}
 
 	function __probe_layout () {
@@ -200,6 +243,7 @@ define(function(require) {
 
 			case 'av'     : return av.attach (layout.av, _module);
 			case 'notify' : return notify.attach (layout.notify, _module);
+			case 'tabs'   : return tabs.attach (layout.notify, _module);
 
 			default : 
 				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);

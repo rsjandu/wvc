@@ -50,6 +50,34 @@ define(function(require) {
 		return m;
 	};
 
+	prot.info_pdu = function (from, to, info_id, data) {
+		var m = {};
+
+		if (!from || !to || !info_id || !data) {
+			log.error ('command_pdu: null argument(s): ' +
+					   		'from = ' + from +
+					   		', to = ' + to +
+					   		', info_id = ' + info_id +
+					   		', data = ' + data
+					  );
+
+			return null;
+		}
+
+		m.v     = 1;
+		m.type  = 'info';
+
+		m.to    = to;
+		m.from  = from;
+
+		m.msg  = {
+			info_id : info_id,
+			info    : data
+		};
+
+		return m;
+	};
+
 	prot.auth_pdu = function (to, from, data) {
 		var m = {};
 

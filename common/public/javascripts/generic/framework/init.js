@@ -6,7 +6,8 @@ requirejs.config({
 		 * the jQuery file, relative to baseUrl.
 		 * Also, the path should NOT include
 		 * the '.js' file extension. */
-		jquery: '/javascripts/ext/jquery-1.11.3.min'
+		jquery: '/javascripts/ext/jquery-1.11.3.min',
+		jquery_drag: '/javascripts/ext/jquery.event.drag-2.2/jquery.event.drag-2.2'
 	}
 });
 

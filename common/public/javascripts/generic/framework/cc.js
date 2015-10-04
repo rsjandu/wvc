@@ -70,8 +70,13 @@ define(function(require) {
 		return _d.promise ();
 	};
 
-	cc.send_info = function (message) {
+	cc.send_info = function (from, to, id, data) {
 		
+		var message = protocol.info_pdu (from, to, id, data);
+
+		if (!message)
+			return;
+
 		message.seq = seq++;
 
 		return send (message, false);
@@ -129,6 +134,12 @@ define(function(require) {
 
 			return;
 		}
+
+		/*
+		 * remove the 'user:xxx', since noone downstream needs to 
+		 * know that */
+
+		message.to = message.to.replace(/^user:[^.]+\./, '');
 
 		switch (message.type) {
 			case 'ack' : 
@@ -216,7 +227,6 @@ define(function(require) {
 		 * is an 'info' type message, which requires no ACK, we don't
 		 * expect any promise from the framework. */
 
-		message.to = message.to.replace(/^[^\.]\./, '');
 		_req_channel.rx_info (message.from, message.to, message.msg.info_id, message.msg.info);
 	}
 
