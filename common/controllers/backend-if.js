@@ -16,115 +16,115 @@ var templates = require('../controllers/templates');
 
 controller = {};
 controller.get_config = function (sess_id, callback) {
-  /*---------------------------------------
-   *
-   * Things to do:
-   *
-   * 		- If the session config is in the cache
-   * 		  then return it
-   *
-   * 		- else load the session configuration
-   * 		  from the core backend
-   *
-   * 		- Cache it
-   *
-   *--------------------------------------*/
+	/*---------------------------------------
+	 *
+	 * Things to do:
+	 *
+	 * 		- If the session config is in the cache
+	 * 		  then return it
+	 *
+	 * 		- else load the session configuration
+	 * 		  from the core backend
+	 *
+	 * 		- Cache it
+	 *
+	 *--------------------------------------*/
 
-  var av_config = {
-    maxvideo : 6,
-    conftype :  'audiovideo',
-    publish : true,
-    videores : 'qvga',
-    hdvideo : false,
-    stats : false,
-    maxvideores : 'vga',
-    videolayout : 'horizontal'
-  };
+	var av_config = {
+		maxvideo : 6,
+		conftype :  'audiovideo',
+		publish : true,
+		videores : 'qvga',
+		hdvideo : false,
+		stats : false,
+		maxvideores : 'vga',
+		videolayout : 'horizontal'
+	};
 
-  var user_config = {
-    name : null,
-    id : null,
-    role : 'moderator'
-  };
+	var user_config = {
+		name : null,
+		id : null,
+		role : 'moderator'
+	};
 
-  var ot = {
-    name    : 'ot',
-    enabled : true,
-    port : 8080,
-    host : '192.168.56.101'
-  };
+	var ot = {
+		name    : 'ot',
+		enabled : true,
+		port : 8080,
+		host : '192.168.56.101'
+	};
 
-  var session_config = {
-    template : 'default',
-    auth : {},
-    session_server : {
-      host : 'localhost',
-      port : config.session_server.default_port,
-      auth : {}
-    },
-    resources : [
-    {
-      name: 'av-tokbox',
-      display_spec: { widget: "av", template: "av-tokbox" },
-      /*
-       * perms must be returned per user */
-      perms: { },
-      custom: {
-        random_string : 'welcome',
-        config : av_config,
-        user : user_config,
-        server : ot
-      },
-    },
-    {
-      name: 'wboard-basic',
-      display_spec: { widget: "tabs", template: "wboard-basic-default" },
-      /*
-       * perms must be returned per user */
-      perms: { },
-      custom: {
-        random_string : 'नमस््कार'
-      },
-    }
-    ],
-      role_map : {
-        teacher : [
-        {
-          name : 'av-test',
-          perms : [
-            'audio.mute:*',
-            'audio.unmute:*',
-          ]
-        },
-        ],
-        student : [
-        {
-          name : 'av-test',
-          perms : [
-            'audio.mute:*',
-            'audio.unmute:*'
-            ]
-        },
-        ],
-        observer : {
-        }
-      },
-      attendees : {
-        max : 10,
-        listed : [
-        {
-          name : 'Avinash Bhatia',
-          role : 'teacher',
-          auth : {
-            via : 'noauth' /* noauth, wiziq, local, google+, facebook or other SSOs */
-          }
-        }
-        ],
-      }
-  };
+	var session_config = {
+		template : 'default',
+		auth : {},
+		session_server : {
+			host : 'localhost',
+			port : config.session_server.default_port,
+			auth : {}
+		},
+		resources : [
+			{
+				name: 'av-tokbox',
+				display_spec: { widget: "av", template: "av-tokbox" },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					random_string : 'welcome',
+					config : av_config,
+					user : user_config,
+					server : ot
+				},
+			},
+			{
+				name: 'wboard-basic',
+				display_spec: { widget: "tabs", template: "wboard-basic-default" },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					random_string : 'नमस््कार'
+				},
+			}
+		],
+		role_map : {
+			teacher : [
+				{
+					name : 'av-test',
+					perms : [
+						'audio.mute:*',
+						'audio.unmute:*',
+					]
+				},
+			],
+			student : [
+				{
+					name : 'av-test',
+					perms : [
+						'audio.mute:*',
+						'audio.unmute:*'
+					]
+				},
+			],
+			observer : {
+			}
+		},
+		attendees : {
+			max : 10,
+			listed : [
+				{
+					name : 'Avinash Bhatia',
+					role : 'teacher',
+					auth : {
+						via : 'noauth' /* noauth, wiziq, local, google+, facebook or other SSOs */
+					}
+				}
+			],
+		}
+	};
 
 
-  callback (null, session_config);
+	callback (null, session_config);
 };
 
 
