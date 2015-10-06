@@ -1,5 +1,6 @@
 define(function(require) {
 	var $           = require('jquery');
+	window.jade     = require('jade');
 	var jquery_drag = require('jquery_drag');
 	var log         = require('log')('wboard-basic', 'info');
 	var framework   = require('framework');
@@ -7,26 +8,27 @@ define(function(require) {
 	var wboard = {};
 	var f_handle = framework.handle ('wboard-basic');
 	var canvas;
+	var canvas_parent;
 
 	wboard.init = function (display_spec, custom, perms) {
-			var _d = $.Deferred();
+		var _d = $.Deferred();
 
-			log.info ('wboard init called');
+		log.info ('wboard init called');
 
-			var anchor = display_spec.anchor;
-			$(anchor).append(
-				'<div>' +
-					'<h1> WBOARD BASIC - DEFAULT </h1>' +
-				'</div>' +
-				'<canvas width="400px" height="400px" style="margin : 0 autho" >' + 
-				'</canvas>'
-			);
+		var anchor = display_spec.anchor;
+		var template = f_handle.template('default');
 
-			canvas = $(anchor).find('canvas')[0];
+		if (!template) {
+			_d.reject ('wboard-basic: template not found');
+			return _d.promise ();
+		}
 
-			_d.resolve();
+		$(anchor).append(template({title: 'Black Board - Basic'}));
+		canvas = $(anchor).find('canvas')[0];
+		canvas_parent = $(canvas).parent();
 
-			return _d.promise();
+		_d.resolve();
+		return _d.promise();
 	};
 
 	var ctx;

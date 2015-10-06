@@ -6,51 +6,31 @@ var _E        = require('../common/custom-error');
 
 templates = {};
 
-templates.load = function (dir, callback) {
-	/*
-	 * 1. Get a list of templates
-	 * 2. Compile them all and form a Javascript
-	 * 3. Send it
-	 */
-	__get_list(dir, function(err, files) {
-		if (err)
-			return callback(_E(500, err), null);
+templates.load = function (dir, config) {
 
-		if (!files)
-			return callback(_E(404, 'Some templates not found'), null);
-
-		var templates = {};
-		for (var i = 0; i < files.length; i++) {
-			var file_name = files[i].replace(/\.jade$/, '');
-			templates[file_name] = __function_body(dir, file_name);
-		}
-
-		log.debug ('templates = ', templates);
-
-		return callback (null, templates);
-	});
-
-	return;
+	return template_list (dir, config);
 };
 
-function __get_list (path, callback) {
+function template_list (dir, config) {
+	var _templates = {};
 
-	fs.readdir(path, function(err, _files) {
+	for (var i = 0; i < config.resources.length; i++) {
+		var _r = config.resources[i];
+		var _rname = _r.name;
 
-		var files = [];
-
-		if (err)
-			return callback (err, null);
-
-		/* Else sift through and return only the .jade files */
-		for (var i = 0; i < _files.length; i++) {
-			if (_files[i].match(/\.jade$/))
-				files.push(_files[i]);
+		_templates[_rname] = {};
+		for (var t = 0; t < _r.display_spec.templates.length; t++) {
+			var tname = _r.display_spec.templates[t];
+			try {
+				_templates[_rname][tname] = function_body (dir + '/' + _rname, tname);
+			}
+			catch (e) {
+				log.error ('controller.templates: load failed for ' + _rname + '->' + tname + ', err = ' + e);
+			}
 		}
+	}
 
-		return callback (null, files);
-
-	});
+	return _templates;
 }
 
 /*
@@ -63,17 +43,14 @@ function __get_list (path, callback) {
  * --> "template.name = function(locals) { <body> }"
  *
  */
-function __function_body (dir, file) {
+function function_body (dir, file) {
 
-	log.info ('loading template ' + file + '.jade');
+	log.info ('loading template ' + dir + '/' + file + '.jade');
 
 	var _func = jade.compileFileClient(path.join(dir, file + '.jade'), { name: file });
-	var func = _func.replace(/function[ ]+([^() ]+)[ ]*\(/g, 'templates.$1 = function (');
+	_func = _func.replace(/function[ ]+([^() ]+)[ ]*\(/g, 'function (');
 
-	log.debug ('_func ==>', _func);
-	log.debug ('func ==>', func);
-
-	return func;
+	return _func;
 }
 
 module.exports = templates;

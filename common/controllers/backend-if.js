@@ -55,7 +55,8 @@ controller.get_config = function (sess_id, callback) {
 	};
 
 	var session_config = {
-		template : 'default',
+		layout   : 'default',
+		theme    : 'default',
 		auth : {},
 		session_server : {
 			host : 'localhost',
@@ -65,7 +66,7 @@ controller.get_config = function (sess_id, callback) {
 		resources : [
 			{
 				name: 'av-tokbox',
-				display_spec: { widget: "av", template: "av-tokbox" },
+				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
@@ -78,7 +79,7 @@ controller.get_config = function (sess_id, callback) {
 			},
 			{
 				name: 'wboard-basic',
-				display_spec: { widget: "tabs", template: "wboard-basic-default" },
+				display_spec: { widget: "tabs", templates: [ "default" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },

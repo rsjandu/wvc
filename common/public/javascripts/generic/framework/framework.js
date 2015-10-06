@@ -150,7 +150,8 @@ define(function(require) {
 		var handle = {
 			module_name    : module_name,
 			send_command   : send_command,
-			send_info      : send_info
+			send_info      : send_info,
+			template       : template
 		};
 
 		return handle;
@@ -176,6 +177,16 @@ define(function(require) {
 
 
 		return _d.promise();
+	}
+
+	function template (name) {
+		if (!_templates[this.module_name] || !_templates[this.module_name][name])
+			return null;
+
+		/* jslint evil: true */
+		var _t = new Function('locals', 'return ' + _templates[this.module_name][name]);
+
+		return _t();
 	}
 
 	function send_info (user, info_id, data, from_instance) {

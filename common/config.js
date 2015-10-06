@@ -10,6 +10,9 @@ config.port = '2178';
  */
 config.top   = __dirname;
 config.views = path.join(config.top, 'views');
+config.templates = {
+	dir : __dirname + '/views/framework/templates'
+};
 config.core_backend = {};
 config.provisioning_server = {};
 config.session_server = { default_port : 3179 };
