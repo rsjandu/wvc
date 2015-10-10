@@ -78,6 +78,19 @@ controller.get_config = function (sess_id, callback) {
 				},
 			},
 			{
+				name: 'menu-test',
+				display_spec: { widget: "notify", templates: [ 'menu-01' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					random_string : 'welcome',
+					config : av_config,
+					user : user_config,
+					server : ot
+				},
+			},
+			{
 				name: 'wboard-basic',
 				display_spec: { widget: "tabs", templates: [ "default" ] },
 				/*

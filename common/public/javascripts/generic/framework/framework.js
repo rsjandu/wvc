@@ -55,7 +55,11 @@ define(function(require) {
 				modules[_module.name] = _module;
 				_d.resolve (_module);
 			},
-			_d.reject.bind(_d)
+			function (err) {
+				log.error ('init failed for \"' + _module.name + '\" : err = ' + err);
+				_d.reject(err);
+				return;
+			}
 		);
 
 		return _d.promise();

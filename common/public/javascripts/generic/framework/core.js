@@ -129,7 +129,6 @@ define(function(require) {
 		 */
 		require([ 'resources/' + resource.name + '/main' ],
 			function (arg) {
-				log.info ('loaded module', resource.name);
 				var module = {
 						name: resource.name,
 						handle: arg,
@@ -140,7 +139,7 @@ define(function(require) {
 				_d.resolve();
 			},
 			function (err) {
-				log.error ('could not load module', resource.name, ':reason', err);
+				log.error ('load module err for ' + resource.name + ' :reason ' + err);
 				_d.resolve();
 			}
 		);

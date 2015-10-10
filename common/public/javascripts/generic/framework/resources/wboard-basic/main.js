@@ -13,8 +13,6 @@ define(function(require) {
 	wboard.init = function (display_spec, custom, perms) {
 		var _d = $.Deferred();
 
-		log.info ('wboard init called');
-
 		var anchor = display_spec.anchor;
 		var template = f_handle.template('default');
 
@@ -73,6 +71,5 @@ define(function(require) {
 		}
 	}
 
-	log.info ('wboard loaded');
 	return wboard;
 });
