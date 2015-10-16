@@ -55,8 +55,9 @@ controller.get_config = function (sess_id, callback) {
 	};
 
 	var session_config = {
-		layout   : 'default',
-		theme    : 'default',
+		structure: 'default',
+		layout   : 'just-3',
+		theme    : 'cardboard',
 		auth : {},
 		session_server : {
 			host : 'localhost',
@@ -91,13 +92,12 @@ controller.get_config = function (sess_id, callback) {
 				},
 			},
 			{
-				name: 'wboard-basic',
-				display_spec: { widget: "tabs", templates: [ "default" ] },
+				name: 'flipboard-v1',
+				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
 				custom: {
-					random_string : 'नमस््कार'
 				},
 			}
 		],

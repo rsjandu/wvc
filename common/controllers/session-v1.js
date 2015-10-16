@@ -26,11 +26,30 @@ controller.load_page = function (req, res, next) {
 	 *--------------------------------------*/
 
 	backend.get_config (session_id, function (err, sess_config) {
+		var css = [];
+
 		if (err)
 			return next(err, req, res);
 
 		var _templates = templates.load (config.templates.dir, sess_config);
-		res.render ('framework/' + sess_config.layout + '/vc-frame', { _templates : JSON.stringify(_templates) });
+
+		/*
+		 * Get a list of all CSS files to be loaded */
+		for (var r = 0; r < sess_config.resources.length; r++ ) {
+			if (sess_config.resources[r].display_spec.css) {
+				css.push ({
+					resource: sess_config.resources[r].name,
+					css:      sess_config.resources[r].display_spec.css
+				});
+			}
+		}
+
+		res.render ('framework/' + sess_config.structure + '/vc-frame', { 
+			layout     : sess_config.layout,
+			theme      : sess_config.theme,
+			_templates : JSON.stringify(_templates),
+			styles     : css
+		});
 	});
 };
 
