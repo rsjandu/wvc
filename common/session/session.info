@@ -6,8 +6,8 @@
 		{
 			"name" : "av-tokbox",
 			"custom" : { 
-				"apikey" : "45343012",
-				"apisecret" : "cf5bafc2af0fcc269bfb8e19b6def2d1558aa212",
+				"apikey" : "45364252",
+				"apisecret" : "ccdabdd8da9dead0fa80bdb3f97cba3bd9e60234",
 				"p2p"	: false
 			}
 		},
