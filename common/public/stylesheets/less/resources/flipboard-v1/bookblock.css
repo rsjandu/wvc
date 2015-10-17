@@ -88,7 +88,7 @@
 }
 
 .bb-flipoverlay {
-	background-image: url('./w2-darker.jpg');
+	background-image: url('./paper-texture-1.jpg');
 	background-repeat: repeat;
 }
 
@@ -170,6 +170,7 @@
 	display: none;
 	background-image: url('./w2.jpg');
 	background-repeat: repeat;
+	overflow: hidden;
 }
 
 /* No JS */

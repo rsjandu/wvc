@@ -75,7 +75,6 @@ define(function(require) {
 
 		if (!session_info.info[name]) {
 			log.error ('module \"' + name + '\": session info not defined');
-			return;
 		}
 
 		log.info ('starting module \"' + name + '\" ...');

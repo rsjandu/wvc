@@ -331,6 +331,26 @@
 				}
 			}, 25 );
 		},
+		// Clones the canvas
+		_clonePage : function (el) {
+			var page = el.clone(true).contents();
+
+			/*
+			 * If there's a canvas element then copy it's drawing context */
+			var _canvas = page.filter('canvas');
+			var _oldcanvas = el.find('canvas');
+			if (_canvas.length) {
+				var canvas = _canvas[0];
+				var oldcanvas = _oldcanvas[0];
+				var ctx    = canvas.getContext('2d');
+				canvas.width = oldcanvas.width;
+				canvas.height = oldcanvas.height;
+
+				ctx.drawImage(oldcanvas, 0, 0, oldcanvas.width, oldcanvas.height);
+			}
+
+			return page;
+		},
 		// adds the necessary sides (bb-page) to the layout 
 		_addSide : function( side, dir ) {
 			var $side;
@@ -351,7 +371,12 @@
 							</div>
 						</div>
 						*/
+					/*
 					$side = $('<div class="bb-page"><div class="bb-back"><div class="bb-outer"><div class="bb-content"><div class="bb-inner">' + ( dir === 'next' ? this.$current.html() : this.$nextItem.html() ) + '</div></div><div class="bb-overlay"></div></div></div></div>').css( 'z-index', 102 );
+					*/
+					$side = $('<div class="bb-page"><div class="bb-back"><div class="bb-outer"><div class="bb-content"><div class="bb-inner"></div></div><div class="bb-overlay"></div></div></div></div>');
+					$side.find('.bb-inner').append( dir === 'next' ? this._clonePage(this.$current) : this._clonePage(this.$nextItem) );
+					$side.css( 'z-index', 102 );
 					break;
 				case 'middle':
 						/*
@@ -378,7 +403,13 @@
 							</div>
 						</div>
 						*/
+					/*
 					$side = $('<div class="bb-page"><div class="bb-front"><div class="bb-outer"><div class="bb-content"><div class="bb-inner">' + (dir === 'next' ? this.$current.html() : this.$nextItem.html()) + '</div></div><div class="bb-flipoverlay"></div></div></div><div class="bb-back"><div class="bb-outer"><div class="bb-content" style="width:' + this.elWidth + 'px"><div class="bb-inner">' + ( dir === 'next' ? this.$nextItem.html() : this.$current.html() ) + '</div></div><div class="bb-flipoverlay"></div></div></div></div>').css( 'z-index', 103 );
+					*/
+					$side = $('<div class="bb-page"><div class="bb-front"><div class="bb-outer"><div class="bb-content"><div class="bb-inner a1"></div></div><div class="bb-flipoverlay"></div></div></div><div class="bb-back"><div class="bb-outer"><div class="bb-content" style="width:' + this.elWidth + 'px"><div class="bb-inner a2"></div></div><div class="bb-flipoverlay"></div></div></div></div>');
+					$side.find('.a1').append( dir === 'next' ? this._clonePage(this.$current) : this._clonePage(this.$nextItem) );
+					$side.find('.a2').append( dir === 'next' ? this._clonePage(this.$nextItem) : this._clonePage(this.$current) );
+					$side.css( 'z-index', 103 );
 					break;
 				case 'right':
 						/*
@@ -395,7 +426,12 @@
 							</div>
 						</div>
 						*/
+					/*
 					$side = $('<div class="bb-page"><div class="bb-front"><div class="bb-outer"><div class="bb-content"><div class="bb-inner">' + ( dir === 'next' ? this.$nextItem.html() : this.$current.html() ) + '</div></div><div class="bb-overlay"></div></div></div></div>').css( 'z-index', 101 );
+					*/
+					$side = $('<div class="bb-page"><div class="bb-front"><div class="bb-outer"><div class="bb-content"><div class="bb-inner"></div></div><div class="bb-overlay"></div></div></div></div>');
+					$side.find('.bb-inner').append( dir === 'next' ? this._clonePage(this.$nextItem) : this._clonePage(this.$current) );
+					$side.css( 'z-index', 101 );
 					break;
 			}
 

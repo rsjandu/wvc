@@ -10,7 +10,6 @@ define(function(require) {
 	var flipboard = {};
 	var f_handle = framework.handle ('flipboard-v1');
 	var canvas;
-	var canvas_parent;
 
 	flipboard.init = function (display_spec, custom, perms) {
 		var _d = $.Deferred();
@@ -24,13 +23,11 @@ define(function(require) {
 		}
 
 		$(anchor).append(template({title: 'Flipboard'}));
-		/*
-		canvas = $(anchor).find('canvas')[0];
-		canvas_parent = $(canvas).parent();
-		*/
 
 		var page = Page();
 		page.init ();
+
+		canvas = $(anchor).find('canvas')[0];
 
 		_d.resolve();
 		return _d.promise();
@@ -91,7 +88,8 @@ define(function(require) {
 		},
 		init = function() {
 			config.$bookBlock.bookblock( {
-				speed : 800,
+				orientation: 'vertical',
+				speed : 700,
 				shadowSides : 0.8,
 				shadowFlip : 0.7
 			} );
