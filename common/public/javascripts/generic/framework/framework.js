@@ -73,9 +73,8 @@ define(function(require) {
 			return;
 		}
 
-		if (!session_info.info[name]) {
-			log.error ('module \"' + name + '\": session info not defined');
-		}
+		if (!session_info.info[name])
+			log.log ('module \"' + name + '\": session info not defined');
 
 		log.info ('starting module \"' + name + '\" ...');
 
@@ -227,8 +226,8 @@ define(function(require) {
 
 	function __probe_layout () {
 
-		if ($('#widget-top').length !== 0)
-			layout.top = $('#widget-top')[0];
+		if ($('#widget-nav').length !== 0)
+			layout.nav = $('#widget-nav')[0];
 
 		if ($('#widget-notify').length !== 0)
 			layout.notify = $('#widget-notify')[0];

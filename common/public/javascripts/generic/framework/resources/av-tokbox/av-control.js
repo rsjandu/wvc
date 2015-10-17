@@ -9,9 +9,9 @@ define(function(require) {
   var avc = {};
   var layout = false;
 
-  var avcontainer = document.getElementById('widget-av');
-  var pubsc = document.getElementById('widget-av');
-  var subsc = document.getElementById('widget-av');
+  var avcontainer;
+  var pubsc;
+  var subsc;
 
   /* TODO We want this object for on the fly video resizing */
   window.onresize = __resize;
@@ -26,12 +26,9 @@ define(function(require) {
     var _d = $.Deferred();
 
     var anchor = display_spec.anchor;
-    $(anchor).append(
-        '<div>' +
-        '<h1> AV TOKBOX </h1>' +
-        '</div>'
-        );
-
+	avcontainer = $(anchor).get(0);
+	pubsc = $(anchor).get(0);
+	subsc = $(anchor).get(0);
     initlayout();
 
     _d.resolve();
