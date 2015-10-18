@@ -8,7 +8,7 @@ html( lang="en" )
 		meta( name='description', content='WizIQ Virtual Classroom' )
 		//link(href="/stylesheets/bootstrap-themes-v3.3.5/paper/bootstrap.min.css", rel="stylesheet")
 		link(href="/stylesheets/less/layouts/" + layout + ".less", type="text/css", rel="stylesheet/less")
-		link(href="/stylesheets/less/themes/" + theme + ".less", type="text/css", rel="stylesheet/less")
+		link.theme-link(href="/stylesheets/less/themes/" + theme + ".less", type="text/css", rel="stylesheet/less")
 		each i in styles
 			each _c in i.css
 				link(href="/stylesheets/less/resources/" + i.resource + '/' + _c + ".css", type="text/css", rel="stylesheet")

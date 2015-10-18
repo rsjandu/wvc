@@ -1,6 +1,7 @@
 define(function(require) {
 	var $         = require('jquery');
 	var av        = require('widget-av');
+	var nav       = require('widget-nav');
 	var cc        = require('cc');
 	var identity  = require('identity');
 	var notify    = require('widget-notify');
@@ -257,11 +258,14 @@ define(function(require) {
 			case 'av'     : return av.attach (layout.av, _module);
 			case 'notify' : return notify.attach (layout.notify, _module);
 			case 'tabs'   : return tabs.attach (layout.notify, _module);
+			case 'nav'    : return nav.attach (layout.nav, _module);
 
 			default : 
 				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
-			return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
+				return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
 		}
+
+		return null;
 	}
 
 	return framework;

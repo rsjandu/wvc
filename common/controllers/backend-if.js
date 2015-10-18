@@ -66,21 +66,17 @@ controller.get_config = function (sess_id, callback) {
 		},
 		resources : [
 			{
-				name: 'av-tokbox',
-				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
+				name: 'menu-sidepush-v1',
+				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
 				custom: {
-					random_string : 'welcome',
-					config : av_config,
-					user : user_config,
-					server : ot
 				},
 			},
 			{
-				name: 'menu-test',
-				display_spec: { widget: "notify", templates: [ 'menu-01' ] },
+				name: 'av-tokbox',
+				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },

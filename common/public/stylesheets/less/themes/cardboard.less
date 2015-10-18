@@ -23,10 +23,16 @@ body, h1, h2, h3, p {
 	font-family:'RBNo2', 'Sans-serif';
 }
 
-.vc-cbd-shadow {
+.shadow-more {
 	box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
 	-webkit-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
 	-moz-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.shadow-lighter {
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
 }
 
 #vc-main-outer {
@@ -38,7 +44,16 @@ body, h1, h2, h3, p {
 }
 
 #widget-nav {
-	background-color: black;
+	color: white;
+	padding: 5px;
+}
+
+#widget-nav .nav-inner {
+	span.vc-menu-icon {
+		font-size : 28px;
+		margin-top: 10px;
+		margin-left: 10px;
+	}
 }
 
 #widget-notify {
@@ -49,17 +64,17 @@ body, h1, h2, h3, p {
 
 #widget-tabs {
 	background-color: rgba(0, 0, 0, 0.65);
-	.vc-cbd-shadow;
+	.shadow-more;
 }
 
 #widget-av {
 	background-color: black;
-	.vc-cbd-shadow;
+	.shadow-more;
 }
 
 #widget-chat {
 	background-color: #AA1111;
-	.vc-cbd-shadow;
+	.shadow-more;
 }
 
 #widget-side-right {

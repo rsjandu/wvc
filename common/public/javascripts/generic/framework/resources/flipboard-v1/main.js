@@ -1,9 +1,10 @@
 define(function(require) {
 	var $           = require('jquery');
 	window.jade     = require('jade');
-	var jquerypp    = require('/javascripts/generic/framework/resources/flipboard-v1/jquerypp.custom.js');
-	var modernizer  = require('/javascripts/generic/framework/resources/flipboard-v1/modernizr.custom.js');
-	var jqbookblk   = require('/javascripts/generic/framework/resources/flipboard-v1/jquery.bookblock.js');
+	var modernizer  = require('modernizer');
+	var jquery_drag = require('jquery_drag');
+	var jquerypp    = require('jquerypp');
+	var jqbookblk   = require('bookblock');
 	var log         = require('log')('flipboard-v1', 'info');
 	var framework   = require('framework');
 
@@ -36,10 +37,10 @@ define(function(require) {
 	var ctx;
 
 	flipboard.start = function (sess_info) {
-		log.info ('My Stuff = ', sess_info);
 
 		$(function() {
 			ctx = $(canvas)[0].getContext("2d");
+
 			$(canvas).on('drag dragstart dragend', function(e) {
 				offset = $(this).offset();
 				data = {
@@ -75,8 +76,6 @@ define(function(require) {
 		}
 	}
 
-	return flipboard;
-
 	function Page () {
 
 		var config = {
@@ -88,7 +87,7 @@ define(function(require) {
 		},
 		init = function() {
 			config.$bookBlock.bookblock( {
-				orientation: 'vertical',
+				orientation: 'horizontal',
 				speed : 700,
 				shadowSides : 0.8,
 				shadowFlip : 0.7
@@ -155,4 +154,7 @@ define(function(require) {
 
 		return { init : init };
 	}
+
+	return flipboard;
+
 });
