@@ -76,7 +76,7 @@ controller.get_config = function (sess_id, callback) {
 			},
 			{
 				name: 'cube',
-				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube' ] },
+				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
