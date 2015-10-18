@@ -75,6 +75,15 @@ controller.get_config = function (sess_id, callback) {
 				},
 			},
 			{
+				name: 'cube',
+				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+				},
+			},
+			{
 				name: 'av-tokbox',
 				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
 				/*

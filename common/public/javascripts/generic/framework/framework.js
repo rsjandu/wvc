@@ -255,6 +255,7 @@ define(function(require) {
 
 		switch (widget) {
 
+			case 'none'   : return null;
 			case 'av'     : return av.attach (layout.av, _module);
 			case 'notify' : return notify.attach (layout.notify, _module);
 			case 'tabs'   : return tabs.attach (layout.notify, _module);
