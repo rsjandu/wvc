@@ -165,7 +165,9 @@ define(function(require) {
       /* TODO: update status message
        * _ui_msg();
        */
-      _d.reject('WebRTC not supported on this browser ? Please check');
+      var err = 'WebRTC not supported on this browser ? Please check';
+      showMessage(err);
+      _d.reject(err);
     }
 
     return _d.promise();
@@ -302,6 +304,8 @@ define(function(require) {
 
     if ( __conftype() == 'audiovideo' ) {
       div = avc.pubc();
+      //div = document.getElementById('pubscontainer');
+
       options.publishAudio = true;
       options.publishVideo = true;
       options.insertMode = 'append';
@@ -515,9 +519,19 @@ define(function(require) {
       var options = {};
       var div = null;
 
+      var getSubsContainer = function (id) {
+          parentDiv = document.getElementById('subscontainer');
+          subscriberDiv = document.createElement('div');
+          subscriberDiv.setAttribute('id', 'stream' + id);
+          subscriberDiv.setAttribute('style','display:inline-block;');
+          parentDiv.appendChild(subscriberDiv);
+          return subscriberDiv;
+      };
+
       if ( ev.stream.hasVideo ) {
         log.info('session streamCreated event. Has Video');
-        div = avc.subc();
+        //div = getSubsContainer(ev.stream.streamId);
+        div = avc.subc(ev.stream.streamId);
         options.insertMode = 'append';
         options.width = '100%';
         options.height = '100%';
@@ -525,7 +539,8 @@ define(function(require) {
         log.info('session streamCreated event with only audio.');
       }
 
-      var sub = _ses.subscribe( ev.stream, div, options );
+      var sub = _ses.subscribe(ev.stream, div, options);
+      //var sub = _ses.subscribe( ev.stream, div.id, options );
       sub.on('videoDisabled', function (ev) {
         log.info('videoDisabled event on id : ' + sub.id);
         log.info('videoDisabled event reason : ' + ev.reason);
@@ -546,8 +561,8 @@ define(function(require) {
       });
 
       /* TODO  save sub object */
-      var connectionid = ev.stream.connection.connectionid ;
-      var streamid = ev.stream.streamid ;
+      var connectionid = ev.stream.connection.connectionId ;
+      var streamid = ev.stream.streamId ;
       log.info('incoming stream streamid: ' + ev.stream.streamId);
       log.info('incoming stream connectionid: ' + ev.stream.connection.connectionId);
 
@@ -586,6 +601,7 @@ define(function(require) {
 
   function showMessage ( m ) {
     log.info(m);
+    avc.showMessage(m);
     /* TODO raise an event or show connection status */
   }
 

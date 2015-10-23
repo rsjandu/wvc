@@ -92,7 +92,7 @@ define(function(require) {
       bigPercentage: 0.85,
       bigFixedRatio: false,
       easing: 'swing'
-    }
+    };
 
     return initLayoutContainer(document.getElementById('subscribersContainer'), opts);
   }

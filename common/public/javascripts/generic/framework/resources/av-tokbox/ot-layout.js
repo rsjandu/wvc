@@ -3,7 +3,7 @@ define(function(require) {
 var OT = require('tbjs');
 
 var otd = {};
-var container = {};
+var container;
 var opts = {};
 
 

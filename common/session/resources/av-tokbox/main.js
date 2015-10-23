@@ -12,56 +12,56 @@ var secret;
 var init;
 
 av_tokbox.init = function (myinfo, common, handles) {
-  var _d = $.Deferred ();
+    var _d = $.Deferred ();
 
-  log = handles.log;
+    log = handles.log;
 
-  log.info ('av-tokbox: init :', myinfo);
-  key = myinfo.custom.apikey;
-  secret = myinfo.custom.apisecret;
-  try {
-    opentok = new OpenTok(key, secret);
-  }
-  catch ( e ) {
-    log.error(e);
-  }
-
-  var opt = {};
-  opt.mediaMode = ( myinfo.custom.p2p ) ? 'relayed' : 'routed';
-  /*
-   * create a room
-   */
-  opentok.createSession (opt , function(err, session) {
-    if ( err ) {
-      log.error('createSession API fail. err: ', err);
-      return _d.reject('opentok session creation failed');
+    log.info ('av-tokbox: init :', myinfo);
+    key = myinfo.custom.apikey;
+    secret = myinfo.custom.apisecret;
+    try {
+        opentok = new OpenTok(key, secret);
+    }
+    catch ( e ) {
+        log.error(e);
     }
 
-	log.info ('av-tokbox: createSession ok');
-    _session = session;
-    sessionid = session.sessionId;
-    key = key;
-    secret = secret;
-    init = true;
+    var opt = {};
+    opt.mediaMode = ( myinfo.custom.p2p ) ? 'relayed' : 'routed';
+    /*
+     * create a room
+     */
+    opentok.createSession (opt , function(err, session) {
+        if ( err ) {
+            log.error('createSession API fail. err: ', err);
+            return _d.reject('opentok session creation failed');
+        }
 
-    return _d.resolve();
-  });
+        log.info ('av-tokbox: createSession ok');
+        _session = session;
+        sessionid = session.sessionId;
+        key = key;
+        secret = secret;
+        init = true;
 
-  return _d.promise ();
+        return _d.resolve();
+    });
+
+    return _d.promise ();
 };
 
 av_tokbox.init_user = function (user) {
-	var _d = $.Deferred ();
+    var _d = $.Deferred ();
 
-	createToken (user, function (err, res) {
-		return ( err ) ? _d.reject (err) : _d.resolve (res);
-	});
+    createToken (user, function (err, res) {
+        return ( err ) ? _d.reject (err) : _d.resolve (res);
+    });
 
-	return _d.promise ();
+    return _d.promise ();
 };
 
 av_tokbox.session_info = function () {
-  return 'hello';
+    return 'hello';
 };
 
 /*
@@ -73,50 +73,50 @@ av_tokbox.session_info = function () {
  * @return : classid, sessionid, token, apikey, username, authid
  */
 function createToken (user, cb) {
-  /*
-   * SS We'd require the token when an authenticated user comes in anytime after class is scheduled.
-   * This could be before a class starts.
-   * Let's say one checks the cam and mic, token access is required for client side APIs.
-   */
-  if ( !sessionid ) {
-    var err = 'av-tokbox: sessionid not defined. check if init api is successful';
-    log.warn (err);
-    return cb(err, null);
-  }
+    /*
+     * SS We'd require the token when an authenticated user comes in anytime after class is scheduled.
+     * This could be before a class starts.
+     * Let's say one checks the cam and mic, token access is required for client side APIs.
+     */
+    if ( !sessionid ) {
+        var err = 'av-tokbox: sessionid not defined. check if init api is successful';
+        log.warn (err);
+        return cb(err, null);
+    }
 
-  var p = {
-    role : 'moderator',
-    expireTime : getTokenExpiry(),
-    data : user
-  };
+    var p = {
+        role : 'moderator',
+        expireTime : getTokenExpiry(),
+        data : user
+    };
 
-  var tokenid;
-  try {
-    tokenid = opentok.generateToken(sessionid, p);
-  } catch ( e ) {
-    log.error(e);
-    return cb(e, null);
-  }
+    var tokenid;
+    try {
+        tokenid = opentok.generateToken(sessionid, p);
+    } catch ( e ) {
+        log.error(e);
+        return cb(e, null);
+    }
 
-  /* Any messaging protocol for payloads ?
-  */
+    /* Any messaging protocol for payloads ?
+    */
 
-  var res = {
-    sessionid : sessionid,
-    token     : tokenid,
-    key       : key,
-    classid   : null,
-    username  : user,
-    authid    : null
-  };
+    var res = {
+        sessionid : sessionid,
+        token     : tokenid,
+        key       : key,
+        classid   : null,
+        username  : user,
+        authid    : null
+    };
 
-  return cb(null, res);
+    return cb(null, res);
 }
 
 
 var activeSessionTime = 2*60*60;
 var getTokenExpiry = function getTokenExpiry() {
-  return (new Date().getTime() / 1000) + activeSessionTime;
+    return (new Date().getTime() / 1000) + activeSessionTime;
 };
 
 

@@ -4,7 +4,6 @@ var OpenTok = require('opentok');
 var config = require('./../conf/roomconfig');
 var Room = require('./room');
 var User = require('./user');
-var UserManager = require('./userManager');
 var logger = require('./../lib/logger.js');
 
 var log = logger.getLogger('vcRtcApp');

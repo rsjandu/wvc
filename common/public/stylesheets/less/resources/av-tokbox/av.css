@@ -1,0 +1,94 @@
+@avcontrols-height : 30px;
+@element-gap : 5px;
+@pub-vid-height : 405px;
+
+
+.avcs {
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  bottom: 0px;
+  border-width:1px;
+  border-style:solid;
+}
+
+.avpo {
+	position: absolute;
+	top: 0px;
+	height: 440px;
+	max-width: 100%;
+	left: 0px;
+	right: 0px;
+}
+
+.avpc {
+	position: absolute;
+	top: 0px;
+	height: 405px;
+	max-width: 100%;
+	left: 0px;
+	right: 0px;
+}
+
+.avpmenu {
+	text-align: center;
+	position: absolute;
+	top: 410px;
+	height: 40px;
+	max-width: 100%;
+	left: 0px;
+	right: 0px;
+}
+
+.avsc {
+	position: absolute;
+	top: 450px;
+	height: 85px;
+	bottom: 5px;
+	max-width: 100%;
+	left: 0px;
+	right: 0px;
+	border-color: rgb(88,88,88);
+	border-width:1px;
+	border-style:solid;
+	-webkit-box-shadow: 3px 3px 10px #333;
+	box-shadow: 3px 3px 10px #333;
+	border: 1px solid #777777;
+	color: #fff0e0;
+	display: inline-block;
+}
+
+.btn-round {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.btn-round.btn-lg {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.btn-round.btn-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+}
+
+.btn-round.btn-xs {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.btn-custom {
+	opacity: 0.95;
+	margin-left: 10px;
+	margin-right: 10px;
+	display: inline-block;
+}
+    
+.btn-custom:hover {
+	opacity: 1.0;
+}

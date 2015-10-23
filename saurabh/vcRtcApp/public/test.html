@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Basic Bootstrap Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/boot.css">
+<!-- Optional Bootstrap theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+</head>
+
+<body>
+<div class="container">
+    <div class="row">
+        <div id = "jt" class="jumbotron1">
+            <div class="container-fluid">
+                <h2>VC demo using WebRTC</h2>
+                <p>Welcome to WizIQ Virtual ClassRoom. No Flash Plugins now !  Audio Video Chat demo built on WebRTC.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <button class="btn btn-danger sab" href="#">
+            <span class="fa fa-trash-o fa-lg"> </span> Delete
+        </button>
+        
+        <button class="btn btn-success vote-button" id="btnUpVote" type="button"
+            data-vote="1">
+            <i class="fa fa-thumbs-up"></i>
+            Up Vote!
+        </button>
+
+        <button class="btn btn-danger vote-button" id="btnDownVote"
+            type="button" data-vote="-1">
+            <i class="fa fa-thumbs-down"></i>
+            Down Vote!
+        </button>
+        
+      <div id="avmin">
+            <span class="btn avminb fa fa-minus-square fa-lg"> Minimize </span>
+      </div> 
+
+      <button id="avmax" class="btn avmaxb" type='button'>
+            <span class="fa fa-arrows-alt fa-lg"> Maximize </span>
+      </button>
+
+    </div>
+</div>
+
+<script>
+function sendVote(event) {
+    var $btn = $(event.target);
+    //console.log('button ev click detected for: '+ $btn.attribute('id'));
+    console.log(parseInt($btn.attr('data-vote')));
+    console.log($btn.prop('tagName'));
+}
+function test(event) {
+    var $btn = $(event.target);
+    console.log('button ev test clicked' );
+    console.log($btn.prop('tagName'));
+}
+
+function max() {
+    console.log('max button clicked');
+}
+
+function min() {
+    console.log('min button clicked');
+}
+
+// Two ways of doing this
+//$('body').on('click', 'button.vote-button', sendVote);
+$('button.vote-button').click(sendVote);
+// SS this wont work
+//$('button.sab').on('click', test);
+$('button.sab').click(test);
+
+
+//$('button.avmaxb').click(max);
+$('#avmax').click(max);
+$('avmin.avminb').click(min);
+
+</script>
+
+
+</body>
+</html>                                		

@@ -85,7 +85,7 @@ controller.get_config = function (sess_id, callback) {
 			},
 			{
 				name: 'av-tokbox',
-				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
+				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'av' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
