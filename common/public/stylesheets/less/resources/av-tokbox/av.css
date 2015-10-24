@@ -31,17 +31,6 @@
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
-#av-secondary-outer.avsc {
-	position: absolute;
-	height: 20%;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	padding: 5px;
-	color: #fff0e0;
-	display: inline-block;
-}
-
 #av-menu-outer .btn {
 	margin: 2px;
 	background: none;
@@ -59,6 +48,28 @@
 	color: red;
 }
 
+
+#av-secondary-outer.avsc {
+	position: absolute;
+	height: 20%;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	padding: 5px;
+	color: #fff0e0;
+	display: inline-block;
+}
+
 .btn-custom:hover {
 	opacity: 1.0;
+}
+
+@media screen and (min-height : 643px) and (max-height : 800px) {
+	#av-menu-outer .btn {
+		margin: 2px;
+	}
+
+	#av-menu-outer .btn span {
+		font-size: 1.2em;
+	}
 }
