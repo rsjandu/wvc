@@ -40,8 +40,8 @@ define(function(require) {
         }
 
         $(anchor).append(template());
-        pubsc = $(anchor).find('#av-primary-container')[0];
-        subsc = $(anchor).find('#av-secondary-container')[0];
+        pubsc = $(anchor).find('#av-primary-outer')[0];
+        subsc = $(anchor).find('#av-secondary-outer')[0];
         dialog = $(anchor).find('#avwarn')[0];
 
         registerHandlers();

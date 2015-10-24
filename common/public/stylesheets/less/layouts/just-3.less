@@ -25,51 +25,100 @@ body, html {
 	margin : 0px;
 }
 
-@av-width: 540px;
-@av-height: 540px;
-//@av-height: 405px; // 3/4 of the width
-//(405px + 5px + 30px + 5px + 90px + 5px); 
-#widget-av {
-	position: absolute;
-	margin-top: @nav-height + @nav-margin;
-	margin-left: @margin;
-	margin-right: @margin;
-	margin-bottom: calc(@nav-margin / 2);
-	width:    @av-width;
-	left:     0;
-	top:      0;
-	padding: 0px;
+@media screen and (min-height : 643px) and (max-height : 800px) {
+	@av-width: 228px;
+	@av-height: 214px;
+
+	#widget-av {
+		position: absolute;
+		margin-top: @nav-height + @nav-margin;
+		margin-left: @margin;
+		margin-right: @margin;
+		margin-bottom: calc(@nav-margin / 2);
+		width:    @av-width;
+		left:     0;
+		top:      0;
+		padding: 0px;
+	}
+
+	#widget-av .main-inner {
+		width: 100%;
+		padding-bottom: 75%;
+	}
+
+	@chat-top: calc(~'@{av-height} + @{nav-height} + @{margin}');
+	#widget-chat {
+		position: absolute;
+		margin-left:   @margin;
+		margin-right:   @margin;
+		margin-top: @nav-margin;
+		margin-bottom:   @margin;
+		width:    @av-width;
+		left:     0;
+		top: @chat-top;
+		bottom:   0;
+	}
+
+	#widget-tabs {
+		position: absolute;
+		margin-top: @nav-height + @nav-margin;
+		margin-left:   @margin;
+		margin-right:   @margin;
+		margin-bottom:   @margin;
+		width:    calc(~'100% - @{av-width} - (4 * @{margin})');
+		right:    @margin;
+		top:      0px;
+		bottom:   0px;
+		overflow: hidden;
+	}
 }
 
-#widget-av .main-inner {
-	width: 100%;
-	padding-bottom: 75%;
-}
+@media screen and (min-height : 801px) and (max-height : 1080px) {
+	@av-width: 320px;
+	@av-height: 300px;
 
-@chat-top: calc(~'@{av-height} + @{nav-height} + @{margin}');
-#widget-chat {
-	position: absolute;
-	margin-left:   @margin;
-	margin-right:   @margin;
-	margin-top: @nav-margin;
-	margin-bottom:   @margin;
-	width:    @av-width;
-	left:     0;
-	top: @chat-top;
-	bottom:   0;
-}
+	#widget-av {
+		position: absolute;
+		margin-top: @nav-height + @nav-margin;
+		margin-left: @margin;
+		margin-right: @margin;
+		margin-bottom: calc(@nav-margin / 2);
+		width:    @av-width;
+		left:     0;
+		top:      0;
+		padding: 0px;
+	}
 
-#widget-tabs {
-	position: absolute;
-	margin-top: @nav-height + @nav-margin;
-	margin-left:   @margin;
-	margin-right:   @margin;
-	margin-bottom:   @margin;
-	width:    calc(~'100% - @{av-width} - (4 * @{margin})');
-	right:    @margin;
-	top:      0px;
-	bottom:   0px;
-	overflow: hidden;
+	#widget-av .main-inner {
+		width: 100%;
+		padding-bottom: 75%;
+	}
+
+	@chat-top: calc(~'@{av-height} + @{nav-height} + @{margin}');
+	#widget-chat {
+		position: absolute;
+		margin-left:   @margin;
+		margin-right:   @margin;
+		margin-top: @nav-margin;
+		margin-bottom:   @margin;
+		width:    @av-width;
+		left:     0;
+		top: @chat-top;
+		bottom:   0;
+	}
+
+	#widget-tabs {
+		position: absolute;
+		margin-top: @nav-height + @nav-margin;
+		margin-left:   @margin;
+		margin-right:   @margin;
+		margin-bottom:   @margin;
+		width:    calc(~'100% - @{av-width} - (4 * @{margin})');
+		right:    @margin;
+		top:      0px;
+		bottom:   0px;
+		overflow: hidden;
+	}
 }
 
 #widget-side-right {
