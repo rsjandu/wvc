@@ -1,32 +1,14 @@
-requirejs.config({
-  baseUrl: '/javascripts/generic/framework/resources/av-tokbox/',
-  shim : {
-    'tbjs': {
-    'exports': 'OT'
-  }
-},
+define([
+	'./ot-wrap',
+	'jquery',
+	'log',
+	'framework',
+	'./av-conf',
+	'./av-res',
+	'./av-control',
+], function(OT, $, __log, framework, config, videores, avc) {
 
-paths: {
-  /* the left side is the module ID,
-   * the right side is the path to
-   * the jQuery file, relative to baseUrl.
-   * Also, the path should NOT include
-   * the '.js' file extension.
-   * */
-  jquery : '/javascripts/ext/jquery-1.11.3.min',
-  tbjs : '//static.opentok.com/v2/js/opentok.min'
-}
-});
-
-define(function(require) {
-  var $ = require('jquery');
-  var log = require('log')('av-tokbox', 'info');
-  var framework = require('framework');
-  var OT = require('tbjs');
-  var config = require('av-conf');
-  var videores = require('av-res');
-  var avc = require('av-control');
-
+  var log = __log('av-tokbox', 'info');
   var f_handle = framework.handle ('av-tokbox');
 
   var ot = {};

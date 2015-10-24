@@ -1,6 +1,6 @@
-define(function(require) {
+define(['require', './ot-wrap'], function(require) {
 
-var OT = require('tbjs');
+var OT = require('./ot-wrap');
 
 var otd = {};
 var container;

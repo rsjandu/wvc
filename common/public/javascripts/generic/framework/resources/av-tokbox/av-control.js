@@ -4,7 +4,7 @@
 define(function(require) {
     var $ = require('jquery');
     var log = require('log')('av-control', 'info');
-    var otd = require('ot-layout');
+    var otd = require('./ot-layout');
     window.jade = require('jade');
 
     var avc = {};
