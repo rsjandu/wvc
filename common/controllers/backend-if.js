@@ -57,7 +57,7 @@ controller.get_config = function (sess_id, callback) {
 	var session_config = {
 		structure: 'default',
 		layout   : 'just-3',
-		theme    : 'cardboard',
+		theme    : 'triad-maroon',
 		auth : {},
 		session_server : {
 			host : 'localhost',

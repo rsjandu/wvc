@@ -28,7 +28,7 @@ body, html {
 #widget-av {
 	margin-top: @nav-height + @nav-margin;
 	margin-left: @margin;
-	margin-right: @margin;
+	margin-right: @margin / 2;
 	position: absolute;
 	left:     0;
 	top:      0;
@@ -39,6 +39,7 @@ body, html {
 	#widget-av {
 		margin-bottom: calc(@nav-margin / 2);
 		width:    @av-width;
+		height: @av-height;
 	}
 
 	@chat-top: calc(~'@{av-height} + @{nav-height} + @{margin}');
@@ -48,7 +49,7 @@ body, html {
 	}
 
 	#widget-tabs {
-		width:    calc(~'100% - @{av-width} - (4 * @{margin})');
+		width:    calc(~'100% - @{av-width} - (3 * @{margin})');
 	}
 }
 
@@ -72,6 +73,7 @@ body, html {
 
 #widget-av .main-inner {
 	width: 100%;
+	height: 100%;
 	padding-bottom: 75%;
 }
 
@@ -88,10 +90,10 @@ body, html {
 #widget-tabs {
 	position: absolute;
 	margin-top: @nav-height + @nav-margin;
-	margin-left:   @margin;
+	margin-left:   @margin / 2;
 	margin-right:   @margin;
 	margin-bottom:   @margin;
-	right:    @margin;
+	right:    0px;
 	top:      0px;
 	bottom:   0px;
 	overflow: hidden;
@@ -112,7 +114,6 @@ body, html {
 #widget-nav .nav-inner {
 	position: absolute;
 	top:      0px;
-	bottom:   5px;
 	left:     0px;
 	right:    0px;
 }
