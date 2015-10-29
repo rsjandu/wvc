@@ -52,11 +52,11 @@
 
 #av-secondary-outer.avsc {
 	position: absolute;
-	height: 20%;
+	height: calc(20% - 10px);
 	bottom: 0px;
 	left: 0px;
 	right: 0px;
-	padding: 5px;
+	margin: 5px;
 	color: #fff0e0;
 	display: inline-block;
 }
