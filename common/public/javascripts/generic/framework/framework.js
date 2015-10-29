@@ -8,9 +8,10 @@ define(function(require) {
 	var tabs      = require('widget-tabs');
 	var log       = require('log')('framework', 'info');
 
-	var framework = {};
-	var layout    = {};
-	var modules   = {};
+	var framework     = {};
+	var layout        = {};
+	var modules       = {};
+	var menu_handle   = {};
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -54,6 +55,7 @@ define(function(require) {
 		_d_mod.then (
 			function() {
 				modules[_module.name] = _module;
+				set_role (_module);
 				_d.resolve (_module);
 			},
 			function (err) {
@@ -154,11 +156,139 @@ define(function(require) {
 			module_name    : module_name,
 			send_command   : send_command,
 			send_info      : send_info,
-			template       : template
+			template       : template,
+			menu           : {
+				module_name : module_name,
+				add : menu_add,
+				remove : menu_remove,
+				handler : menu_handler,
+			}
 		};
 
 		return handle;
 	};
+
+	function menu_add (display, path) {
+		if (!menu_handle.add) {
+			log.error ('No registered menu resource: ' + this.module_name + '.menu.add() failed');
+			return false;
+		}
+
+		var uid = uniq_id (path);
+
+		/* 'path' is of the form "a.b.c", where "c" is to be added under
+		 * "a"->"b". Implies, that "a" & "b" must exist. */
+		if (!create_menu_map(uid, this.module_name, display, path))
+			return false;
+
+		if (!create_menu_reverse_map(uid, this.module_name, display, path))
+			return false;
+
+		return menu_handle.add (display, get_path(this.module_name, path), uid);
+	}
+
+	var __seed = 1;
+	var menu_map = {};
+	var menu_rmap = {};
+	function uniq_id (path) {
+		var _s = path.split('.');
+		__seed++;
+		return 'menu-' + _s[_s.length -1] + '-' + __seed;
+	}
+
+	function get_path (_m_name, path) {
+		var _m = menu_map[_m_name].submenu;
+		var _s = path.split('.');
+		var _path = '';
+
+		for (var i = 0; i < _s.length - 1; i++) {
+			_path += _m[_s[i]].uid;
+
+			if (i < _s.length - 2)
+				_path += '.';
+
+			_m = _m[_s[i]].submenu;
+		}
+
+		return _path;
+	}
+
+	function create_menu_map (uid, _m_name, display, path) {
+		if (!menu_map[_m_name])
+			menu_map[_m_name] = {
+					module  : _m_name,
+					submenu : {},
+					handler : null,
+				};
+
+		var _m = menu_map[_m_name].submenu;
+		var _s = path.split('.');
+
+		for (var i = 0; i < _s.length; i++) {
+
+			if (i == (_s.length - 1)) {
+				_m[_s[i]] = {
+					display : display,
+					uid     : uid,
+					submenu : {}
+				};
+				return true;
+			}
+
+			if (!_m[_s[i]]) {
+				log.error ('create_menu_map: error: parent node \"' + _s[i] + '\" not defined for menu path \"' + path + '\", module (' + _m_name + ')');
+				return false;
+			}
+
+			_m = _m[_s[i]].submenu;
+		}
+
+		/* Should never return from here */
+		return false;
+	}
+
+	function create_menu_reverse_map (uniq_id, _m_name, display, path) {
+		if (menu_rmap[uniq_id]) {
+			log.error ('create_menu_reverse_map: internal error: duplicate uniq_id \"' + uniq_id + '\"');
+			dump_all_uids ();
+			return false;
+		}
+
+		menu_rmap[uniq_id] = {
+			module_name : _m_name,
+			path        : path
+		};
+
+		return true;
+	}
+
+	function dump_all_uids () {
+		for (var key in menu_rmap) {
+			log.info ('uid: ' + menu_rmap[key] + '[' + menu_rmap[key].module_name + '] - ' + menu_rmap[key].path);
+		}
+	}
+
+	function menu_remove (display, path) {
+		/* TODO
+		if (!menu_handle.set_handler) {
+			log.error ('No registered menu resource: ' + this.module_name + '.menu.remove() failed');
+			return;
+		}
+
+		return menu_handle.remove (menu_callback.bind(this, f));
+		*/
+	}
+
+	function menu_handler (f) {
+		if (!menu_map[this.module_name]) {
+			log.error ('menu_handler: error: no menu registered for \"' + this.module_name + '\"');
+			return false;
+		}
+
+		menu_map[this.module_name].handler = f;
+
+		return true;
+	}
 
 	/*---------------------------------------------
 	 * Internal functions
@@ -209,6 +339,75 @@ define(function(require) {
 		cc.send_info (from, to, info_id, data);
 
 		return;
+	}
+
+	function set_role (_module) {
+		var role = _module.resource.role;
+
+		if (!role)
+			return;
+
+		switch (role) {
+			case 'menu':
+				set_role_menu (_module);
+				break;
+
+			case 'av':
+				break;
+
+			case 'whitelabeling':
+				break;
+
+			default:
+				log.error ('unknown role \"' + role + '\" for module \"' + _module.name + '\"');
+		}
+
+		return;
+	}
+
+	function set_role_menu (_module) {
+		/*
+		 * Test for various required methods */
+
+		if (!_module.handle.menu_add) {
+			log.error ('Undefined method \"menu_add\" for \"' + _module.name + '\" (role=menu)');
+			return;
+		}
+
+		if (!_module.handle.menu_remove) {
+			log.error ('Undefined method \"menu_remove\" for \"' + _module.name + '\" (role=menu)');
+			return;
+		}
+
+		if (!_module.handle.menu_set_handler) {
+			log.error ('Undefined method \"menu_set_handler\" for \"' + _module.name + '\" (role=menu)');
+			return;
+		}
+
+		menu_handle.add = _module.handle.menu_add;
+		menu_handle.remove = _module.handle.menu_remove;
+		_module.handle.menu_set_handler(menu_callback);
+
+		return;
+	}
+
+	function menu_callback (menu_uid) {
+
+		if (!menu_rmap[menu_uid]) {
+			log.error ('menu_callback with nonexistent uid: ' + menu_uid);
+			return;
+		}
+
+		var module_name = menu_rmap[menu_uid].module_name;
+		var path = menu_rmap[menu_uid].path;
+		var f = menu_map[module_name].handler;
+
+		try {
+			f(path);
+		}
+		catch (e) {
+			log.error ('menu_callback: exception in module \"' + module_name + '\", handling \"' + path + '\"');
+		}
 	}
 
 	function deliver_info (from, to, id, data) {

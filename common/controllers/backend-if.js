@@ -57,7 +57,7 @@ controller.get_config = function (sess_id, callback) {
 	var session_config = {
 		structure: 'default',
 		layout   : 'just-3',
-		theme    : 'triad-maroon',
+		theme    : 'cardboard',
 		auth : {},
 		session_server : {
 			host : 'localhost',
@@ -67,24 +67,33 @@ controller.get_config = function (sess_id, callback) {
 		resources : [
 			{
 				name: 'menu-sidepush-v1',
+				role: 'menu',
 				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
 				custom: {
+					sub_menu_vslide: true,
+					hlight_sel: true,
 				},
 			},
 			{
 				name: 'cube',
+				role: 'whitelabeling',
 				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
 				custom: {
+					small : {
+					},
+					center : {
+					}
 				},
 			},
 			{
 				name: 'av-tokbox',
+				role: 'av',
 				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'av' ] },
 				/*
 				 * perms must be returned per user */

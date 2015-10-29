@@ -20,6 +20,11 @@ define(function(require) {
 
 		$('body').append(template());
 
+		/* Attach a click handler */
+		$('.wrap').on('click', toggle);
+
+		create_menu (f_handle);
+
 		_d.resolve();
 		return _d.promise();
 	};
@@ -29,6 +34,36 @@ define(function(require) {
 
 	cube.info = function (from, id, data) {
 	};
+
+	function create_menu (f) {
+		var _m = f.menu;
+
+		_m.add ('About', 'about');
+		_m.add ('Expand', 'about.expand');
+		_m.add ('Shrink', 'about.shrink');
+		_m.handler (menu_handler);
+	}
+
+	function toggle () {
+		if ($('.wrap.center').length == 0) {
+			$('.wrap').addClass('center');
+			return;
+		}
+
+		$('.wrap').removeClass('center');
+		return;
+	}
+
+	function menu_handler (menu_uid) {
+		switch (menu_uid) {
+			case 'about.expand':
+				$('.wrap').addClass('center');
+				break;
+			case 'about.shrink':
+				$('.wrap').removeClass('center');
+				break;
+		}
+	}
 
 	return cube;
 });
