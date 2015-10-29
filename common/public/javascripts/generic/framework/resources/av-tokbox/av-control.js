@@ -16,6 +16,7 @@ define(function(require) {
     var avcontainer;
     var pubsc;
     var subsc;
+    var _l = {};
 
     window.onresize = __resize;
 
@@ -53,20 +54,11 @@ define(function(require) {
     };
 
     avc.showMessage = function ( m ) {
-        /* TODO
-        var anchor = display_spec.anchor;
-        var _m = '<h7>' + '' + m + '' + '</h4>';
-        dialog.append(
-                '<div>' +
-                _m +
-                '</div>'
-                );
-        */
     };
 
 
     /*
-     * Get publisher container
+     * Get primary container
      */
     avc.pubc = function () {
         return pubsc;
@@ -74,54 +66,31 @@ define(function(require) {
 
 
     /*
-     * Get subscribers container
+     * Get secondary container
      */
     avc.subc = function () {
         return subsc;
     };
 
-
-    createpubd = function () {
-        createD();
-    };
-
-
-    createsubd = function (id) {
-        createD(id);
-    };
-
-
     avc.layout = function () {
-        otd.layout();
+        _l.layout();
     };
 
 
     function initlayout (cont) {
-        var lo = {
+        var opt = {
             bigFirst    : false,
             fixedRatio  : true,
             animate     : true,
             easing      : 'swing'
         };
 
-        otd.initLayoutContainer(subsc, lo);
+        _l = otd.initLayoutContainer(subsc, opt);
         layout = true;
     }
 
 
     function createD(id) {
-        /*
-           var remotes = document.getElementById('remoteVideos');
-           if (remotes) {
-           console.log('found remote videos div in html');
-           var container = document.createElement('div');
-           container.className = 'videoContainer';
-           container.id = 'container_' + 'dsvcsvs';
-           container.appendChild(video);
-           remotes.appendChild(container);
-           }
-           parentDiv = document.getElementById('subcontainer');
-           */
         subscriberDiv = document.createElement('div');
         subscriberDiv.setAttribute('id', 'stream' + id);
         subscriberDiv.setAttribute('style','display:inline-block;');
@@ -134,23 +103,39 @@ define(function(require) {
         log.info('av maximise button click');
     }
 
-    function minimize() {
-        log.info('av minimize button click');
+    function micmute() {
+        log.info('micmute button click');
     }
 
-    function ondisconnect() {
-        log.info('ondisconnect called.');
+    function micunmute() {
+        log.info('micunmute button click');
+    }
+
+    function toggleVideo() {
+        log.info('toggleVideo button click');
+    }
+
+    function start() {
+        log.info('start button click');
+    }
+
+    function disconnect() {
+        log.info('disconnect called.');
     }
 
     function registerHandlers() {
-        /* $('[data-toggle="tooltip"]').tooltip();
-         */
-        $('#avdisconnect').click(ondisconnect);
         $('#avmax').click(maximize);
-        $('#avmin').click(minimize);
+        $('#avmic-mute').click(micmute);
+        $('#avmic-unmute').click(micunmute);
+        $('#avcamstop').click(toggleVideo);
+        $('#avstart').click(start);
+        $('#avdisconnect').click(disconnect);
+        /* $('[data-toggle="tooltip"]').tooltip();
+        $('.avsc').on('transitioned webkitTransitionEnd', function(e){
+            _l.layout();
+        });
+        */
     }
 
-
-    /* return the object */
     return avc;
 });

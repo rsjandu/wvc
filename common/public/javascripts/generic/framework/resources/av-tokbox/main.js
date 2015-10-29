@@ -160,7 +160,6 @@ define([
     log.info('__connect called');
     var _d = $.Deferred();
     /* TODO both init publisher and connect could be done in parallel
-     * when both operations are successful, then we are ready to publish stream
      */
     __ses_connect (t || tk)
       .then ( __init_pub, _d.reject )
@@ -541,6 +540,10 @@ define([
            You may want to add or adjust other UI.
         */
       });
+      sub.on('destroyed', function (ev) {
+        log.info('DOM destroy reason : ' + ev.reason);
+        avc.layout();
+      });
 
       /* TODO  save sub object */
       var connectionid = ev.stream.connection.connectionId ;
@@ -552,10 +555,10 @@ define([
     },
 
     streamDestroyed : function (ev) {
-      log.info('session streamDestroyed event');
       if ( ev.stream.hasVideo ) {
         log.info('session streamDestroyed event. has video');
-        avc.layout();
+      } else {
+        log.info('session streamDestroyed event');
       }
     },
 
@@ -564,7 +567,7 @@ define([
      */
     streamPropertyChanged : function (ev) {
       log.info('session streamPropertyChanged event');
-      /* get a list of subscribers for a stream */
+      /* TODO get a list of subscribers for a stream */
       var subs = _ses.getSubscribersForStream(ev.stream);
       for ( var i = 0; i < subs.length; i++ ) {
       }
