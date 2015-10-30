@@ -11,6 +11,8 @@
 	transition: 0.2s ease;
 	-moz-transition: 0.2s ease;
 	-webkit-transition: 0.2s ease;
+
+	z-index: 100;
 }
 
 .wrap.center {
@@ -18,9 +20,9 @@
 	right: calc(50% - 100px);
 	bottom: calc(50% - 100px);
 	margin-top: 150px;
-	perspective: 2000px;
-	-webkit-perspective: 2000px;
-	-moz-perspective: 2000px;
+	perspective: 1000px;
+	-webkit-perspective: 1000px;
+	-moz-perspective: 1000px;
 	perspective-origin: 50% 50%;
 
 	transition: 0.2s ease;
@@ -62,6 +64,7 @@
 .center .cube > div {
 	position: absolute;
 	border: 1px solid rgba(200, 200, 200, 0.3);
+	border-radius: 15px;
 	background: rgba(255,255,255,0.3);
 	box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
 	box-sizing: border-box;
@@ -92,7 +95,16 @@
 	background-repeat: no-repeat;
 	background-size: 200px 200px;
 	background-origin: border-box;
-	border: none;
+
+	/*
+	 * Tilted @ 30 degrees
+	-webkit-transform: rotateX(30deg) translateY(-34.7px) translateZ(-30px);
+	height:230px;
+
+	 * Tilted @ 45 degrees
+	-webkit-transform: rotateX(45deg) translateY(-25.0px) translateZ(25px);
+	height:280px;
+	*/
 }
 
 .front {
