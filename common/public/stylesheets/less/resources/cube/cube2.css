@@ -15,8 +15,8 @@
 
 .wrap.center {
 	position: fixed;
-	right: 50%;
-	bottom: 50%;
+	right: calc(50% - 100px);
+	bottom: calc(50% - 100px);
 	margin-top: 150px;
 	perspective: 2000px;
 	-webkit-perspective: 2000px;
@@ -80,9 +80,19 @@
 }
 
 .center .cube > div.front {
+	/*
 	background-image: url('wiziqlogo1.png');
 	background-size: 200px 200px;
 	background-origin: border-box;
+	*/
+}
+
+.center .cube > div.protrude {
+	background-image: url('wiziqlogo1.png');
+	background-repeat: no-repeat;
+	background-size: 200px 200px;
+	background-origin: border-box;
+	border: none;
 }
 
 .front {
@@ -190,13 +200,13 @@
 }
 
 @keyframes rotate {
-	from {
+	0% {
 		transform: rotateX(0deg) rotateY(0deg);
 		-webkit-transform: rotateX(0deg) rotateY(0deg);
 		-moz-transform: rotateX(0deg) rotateY(0deg);
 	}
 
-	to {
+	100% {
 		transform: rotateX(360deg) rotateY(360deg);
 		-webkit-transform: rotateX(360deg) rotateY(360deg);
 		-moz-transform: rotateX(360deg) rotateY(360deg);

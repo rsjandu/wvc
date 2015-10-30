@@ -1,3 +1,5 @@
+@import "../mixins/elements";
+
 @font-face {
 	font-family: 'quicksand';
 	src: url('./fonts/quicksand/Quicksand_Light.otf');
@@ -136,11 +138,17 @@ p {
 }
 
 /* cube */
+.inner-shadow2(@horizontal:0, @vertical:1px, @blur:2px, @color:rgba(0, 0, 0, 0.4)) {
+	-webkit-box-shadow: inset @horizontal @vertical @blur @color;
+	-moz-box-shadow: inset @horizontal @vertical @blur @color;
+	box-shadow: inset @horizontal @vertical @blur @color;
+}
+
 .cube > div {
 	position: absolute;
 	border: 1px solid rgba(153, 202, 235, 0.8);
 	background: rgba(153,202,235,0.5);
-	box-shadow: inset 0 0 10px rgba(255,255,255,0.6);
+	.inner-shadow2(0, 0, 10px, rgba(255, 255, 255, 0.6));
 	box-sizing: border-box;
 	padding: 10px;
 	height: 100%;
@@ -151,3 +159,17 @@ p {
 	font-size: 30px;
 }
 
+.center .cube > div {
+	position: absolute;
+	border: 1px solid rgba(153, 202, 235, 0.1);
+	background: rgba(153,202,235,0.3);
+	.inner-shadow2(0, 0, 40px, rgba(255, 255, 255, 0.6));
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+	color: #fff;
+	line-height: 120px;
+	text-align: center;
+	font-size: 120px;
+	padding-top: 40px;
+}
