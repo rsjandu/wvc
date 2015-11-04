@@ -4,14 +4,17 @@ define(function(require) {
 	var nav       = require('widget-nav');
 	var notify    = require('widget-notify');
 	var tabs      = require('widget-tabs');
+	var events    = require('events');
 	var log       = require('log')('layout-ctrl', 'info');
 
 	var lc            = {};
 	var layout        = {};
 	var _framework;
+	var emitter;
 
 	lc.init = function (sess_config, f_handle) {
 		_framework = f_handle.handle('layout-ctrl');
+		emitter = events.emitter('framework:layout', 'layout-controller');
 	};
 
 	lc.probe_layout = function () {
@@ -75,15 +78,18 @@ define(function(require) {
 		switch (menu_uid) {
 			case 'layout.av_full':
 				$('body').addClass('av-fullscreen');
+				emitter.emit ('av-fullscreen', 'hold on boys ! Video coming up fullscreen !');
 				break;
 
 			case 'layout.av_tiled':
 				$('body').removeClass('av-tiled');
+				emitter.emit ('av-tiled', '... and now ... tilded video');
 				break;
 
 			case 'layout.av_default':
 				$('body').removeClass('av-tiled');
 				$('body').removeClass('av-fullscreen');
+				emitter.emit ('default', 'and back to default');
 				break;
 		}
 	}

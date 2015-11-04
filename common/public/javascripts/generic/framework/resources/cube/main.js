@@ -3,6 +3,7 @@ define(function(require) {
 	var jmenu       = require('jquery_mmenu');
 	window.jade     = require('jade');
 	var log         = require('log')('cube', 'info');
+	var events      = require('events');
 	var framework   = require('framework');
 
 	var cube = {};
@@ -25,9 +26,20 @@ define(function(require) {
 
 		create_menu (f_handle);
 
+		/*
+		 * Testing events */
+		test_events ();
+
 		_d.resolve();
 		return _d.promise();
 	};
+
+	function test_events () {
+		events.bind ('framework:layout', function (e, data) {
+			log.log ('EVENT RAISED : e - ' + e + ', data = ', data);
+			events.unbind('framework:layout', 'cube');
+		}, 'cube-test');
+	}
 
 	cube.start = function (sess_info) {
 	};
@@ -45,7 +57,7 @@ define(function(require) {
 	}
 
 	function toggle () {
-		if ($('.wrap.center').length == 0) {
+		if ($('.wrap.center').length === 0) {
 			$('.wrap').addClass('center');
 			return;
 		}
