@@ -26,20 +26,9 @@ define(function(require) {
 
 		create_menu (f_handle);
 
-		/*
-		 * Testing events */
-		test_events ();
-
 		_d.resolve();
 		return _d.promise();
 	};
-
-	function test_events () {
-		events.bind ('framework:layout', function (e, data) {
-			log.log ('EVENT RAISED : e - ' + e + ', data = ', data);
-			events.unbind('framework:layout', 'cube');
-		}, 'cube-test');
-	}
 
 	cube.start = function (sess_info) {
 	};
