@@ -1,15 +1,11 @@
 define(function(require) {
 	var $         = require('jquery');
-	var av        = require('widget-av');
-	var nav       = require('widget-nav');
 	var cc        = require('cc');
+	var lc        = require('layout-controller');
 	var identity  = require('identity');
-	var notify    = require('widget-notify');
-	var tabs      = require('widget-tabs');
 	var log       = require('log')('framework', 'info');
 
 	var framework     = {};
-	var layout        = {};
 	var modules       = {};
 	var menu_handle   = {};
 
@@ -17,7 +13,9 @@ define(function(require) {
 		var _d = $.Deferred();
 
 		log.log ('init called with ', sess_config);
-		__probe_layout();
+
+		lc.init(sess_config, framework);
+		lc.probe_layout();
 
 		_d.resolve(sess_config);
 
@@ -38,7 +36,7 @@ define(function(require) {
 
 		log.info ('inserting module - ' + _module.name + ' ...');
 
-		if ((err = __attach_module (layout, _module)) !== null) {
+		if ((err = lc.attach_module (_module)) !== null) {
 
 			log.error ('Failed to attach module ' + _module.name);
 
@@ -85,6 +83,18 @@ define(function(require) {
 		catch (e) {
 			log.error ('module \"' + name + '\": start err = ' + e);
 		}
+	};
+
+	/*
+	 * Do any work which needs to be done, once all the modules
+	 * have finished their inits. */
+	framework.post_init = function (sess_info) {
+		var _d = $.Deferred ();
+
+		lc.post_init ();
+
+		_d.resolve (sess_info);
+		return _d.promise ();
 	};
 
 	var _d_start;
@@ -167,6 +177,11 @@ define(function(require) {
 
 		return handle;
 	};
+
+	/*---------------------------------------------
+	 * Internal functions
+	 *--------------------------------------------*/
+
 
 	function menu_add (display, path) {
 		if (!menu_handle.add) {
@@ -289,11 +304,6 @@ define(function(require) {
 
 		return true;
 	}
-
-	/*---------------------------------------------
-	 * Internal functions
-	 *--------------------------------------------*/
-
 
 	/*
 	 * returns a promise
@@ -422,50 +432,6 @@ define(function(require) {
 		catch (e) {
 			log.error ('deliver_info: \"' + to + '\" err = ' + e);
 		}
-	}
-
-	function __probe_layout () {
-
-		if ($('#widget-nav').length !== 0)
-			layout.nav = $('#widget-nav')[0];
-
-		if ($('#widget-notify').length !== 0)
-			layout.notify = $('#widget-notify')[0];
-
-		if ($('#widget-av').length !== 0)
-			layout.av = $('#widget-av')[0];
-
-		if ($('#widget-chat').length !== 0)
-			layout.chat = $('#widget-chat')[0];
-
-		if ($('#widget-tabs').length !== 0)
-			layout.tabs = $('#widget-tabs')[0];
-
-		if ($('#widget-side-left').length !== 0)
-			layout.side_left = $('#widget-side-left')[0];
-
-		if ($('#widget-side-right').length !== 0)
-			layout.side_right = $('#widget-side-right')[0];
-	}
-
-	function __attach_module (layout, _module) {
-		var widget = _module.resource.display_spec.widget;
-		var inner;
-
-		switch (widget) {
-
-			case 'none'   : return null;
-			case 'av'     : return av.attach (layout.av, _module);
-			case 'notify' : return notify.attach (layout.notify, _module);
-			case 'tabs'   : return tabs.attach (layout.notify, _module);
-			case 'nav'    : return nav.attach (layout.nav, _module);
-
-			default : 
-				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
-				return '_module ' + _module.name + ' requesting non-existent widget ' + widget;
-		}
-
-		return null;
 	}
 
 	return framework;

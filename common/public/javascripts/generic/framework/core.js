@@ -31,6 +31,7 @@ define(function(require) {
 
 			.then ( cc.init.bind(null, framework),  _d.reject.bind(_d) )
 			.then ( auth,                           _d.reject.bind(_d) )
+			.then ( framework.post_init,            _d.reject.bind(_d) )
 			.then ( framework.wait_for_start,       _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE II'), _d.reject.bind(_d) )
 
