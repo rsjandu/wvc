@@ -1,0 +1,27 @@
+{ 
+	"common" : {
+	},
+
+	"resources" : [
+		{
+			"name" : "wboard-basic",
+			"custom" : { 
+				"background" : "default"
+			}
+		},
+		{
+			"name" : "chat-box",
+			"custom" : {
+				"serveraddr" : "something"	
+			}
+		},
+		{
+			"name" : "av-tokbox",
+			"custom" : { 
+				"apikey" : "45343012",
+				"apisecret" : "cf5bafc2af0fcc269bfb8e19b6def2d1558aa212",
+				"p2p"	: false
+			}
+		}		
+	]
+}

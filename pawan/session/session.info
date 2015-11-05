@@ -1,0 +1,19 @@
+{ 
+	"common" : {
+	},
+
+	"resources" : [
+		{
+			"name" : "wboard-basic",
+			"custom" : { 
+				"background" : "default"
+			}
+		},
+		{
+			"name" : "chat-box",
+			"custom" : {
+				"serveraddr" : "something"	
+			}
+		}
+	]
+}
