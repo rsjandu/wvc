@@ -16,6 +16,12 @@
 			"custom" : { 
 				"background" : "default"
 			}
+		},
+		{
+			"name" 		: "chat-box",
+			"custom" 	: {
+				"server_url" : "https://localhost:5000"
+			} 
 		}
 	]
 }
