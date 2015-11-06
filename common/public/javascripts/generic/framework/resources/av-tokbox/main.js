@@ -6,7 +6,8 @@ define([
 	'./av-conf',
 	'./av-res',
 	'./av-control',
-], function(OT, $, __log, framework, config, videores, avc) {
+    'events'
+], function(OT, $, __log, framework, config, videores, avc, events) {
 
   var log = __log('av-tokbox', 'info');
   var f_handle = framework.handle ('av-tokbox');
@@ -18,10 +19,11 @@ define([
   var _ses = {};
   var numusers = 0;
   var publisher;
-  var subs = [];
+  var _subs = [];
   var classid = null;
   var tk;
   var otc;
+  var cbs = {};
 
 
   ot.init = function (display_spec, custom, perms) {
@@ -36,8 +38,22 @@ define([
     };
 
     config.setav(c);
+    bind_ev();
 
-    avc.init(display_spec, f_handle)
+    cbs = {
+        'start' : ot.start,
+        'stop' : ot.stop,
+        'mutela' : muteLocalAudio,
+        'unmutela' : unmuteLocalAudio,
+        'mutelv' : muteLocalVideo,
+        'unmutelv' : unmuteLocalVideo,
+        'mutera' : muteRemoteAudio,
+        'unmutera' : unmuteRemoteAudio,
+        'muterv' : muteRemoteVideo,
+        'unmuterv' : unmuteRemoteVideo,
+    };
+
+    avc.init(display_spec, f_handle, cbs)
       .then (_d.resolve, _d.reject)
       ;
 
@@ -48,10 +64,11 @@ define([
   ot.start = function ( ses_info ) {
     var _d = $.Deferred();
     log.info ('ot.start: ', ses_info);
+    if ( $.isEmptyObject(_ses_info) ) {
+        _ses_info = ses_info;
+    }
 
-    _ses_info = ses_info;
-
-    __initialize (ses_info)
+    __initialize (_ses_info)
       .then ( __connect, _d.reject )
       .then ( __start_publish, _d.reject )
       .then ( _d.resolve, _d.reject )
@@ -83,6 +100,26 @@ define([
    * --- private functions ---
    */
 
+
+  function bind_ev () {
+    if ( !events.bind('framework:layout', onEv, 'av-tokbox') ) {
+        log.error('event bind failed.');
+    } else {
+        log.info('ev bind success');
+    }
+  }
+
+  function onEv (ev, data) {
+      log.info('onEv ev: ', ev);
+      log.info('onEv data: ', data);
+      /* define these names somewhere */
+      if ( ev === 'av-fullscreen' ) {
+        avc.layout();
+      } else if ( ev === 'default' ) {
+        avc.layout();
+      }
+  }
+
   function disconnect() {
     _ses.disconnect();
   }
@@ -98,8 +135,12 @@ define([
 
 
   function unsubscribe() {
-    /* TODO remove subscribers if any
-    */
+    _subs.forEach(function (sub) {
+        log.info('calling unsubscribe');
+        _ses.unsubscribe(sub);
+    });
+    _subs = [];
+    numusers = 0;
   }
 
 
@@ -139,6 +180,7 @@ define([
       log.info('calling init session');
       session = OT.initSession(_k, sessionid);
       _ses = session;
+      _ses.off();
       __ses_handlers();
 
       log.info('__initOT calling resolve');
@@ -230,13 +272,15 @@ define([
       .then ( s, fail )
       ;
 
-    function s () {
+    function s (mediatype) {
       log.info('__ot_initpub success ! return resolve');
+      avc.usermediasuccess(mediatype);
       _d.resolve();
     }
 
     function fail (e) {
       log.info('__init_pub failed with: ' + e);
+      avc.usermediafail();
       _d.reject(e);
     }
 
@@ -285,8 +329,6 @@ define([
 
     if ( __conftype() == 'audiovideo' ) {
       div = avc.pubc();
-      //div = document.getElementById('pubscontainer');
-
       options.publishAudio = true;
       options.publishVideo = true;
       options.insertMode = 'append';
@@ -321,7 +363,7 @@ define([
       } else {
         log.info('Publisher initialized.');
         pub_handlers();
-        _d.resolve();
+        _d.resolve(__conftype());
       }
     });
 
@@ -371,7 +413,6 @@ define([
       if ( ev.reason === 'networkDisconnected' ) {
         showMessage('Your publisher lost its connection. Please check your internet connection and try publishing again.');
       } else {
-        //ev.preventDefault();
         log.info('The publisher stopped streaming. Reason: ' + ev.reason);
       }
       if ( ev.stream.hasVideo ) {
@@ -400,6 +441,60 @@ define([
      publisher.publishVideo(true);
      */
 
+  function muteLocalAudio() {
+      log.info('muteLocalAudio');
+      if ( publisher ) {
+          publisher.publishAudio(false);
+      }
+  }
+
+  function unmuteLocalAudio() {
+      log.info('unmuteLocalAudio');
+      if ( publisher ) {
+          publisher.publishAudio(true);
+      }
+  }
+
+  function muteLocalVideo() {
+      log.info('muteLocalVideo');
+      if ( publisher ) {
+          publisher.publishVideo(false);
+      }
+  }
+
+  function unmuteLocalVideo() {
+      log.info('unmuteLocalVideo');
+      if ( publisher ) {
+          publisher.publishVideo(true);
+      }
+  }
+
+  function getSub (id) {
+      for ( var i = 0; i < _subs.length; i++ ) {
+        if ( id === _subs[i].element.id ) {
+            return _subs[i];
+        }
+      }
+      return null;
+  }
+
+  function muteRemoteVideo(id) {
+      sub = getSub(id);
+      if ( sub ) {
+          log.info('muteRemoteVideo subs found');
+          sub.vmute = true;
+          sub.subscribeToVideo('false'); // TODO video on off
+      }
+  }
+
+  function unmuteRemoteVideo(id) {
+  }
+
+  function muteRemoteAudio(id) {
+  }
+
+  function unmuteRemoteAudio(id) {
+  }
 
   /*
    * TODO we can place all helper functions in a central place or different file later
@@ -487,6 +582,7 @@ define([
         /* TODO take action */
         sendMessage('Internet connection is probably lost. Please check your connection and try connecting again.');
       }
+      avc.disconnected();
     },
 
     streamCreated : function (ev) {
@@ -520,8 +616,21 @@ define([
         log.info('session streamCreated event with only audio.');
       }
 
-      var sub = _ses.subscribe(ev.stream, div, options);
-      //var sub = _ses.subscribe( ev.stream, div.id, options );
+      var sub = _ses.subscribe(
+              ev.stream,
+              div,
+              options,
+              function (error) {
+                  if ( error ) {
+                      log.error('session subscribe failed: ', error.message);
+                  } else {
+                      log.info('Subscribed to stream: ' + ev.stream.id);
+                      sub.element.setAttribute('id', 'RS_' + ev.stream.id);
+                      avc.svcstyle(sub);
+                      _subs.push(sub);
+                  }
+              });
+
       sub.on('videoDisabled', function (ev) {
         log.info('videoDisabled event on id : ' + sub.id);
         log.info('videoDisabled event reason : ' + ev.reason);
@@ -545,9 +654,8 @@ define([
         avc.layout();
       });
 
-      /* TODO  save sub object */
-      var connectionid = ev.stream.connection.connectionId ;
-      var streamid = ev.stream.streamId ;
+      var connectionid = ev.stream.connection.connectionId;
+      var streamid = ev.stream.streamId;
       log.info('incoming stream streamid: ' + ev.stream.streamId);
       log.info('incoming stream connectionid: ' + ev.stream.connection.connectionId);
 
@@ -555,6 +663,7 @@ define([
     },
 
     streamDestroyed : function (ev) {
+      /* TODO remove subscriber record */
       if ( ev.stream.hasVideo ) {
         log.info('session streamDestroyed event. has video');
       } else {
@@ -592,15 +701,15 @@ define([
 
 
   function send_audio_mute () {
-    f_handle.send_command ('*', 'audio.mute', 'on')
-      .then (
-          function (data) {
-            log.info ('send_audio_must: on: ok', data);
-          },
-          function (err) {
-            log.error ('send_audio_must: on: err: ' + err);
-          }
-          );
+      f_handle.send_command ('*', 'audio.mute', 'on')
+          .then (
+                  function (data) {
+                      log.info ('send_audio_must: on: ok', data);
+                  },
+                  function (err) {
+                      log.error ('send_audio_must: on: err: ' + err);
+                  }
+                );
   }
 
   return ot;
