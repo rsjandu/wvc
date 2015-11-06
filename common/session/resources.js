@@ -67,7 +67,7 @@ res.init_user = function (user) {
 	var d_arr     = [];
 	var info      = {};
 	var info_err  = {};
-	var counter   = 0;
+	var counter   = Object.keys(list).length;
 
 	function mod_ok (m, data) {
 		info[m] = data;
@@ -99,10 +99,10 @@ res.init_user = function (user) {
 			}
 			catch (e) {
 				log.error ('resources:init_user: \"' + m + '\" err = ' + e);
+				counter--;
 			}
 
 			if (d_mod) {
-				counter++;
 				d_mod.then (
 					mod_ok.bind(d_mod, m),
 					mod_err.bind(d_mod, m)

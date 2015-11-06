@@ -113,7 +113,13 @@ controller.get_config = function (sess_id, callback) {
 				perms: { },
 				custom: {
 				},
-			}
+			},
+			{
+				name: 'chat-box',
+				display_spec: { widget: 'chat', templates: [ "basic" ] /* ToDo: use templates */ },
+				custom: {
+				},
+		}
 		],
 		role_map : {
 			teacher : [

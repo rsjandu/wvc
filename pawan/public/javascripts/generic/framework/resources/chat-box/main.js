@@ -7,8 +7,6 @@ requirejs.config({
 		 * Also, the path should NOT include
 		 * the '.js' file extension. */
 		socketio: 'http://localhost:5000/socket.io/socket.io',
-		jscookie: '/javascripts/ext/js-cookie-master/src/js.cookie'
-
 	}
 });
 
@@ -17,7 +15,6 @@ define(function(require){
 	var log = require('log')('chat-test', 'info');
 	var framework = require('framework', 'info');
 	var io = require('socketio');
-	var cookie_master = require('jscookie');
 
 	var chat_box = {};
 	var anchor = {};
@@ -40,7 +37,6 @@ define(function(require){
 			$('form').on("click", "#Submit", function() {
 				if($('#m').val() != '') {
 					send_message( $('#m').val());
-//					$('#messages').append('<li>' + $('#m').val() + '</li>');
 					$('#m').val('');
 				}
 			
@@ -72,10 +68,11 @@ define(function(require){
 	};
 	function handle_connection( sess_info ){
 		log.info('logging','in');
-		socket = io.connect(		//is it global...handle it
-				'http://localhost:5000',  //sess_info.root_url
-				{ query : 'token=' + my_token}
-				);
+		socket = io.connect(		
+				sess_info.root_url,
+				{ 
+					query : 'token=' + my_token
+				});
 	
 		log.info('socket is : ', socket);		
 	
@@ -85,7 +82,6 @@ define(function(require){
 			join_room(room_id);
 		});
 		socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data)});
-//		socket.on('messages:new_private', function(data){ receive_private_message( data )  });
 	}
 	function join_room( room_id ){
 		log.info('connecting to', room_id);
@@ -109,14 +105,6 @@ define(function(require){
 	}
 	function send_message( message ){
 		socket.emit( 'messages:create',{ 'room' : my_info.room_id, 'text' :  message });
-	}
-
-	//new things to lets_chat
-	function send_message_private( user, message){
-//		socket.emit( 'messages:create_private', { 'user' : user, 'text' : message  } );
-	}
-	function send_message_to_group( users, message){
-//		socket.emit( 'messages:create_group', { 'users' : users, 'text' : message  }  );
 	}
 
 	function append_message( json_response ){
@@ -143,102 +131,3 @@ define(function(require){
 
 	return chat_box;
 });
-
-
-
-
-//unused code
-
-/*	function handle_login( data ){
-		$.get('http://localhost:5000/login' ,function( data, response, xhr){ console.log("response was: " + xhr.getAllResponseHeaders() 			) });
-	}
-
-	function handle_login1( data ){
-		console.log('called handle_login');
-		var req = new XMLHttpRequest();
-		req.open('GET','http://localhost:5000/login' , false);
-		req.send(null);
-		var headers = req.getAllResponseHeaders().toLowerCase();
-		console.log(headers);
-
-/*		$.post('localhost:5000/account/login', { 
-			headers : { cookie : 'connect.sid=s%3A2k_d7L8ipSOSGU1f3Gr56UGjf5LolZAS.4sbL2wMf2m2v6vCeSxnp%2B8jNWj7sJBvTG6oXsms2mz4'  },
-			data : { username : 'pawan', password : 'computerg'  }
-		
-		 },function( data ){ console.log('received from chat server: ' + data)  },
-		"json");
-*/
-/*		var jqxhr = $.ajax("http://localhost:5000/login");//, function(data){
-//			console.log( "data from API:" + data );//get the cookie receieved
-//		});
-		jqxhr.done( function(){  
-			console.log('got headers : ' + jqxhr.getAllResponseHeaders() );
-		});
-*/
-/*		var receivedCookie = "connect.sid=s%3A2k_d7L8ipSOSGU1f3Gr56UGjf5LolZAS.4sbL2wMf2m2v6vCeSxnp%2B8jNWj7sJBvTG6oXsms2mz4; Path=/; HttpOnly";
-		var jqxhr = $.ajax({
-				method:'POST',
-				url : "http://localhost:5000/account/login",
-				headers : { 'cookie' : "connect.sid=s%3A2k_d7L8ipSOSGU1f3Gr56UGjf5LolZAS.4sbL2wMf2m2v6vCeSxnp%2B8jNWj7sJBvTG6oXsms2mz4; Path=/; HttpOnly"  },
-				data : { 'username' : 'pawan', 'password' : 'computerg' }
-				});//, function(data){
-//			console.log( "data from API:" + data );//get the cookie receieved
-//		});
-		jqxhr.done( function(){  
-			console.log('got headers : ' + jqxhr.getAllResponseHeaders() );
-		});
-*
-	}*/
-		/*$.ajax({
-		      type: 'POST',
-		      url: 'http://localhost:5000/#!/', //'http://localhost:5000',
-		      crossDomain: true,
-		      cache: false,
-		      success: function(data) {
-
-			if($.trim(data) == "false") {
-			  alert("Fail to recived data");
-			}
-			else {
-			  alert("Successfully data recived");
-			  $('anchor').html(data);
-			}
-
-		      }
-		    });*/
-
-		//a page in a div doesn't make sense.. approach it differently
-		/*$(anchor).load (
-				'http://localhost:5000'			//getting cross domain error	
-			);*/
-
-		/*	    +'<textarea rows="2" cols="50" style="color: red; background-color: lightyellow"> History: </textarea>'
-			    +'<input style="color: #C0C0C0;" type="text" name="message" id="msg" color = "red"><br>'
-			    +'<input type="button" id="btnSend" color ="red" value="Send"/>'
-		*/
-
-
-/*
-	function make_token_request(){
-		 $.ajax({
- 	       		//this is a 'cross-origin' domain
-	        	url : "http://localhost:5000/users",
-	        
-		        beforeSend : setHeader,
-	       		success : function(data) {
-	            		alert("success");
-				log.info(data);
-	        	},
-		        error : function(jqXHR, textStatus, errorThrown) {
-		            alert("error");
-       			 }
-	   	 });
-	}
-	function setHeader(xhr) {
-	    xhr.setRequestHeader('Authorization', 'Bearer NTYyNGRiNmJjNGQ3NGJmZjJlOGE3NzVkOjQ2ZDA3N2NiMWJlMjJiNTA4YmNhNTM5Nzc1OTU3MTgyZmEwMjA4NzZmYzAwYzQwMQ==');
-	}
-
-
-
-
-*/

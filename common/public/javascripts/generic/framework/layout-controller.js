@@ -2,6 +2,7 @@ define(function(require) {
 	var $         = require('jquery');
 	var av        = require('widget-av');
 	var nav       = require('widget-nav');
+	var chat	  = require('widget-chat');
 	var notify    = require('widget-notify');
 	var tabs      = require('widget-tabs');
 	var events    = require('events');
@@ -52,6 +53,7 @@ define(function(require) {
 			case 'notify' : return notify.attach (layout.notify, _module);
 			case 'tabs'   : return tabs.attach (layout.notify, _module);
 			case 'nav'    : return nav.attach (layout.nav, _module);
+			case 'chat'	  : return chat.attach (layout.chat, _module);
 
 			default : 
 				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
