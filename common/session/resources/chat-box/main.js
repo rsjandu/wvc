@@ -29,10 +29,11 @@ chat.init = function (myinfo, common, handles) {
 	/*
 	 * login related calls : admin account (don't get confused, admin is just a name, not a role. Hence no speacial perms yet)
 	 */
-	_d_login = login_to_letsChat( 'admin', 'computerg' );
+	_d_login = login_to_letsChat( 'admin', 'admin1234' );
 
 	_d_login.then(	
 			function done( cookie ){
+				log.debug ('lets-chat: cookie-admin = ' + cookie);
 				cookie_admin = cookie;
 				_d_room = create_room( room_name, session_id, class_desc );
 				_d_room.then( 
@@ -232,6 +233,7 @@ function create_room( name, short_name, desc ){
 				_d.resolve( room.id );
 			}
 		}).on('complete',function(data){
+			log.info ('lets-chat : data = ' + JSON.stringify(data, null, 2));
 			if( _d.state() == 'pending'){
 				_d.reject('room creation failed');
 			}
