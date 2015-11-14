@@ -1,6 +1,7 @@
 var async     = require('async');
 var config    = require('../config');
 var log       = require('../common/log');
+var args      = require('../common/args');
 var cache     = require('../common/cache').init('backend-if', 5*60*60*1000);
 var templates = require('../controllers/templates');
 
@@ -54,13 +55,16 @@ controller.get_config = function (sess_id, callback) {
 		host : '192.168.56.101'
 	};
 
+		log.debug ('argument = ' + args.session_server_ip ());
 	var session_config = {
 		structure: 'default',
 		layout   : 'just-3',
 		theme    : 'cardboard',
 		auth : {},
 		session_server : {
-			host : 'localhost',
+			/*
+			 * If a debug argument is provided, use it. Else default to localhost */
+			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
 			port : config.session_server.default_port,
 			auth : {}
 		},
