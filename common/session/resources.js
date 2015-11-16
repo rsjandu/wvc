@@ -1,6 +1,6 @@
 var $               = require("jquery-deferred");
-var log             = require("../common/log");
-var config          = require("../config");
+var log             = require("./common/log");
+var config          = require("./config");
 var users           = require("./users");
 var addr            = require("./addr");
 

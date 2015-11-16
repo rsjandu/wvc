@@ -1,5 +1,5 @@
 var fs = require('fs');
-var log = require("../common/log");
+var log = require("./common/log");
 
 var sess = {};
 

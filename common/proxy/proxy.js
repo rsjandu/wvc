@@ -6,7 +6,7 @@ app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-proxy.register("chandra.local:443", "localhost::3179");
+proxy.register("chandra.local:443/session/xyz", "localhost:3333");
 
 /*
 var server = app.listen(3000, function () {

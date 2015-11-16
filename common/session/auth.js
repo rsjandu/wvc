@@ -1,6 +1,6 @@
 var WebSocketServer = require('ws').Server;
-var log             = require("../common/log");
-var config          = require("../config");
+var log             = require("./common/log");
+var config          = require("./config");
 var protocol        = require("./protocol");
 var cc              = require("./cc");
 

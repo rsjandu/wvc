@@ -1,5 +1,5 @@
-var log             = require("../common/log");
-var config          = require("../config");
+var log             = require("./common/log");
+var config          = require("./config");
 var addr            = require("./addr");
 
 var list_active = {};

@@ -1,5 +1,5 @@
 var EventEmitter    = require('events').EventEmitter;
-var log             = require("../common/log");
+var log             = require("./common/log");
 var emitter = new EventEmitter();
 
 var events = {};

@@ -1,5 +1,5 @@
 var url             = require('url');
-var log             = require("../common/log");
+var log             = require("./common/log");
 var events          = require('./events')('connection');
 var cc              = require('./cc');
 
