@@ -44,3 +44,5 @@ echo '#########################################################'
 
 sudo docker run -t -d -p $PORT:$INTERNAL_PORT -v $ABS_PATH:/session --name $NAME $IMAGE
 #sudo docker run -i -t -p $PORT:$INTERNAL_PORT -v $ABS_PATH:/session --name $NAME $IMAGE
+
+sudo docker logs --follow $NAME

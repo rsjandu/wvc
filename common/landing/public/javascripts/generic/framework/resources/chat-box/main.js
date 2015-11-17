@@ -1,19 +1,3 @@
-requirejs.config({
-	baseUrl: '/javascripts/generic/framework/',
-	paths: {
-		/* the left side is the module ID,
-		 * the right side is the path to
-		 * the jQuery file, relative to baseUrl.
-		 * Also, the path should NOT include
-		 * the '.js' file extension. */
-		
-		/*
-		 * remove this hardcoded server url somehow
-		 */
-		socketio: 'http://localhost:5000/socket.io/socket.io',
-	}
-});
-
 define(function(require){
 	var $ = require('jquery');
 	var log = require('log')('chat-test', 'info');
@@ -39,7 +23,7 @@ define(function(require){
 			
 			load_page();				//for now everything is put here only
 			$('form').on("click", "#Submit", function() {
-				if($('#m').val() != '') {
+				if($('#m').val() !== '') {
 					send_message( $('#m').val());
 					$('#m').val('');
 				}
@@ -85,7 +69,7 @@ define(function(require){
 			room_id = sess_info.room_id;			//there goes another global var
 			join_room(room_id);
 		});
-		socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data)});
+		socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
 	}
 	function join_room( room_id ){
 		log.info('connecting to', room_id);
@@ -121,12 +105,11 @@ define(function(require){
 	function load_page(){ 
 		
 		$(anchor).html(
-			'<br>'
-//			+ '<ul id="messages"></ul>'
-			+ '<textarea id="messages" rows="4" cols="65" style="color: red; background-color: lightyellow"> History: </textarea>'
-    			+ '<form>'
-			+ '<input id="m" style="color: red" autocomplete="off" /><input type="button" style="color: Red" id="Submit" value="Send" />'
-			+ '</form>'
+			'<br>' + 
+				'<textarea id="messages" rows="4" cols="65" style="color: red; background-color: lightyellow"> History: </textarea>' + 
+					'<form>' + 
+						'<input id="m" style="color: red" autocomplete="off" /><input type="button" style="color: Red" id="Submit" value="Send" />' + 
+					'</form>'
 
 		);
 	}

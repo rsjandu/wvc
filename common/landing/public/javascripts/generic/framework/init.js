@@ -13,6 +13,7 @@ requirejs.config({
 		modernizer:    '/javascripts/ext/modernizr.custom',
 		jquery_mmenu:  '/javascripts/ext/jquery.mmenu.min.all',
 		dom_ready:     '/javascripts/ext/domReady',
+		socketio:      '/javascripts/ext/socket.io/socket.io',
 		bookblock:     '/javascripts/ext/jquery.bookblock',
 	},
 	'shim' : {

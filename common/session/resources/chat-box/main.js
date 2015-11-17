@@ -14,9 +14,9 @@ chat.init = function (myinfo, common, handles) {
 	var _d = $.Deferred ();
 	log = handles.log;
 
-	log.info ('chat-box: init :', myinfo);
+	log.info ('chat-box: init :', JSON.stringify(myinfo));
 	
-	root_url 	= 'http://localhost:5000';		//maybe coming from myinfo
+	root_url 	= myinfo.custom.server_url;
 	var random_str  = get_random_string();
 	/*
 	 * create a master room for the session with the following data
@@ -74,7 +74,7 @@ chat.init_user = function (user) {
 	 * eg. WizIQ will be saved as 'wiziq'
 	 */
 	uname 	= user;
-	passwd 	= generate_password( uname );;
+	passwd 	= generate_password( uname );
 	log.info( uname, passwd);
 	var _d_create = create_user( uname, passwd );
 

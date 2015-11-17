@@ -20,7 +20,7 @@
 		{
 			"name" 		: "chat-box",
 			"custom" 	: {
-				"server_url" : "https://localhost:5000"
+				"server_url" : "http://wiziq-ubuntu-a.cloudapp.net:443"
 			} 
 		}
 	]
