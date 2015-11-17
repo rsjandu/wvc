@@ -1,31 +1,19 @@
 include header
 
 body
-
-	.row
-		include widget-top
-
-	.row.vc-mid-row
-		include widget-side-left
-		include widget-tabs
-		div#av-chat-container
-			.row
-				include widget-av
-			.row
-				include widget-chat
-		include widget-side-right
-
-	.row.vc-footer
-		include widget-notify
-	
-	//
-	// Load Templates
-	//
-	script(type="text/javascript").
-		var avi = 'avinash';
-
-	script(type="text/javascript")
-		|var _templates = !{_templates};
-	//	each val in _templates
-	//		!{val}
+	#vc-main-outer
+		#vc-main-inner
+			include widget-nav
+			include widget-side-left
+			include widget-tabs
+			include widget-av
+			include widget-chat
+			include widget-side-right
+			include widget-notify
+			
+			//
+			// Load Templates
+			//
+			script(type="text/javascript")
+				|var _templates = !{_templates};
 

@@ -8,6 +8,7 @@ var express_winston = require('express-winston');
 
 var config          = require('./config');
 var log             = require('./common/log');
+var args            = require('./common/args');
 var vc_session_v1   = require('./routes/session-v1');
 var auth_v1         = require('./routes/auth-v1');
 

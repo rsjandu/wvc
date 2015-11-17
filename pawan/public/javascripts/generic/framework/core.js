@@ -1,4 +1,5 @@
 define(function(require) {
+	var dom         = require('dom_ready');
 	var $           = require('jquery');
 	var framework   = require('framework');
 	var cc          = require('cc');
@@ -21,6 +22,7 @@ define(function(require) {
 			.then ( cache_config,                   _d.reject.bind(_d) )
 			.then ( framework.init,                 _d.reject.bind(_d) )
 			.then ( load_modules,                   _d.reject.bind(_d) )
+			.then ( domready,                       _d.reject.bind(_d) )
 			.then ( init_modules,                   _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE I'),  _d.reject.bind(_d) )
 
@@ -29,6 +31,7 @@ define(function(require) {
 
 			.then ( cc.init.bind(null, framework),  _d.reject.bind(_d) )
 			.then ( auth,                           _d.reject.bind(_d) )
+			.then ( framework.post_init,            _d.reject.bind(_d) )
 			.then ( framework.wait_for_start,       _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE II'), _d.reject.bind(_d) )
 
@@ -64,26 +67,35 @@ define(function(require) {
 		return _d.promise();
 	}
 
+	function domready (_s) {
+		var _d = $.Deferred();
+
+		dom(function () {
+			_d.resolve (_s);
+		});
+
+		return _d.promise();
+	}
+
 	function init_modules (_s) {
 		var resources = _s.resources;
 		var _d = $.Deferred();
-		var _d_arr = [];
-		/*
-		 * Steps:
-		 * 	1. Validate params
-		 * 	2. Validate permissions
-		 * 	3. Create div based on "framework" params
-		 * 	4. Call module specific init, passing it framework & permission_set
-		 */
+		var count = 0;
 
-		for (var i = 0; i < modules.length; i++) {
-			_d_arr.push(__init (modules[i]));
+		function ok () {
+			count--;
+			if (!count)
+				_d.resolve(_s);
 		}
 
-		$.whenall(_d_arr).then(
-			function() { log.info ('init_modules finished'); _d.resolve (_s); },
-			function() { log.error ('init_modules - some modules failed to initialize'); _d.reject ('some modules failed to init'); }
-		);
+		/*
+		 * Even if a few modules fail to initialize, keep going. */
+
+		for (var i = 0; i < modules.length; i++) {
+			count++;
+			var d = __init (modules[i]);
+			d.then (ok.bind(d), ok.bind(d));
+		}
 
 		return _d.promise ();
 	}
@@ -129,7 +141,6 @@ define(function(require) {
 		 */
 		require([ 'resources/' + resource.name + '/main' ],
 			function (arg) {
-				log.info ('loaded module', resource.name);
 				var module = {
 						name: resource.name,
 						handle: arg,
@@ -140,7 +151,7 @@ define(function(require) {
 				_d.resolve();
 			},
 			function (err) {
-				log.error ('could not load module', resource.name, ':reason', err);
+				log.error ('load module err for ' + resource.name + ' :reason ' + err);
 				_d.resolve();
 			}
 		);

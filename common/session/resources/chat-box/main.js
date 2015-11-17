@@ -1,7 +1,7 @@
 var $ = require('jquery-deferred');
 var rest = require('restler');
 var chat = {};
-var room_id = {};
+var m_room = {};  //master room
 var cookie_admin = {};
 var root_url = {};
 var users = {};
@@ -17,11 +17,14 @@ chat.init = function (myinfo, common, handles) {
 	log.info ('chat-box: init :', myinfo);
 	
 	root_url 	= 'http://localhost:5000';		//maybe coming from myinfo
-	var class_title = "room",
-	    random_str  = get_random_string(),
-	    room_name 	= class_title + random_str,			
-	    session_id 	= 'sess' + random_str,
-	    class_desc  = 'desc' + random_str;
+	var random_str  = get_random_string();
+	/*
+	 * create a master room for the session with the following data
+	 */
+    m_room.name 	= 'room' + random_str;			
+	m_room.slug		= 'sess' + random_str;
+	m_room.desc  	= 'desc' + random_str;
+//	room.participants = added in allowuser method
 	
 	var _d_login	= {},
 	    _d_room	= {};	
@@ -35,11 +38,11 @@ chat.init = function (myinfo, common, handles) {
 			function done( cookie ){
 				log.debug ('lets-chat: cookie-admin = ' + cookie);
 				cookie_admin = cookie;
-				_d_room = create_room( room_name, session_id, class_desc );
+				_d_room = create_room( m_room.name, m_room.slug, m_room.desc );
 				_d_room.then( 
 						function room_done( rid ){
 							log.info('roomid',rid);
-							room_id = rid;			//store room id for session
+							m_room.id = rid;			//store room id for session
 							_d.resolve(); 
 
 					  	},
@@ -89,13 +92,13 @@ chat.init_user = function (user) {
 										/*
 										 * add the user to the room so that room becomes visible to the user
 										 */
-										allow_user_to_room( uname.toLowerCase() )
+										allow_user_to_room( m_room, uname.toLowerCase() )
 										.then(
 											function(){
 												_d.resolve({
 													'root_url' : root_url,
 													'token'    : user_token,
-													'room_id'  : room_id,
+													'room_id'  : m_room.id,
 													'username' : user
 											});		
 											}
@@ -116,7 +119,7 @@ chat.init_user = function (user) {
 		);
 	return _d.promise ();
 };
-function allow_user_to_room( uname){
+function allow_user_to_room( room, uname){
 	var _d = $.Deferred();
 	/*
 	 * username is lowercase
@@ -126,16 +129,16 @@ function allow_user_to_room( uname){
 	 * but in our case the local copy should be the same 
 	 */
 	users = users +(!users ? '' : ',' )  + uname; //added to list for now
-	rest.put( root_url + '/rooms/' + room_id,
+	rest.put( root_url + '/rooms/' + m_room.id,
 			 {
 			 	headers 	: 	{ cookie : cookie_admin },
 			 	data 		:	
 					{
-						id 				: room_id,
-						name 			: 'update done',
-						slug			: 'slug updated',
-						description 	: 'desc updated',
-						participants 	:  users,
+						id 				: m_room.id,
+						name 			: m_room.name,
+						slug			: m_room.slug,
+						description 	: m_room.desc,
+						participants 	: users,
 						password		: ''
 					}
 			 }

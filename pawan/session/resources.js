@@ -6,7 +6,6 @@ var addr            = require("./addr");
 
 var list = {};
 var res = {};
-var resource_count = {};		//-pawan
 
 res.load = function (sess_info) {
 
@@ -14,7 +13,6 @@ res.load = function (sess_info) {
 	var resources = sess_info.resources;
 	var common    = sess_info.common;
 	var counter   = resources.length;
-	resource_count= resources.length;	//added -pawan
 
 	function mod_ok () {
 		counter--;
@@ -31,7 +29,6 @@ res.load = function (sess_info) {
 	}
 
 	function finish () {
-		log.info('all modules resolve done !!!!!!!!!!!');
 		_d.resolve ();
 	}
 
@@ -70,8 +67,8 @@ res.init_user = function (user) {
 	var d_arr     = [];
 	var info      = {};
 	var info_err  = {};
-	var counter   = resource_count;//list.length;// 0;	//-pawan
-	log.warn('DONOT commit....I changed counter logic here', '- pawan'  );
+	var counter   = Object.keys(list).length;
+
 	function mod_ok (m, data) {
 		info[m] = data;
 		counter--;
@@ -87,8 +84,6 @@ res.init_user = function (user) {
 	}
 
 	function finish () {
-		log.info('resolved init_user ',JSON.stringify(info));
-		//console.log('resolved : ' + JSON.stringify(info) + "\r\n err:" + JSON.stringify(info_err) );
 		_d.resolve ({
 			info : info,
 			info_err : info_err
@@ -98,17 +93,16 @@ res.init_user = function (user) {
 	for (var m in list) {
 		if (list[m].handle.init_user) {
 			var d_mod;
-			//console.log('list entry: ' + list[m]);
+
 			try {
 				d_mod = list[m].handle.init_user (user);
 			}
 			catch (e) {
 				log.error ('resources:init_user: \"' + m + '\" err = ' + e);
+				counter--;
 			}
 
 			if (d_mod) {
-//				counter++;     //-pawan
-				log.info('counter : ', counter);
 				d_mod.then (
 					mod_ok.bind(d_mod, m),
 					mod_err.bind(d_mod, m)

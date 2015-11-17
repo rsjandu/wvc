@@ -1,6 +1,7 @@
 var async     = require('async');
 var config    = require('../config');
 var log       = require('../common/log');
+var args      = require('../common/args');
 var cache     = require('../common/cache').init('backend-if', 5*60*60*1000);
 var templates = require('../controllers/templates');
 
@@ -55,18 +56,48 @@ controller.get_config = function (sess_id, callback) {
 	};
 
 	var session_config = {
-		layout   : 'default',
-		theme    : 'default',
+		structure: 'default',
+		layout   : 'just-3',
+		theme    : 'cardboard',
 		auth : {},
 		session_server : {
-			host : 'localhost',
-			port : config.session_server.default_port,
+			/*
+			 * If a debug argument is provided, use it. Else default to localhost */
+			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
+			port : args.session_server_port () ? args.session_server_port () : config.session_server.default_port,
 			auth : {}
 		},
 		resources : [
 			{
+				name: 'menu-sidepush-v1',
+				role: 'menu',
+				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					sub_menu_vslide: true,
+					hlight_sel: true,
+				},
+			},
+			{
+				name: 'cube',
+				role: 'whitelabeling',
+				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					small : {
+					},
+					center : {
+					}
+				},
+			},
+			{
 				name: 'av-tokbox',
-				display_spec: { widget: "av", templates: [ "av-tokbox" ] },
+				role: 'av',
+				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'av' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
@@ -78,23 +109,20 @@ controller.get_config = function (sess_id, callback) {
 				},
 			},
 			{
-				name: 'wboard-basic',
-				display_spec: { widget: "tabs", templates: [ "default" ] },
+				name: 'flipboard-v1',
+				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
 				custom: {
-					random_string : 'नमस््कार'
 				},
 			},
 			{
-				name: 'chat-box', 			//default
-				display_spec: { widget: "chat", templates: [ "default" ]},
-				perms: { },
+				name: 'chat-box',
+				display_spec: { widget: 'chat', templates: [ "basic" ] /* ToDo: use templates */ },
 				custom: {
-					server_ip : "127:0:0:1"
-				}, // a , really??
-			}
+				},
+		}
 		],
 		role_map : {
 			teacher : [

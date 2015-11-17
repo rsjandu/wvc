@@ -5,9 +5,18 @@ html( lang="en" )
 		meta( charset='utf-8' )
 		meta( http-equiv='X-UA-Compatible', content='IE=edge' )
 		meta( name='viewport', content='width=device-width, initial-scale=1.0' )
-		meta( name='description', content='WizIQ Virtual Classroo' )
-		link(href="/stylesheets/bootstrap-themes-v3.3.5/paper/bootstrap.min.css", rel="stylesheet")
-		link(href="/stylesheets/less/themes/basic/vc.less", type="text/css", rel="stylesheet/less")
+		meta( name='description', content='WizIQ Virtual Classroom' )
+		//link(href="/stylesheets/less/bootstrap-themes-3.3.5/superhero/bootstrap.min.css", rel="stylesheet")
+		link(href="/stylesheets/ext/bootstrap.min.css", type="text/css", rel="stylesheet")
+		link(href="/stylesheets/ext/bootstrap-theme.min.css", type="text/css", rel="stylesheet")
+		link(href="/stylesheets/less/layouts/" + layout + ".less", type="text/css", rel="stylesheet/less")
+
+		each i in styles
+			each _c in i.css
+				link(href="/stylesheets/less/resources/" + i.resource + '/' + _c + ".css", type="text/css", rel="stylesheet")
+
+		link.theme-link(href="/stylesheets/less/themes/" + theme + ".less", type="text/css", rel="stylesheet/less")
+
 		link(href="/stylesheets/ext/font-awesome.min.css", type="text/css", rel="stylesheet")
 		script( src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' )
 		script( src='/javascripts/ext/bootstrap.3.3.5.min.js' )

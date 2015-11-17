@@ -1,32 +1,15 @@
-requirejs.config({
-  baseUrl: '/javascripts/generic/framework/resources/av-tokbox/',
-  shim : {
-    'tbjs': {
-    'exports': 'OT'
-  }
-},
+define([
+	'./ot-wrap',
+	'jquery',
+	'log',
+	'framework',
+	'./av-conf',
+	'./av-res',
+	'./av-control',
+    'events'
+], function(OT, $, __log, framework, config, videores, avc, events) {
 
-paths: {
-  /* the left side is the module ID,
-   * the right side is the path to
-   * the jQuery file, relative to baseUrl.
-   * Also, the path should NOT include
-   * the '.js' file extension.
-   * */
-  jquery : '/javascripts/ext/jquery-1.11.3.min',
-  tbjs : '//static.opentok.com/v2/js/opentok.min'
-}
-});
-
-define(function(require) {
-  var $ = require('jquery');
-  var log = require('log')('av-tokbox', 'info');
-  var framework = require('framework');
-  var OT = require('tbjs');
-  var config = require('av-conf');
-  var videores = require('av-res');
-  var avc = require('av-control');
-
+  var log = __log('av-tokbox', 'info');
   var f_handle = framework.handle ('av-tokbox');
 
   var ot = {};
@@ -36,10 +19,11 @@ define(function(require) {
   var _ses = {};
   var numusers = 0;
   var publisher;
-  var subs = [];
+  var _subs = [];
   var classid = null;
   var tk;
   var otc;
+  var cbs = {};
 
 
   ot.init = function (display_spec, custom, perms) {
@@ -54,8 +38,22 @@ define(function(require) {
     };
 
     config.setav(c);
+    bind_ev();
 
-    avc.init(display_spec, f_handle)
+    cbs = {
+        'start' : ot.start,
+        'stop' : ot.stop,
+        'mutela' : muteLocalAudio,
+        'unmutela' : unmuteLocalAudio,
+        'mutelv' : muteLocalVideo,
+        'unmutelv' : unmuteLocalVideo,
+        'mutera' : muteRemoteAudio,
+        'unmutera' : unmuteRemoteAudio,
+        'muterv' : muteRemoteVideo,
+        'unmuterv' : unmuteRemoteVideo,
+    };
+
+    avc.init(display_spec, f_handle, cbs)
       .then (_d.resolve, _d.reject)
       ;
 
@@ -66,10 +64,11 @@ define(function(require) {
   ot.start = function ( ses_info ) {
     var _d = $.Deferred();
     log.info ('ot.start: ', ses_info);
+    if ( $.isEmptyObject(_ses_info) ) {
+        _ses_info = ses_info;
+    }
 
-    _ses_info = ses_info;
-
-    __initialize (ses_info)
+    __initialize (_ses_info)
       .then ( __connect, _d.reject )
       .then ( __start_publish, _d.reject )
       .then ( _d.resolve, _d.reject )
@@ -101,6 +100,26 @@ define(function(require) {
    * --- private functions ---
    */
 
+
+  function bind_ev () {
+    if ( !events.bind('framework:layout', onEv, 'av-tokbox') ) {
+        log.error('event bind failed.');
+    } else {
+        log.info('ev bind success');
+    }
+  }
+
+  function onEv (ev, data) {
+      log.info('onEv ev: ', ev);
+      log.info('onEv data: ', data);
+      /* define these names somewhere */
+      if ( ev === 'av-fullscreen' ) {
+        avc.layout();
+      } else if ( ev === 'default' ) {
+        avc.layout();
+      }
+  }
+
   function disconnect() {
     _ses.disconnect();
   }
@@ -116,8 +135,12 @@ define(function(require) {
 
 
   function unsubscribe() {
-    /* TODO remove subscribers if any
-    */
+    _subs.forEach(function (sub) {
+        log.info('calling unsubscribe');
+        _ses.unsubscribe(sub);
+    });
+    _subs = [];
+    numusers = 0;
   }
 
 
@@ -157,6 +180,7 @@ define(function(require) {
       log.info('calling init session');
       session = OT.initSession(_k, sessionid);
       _ses = session;
+      _ses.off();
       __ses_handlers();
 
       log.info('__initOT calling resolve');
@@ -165,7 +189,9 @@ define(function(require) {
       /* TODO: update status message
        * _ui_msg();
        */
-      _d.reject('WebRTC not supported on this browser ? Please check');
+      var err = 'WebRTC not supported on this browser ? Please check';
+      showMessage(err);
+      _d.reject(err);
     }
 
     return _d.promise();
@@ -176,7 +202,6 @@ define(function(require) {
     log.info('__connect called');
     var _d = $.Deferred();
     /* TODO both init publisher and connect could be done in parallel
-     * when both operations are successful, then we are ready to publish stream
      */
     __ses_connect (t || tk)
       .then ( __init_pub, _d.reject )
@@ -247,13 +272,15 @@ define(function(require) {
       .then ( s, fail )
       ;
 
-    function s () {
+    function s (mediatype) {
       log.info('__ot_initpub success ! return resolve');
+      avc.usermediasuccess(mediatype);
       _d.resolve();
     }
 
     function fail (e) {
       log.info('__init_pub failed with: ' + e);
+      avc.usermediafail();
       _d.reject(e);
     }
 
@@ -336,7 +363,7 @@ define(function(require) {
       } else {
         log.info('Publisher initialized.');
         pub_handlers();
-        _d.resolve();
+        _d.resolve(__conftype());
       }
     });
 
@@ -386,7 +413,6 @@ define(function(require) {
       if ( ev.reason === 'networkDisconnected' ) {
         showMessage('Your publisher lost its connection. Please check your internet connection and try publishing again.');
       } else {
-        //ev.preventDefault();
         log.info('The publisher stopped streaming. Reason: ' + ev.reason);
       }
       if ( ev.stream.hasVideo ) {
@@ -415,6 +441,60 @@ define(function(require) {
      publisher.publishVideo(true);
      */
 
+  function muteLocalAudio() {
+      log.info('muteLocalAudio');
+      if ( publisher ) {
+          publisher.publishAudio(false);
+      }
+  }
+
+  function unmuteLocalAudio() {
+      log.info('unmuteLocalAudio');
+      if ( publisher ) {
+          publisher.publishAudio(true);
+      }
+  }
+
+  function muteLocalVideo() {
+      log.info('muteLocalVideo');
+      if ( publisher ) {
+          publisher.publishVideo(false);
+      }
+  }
+
+  function unmuteLocalVideo() {
+      log.info('unmuteLocalVideo');
+      if ( publisher ) {
+          publisher.publishVideo(true);
+      }
+  }
+
+  function getSub (id) {
+      for ( var i = 0; i < _subs.length; i++ ) {
+        if ( id === _subs[i].element.id ) {
+            return _subs[i];
+        }
+      }
+      return null;
+  }
+
+  function muteRemoteVideo(id) {
+      sub = getSub(id);
+      if ( sub ) {
+          log.info('muteRemoteVideo subs found');
+          sub.vmute = true;
+          sub.subscribeToVideo('false'); // TODO video on off
+      }
+  }
+
+  function unmuteRemoteVideo(id) {
+  }
+
+  function muteRemoteAudio(id) {
+  }
+
+  function unmuteRemoteAudio(id) {
+  }
 
   /*
    * TODO we can place all helper functions in a central place or different file later
@@ -502,6 +582,7 @@ define(function(require) {
         /* TODO take action */
         sendMessage('Internet connection is probably lost. Please check your connection and try connecting again.');
       }
+      avc.disconnected();
     },
 
     streamCreated : function (ev) {
@@ -515,9 +596,19 @@ define(function(require) {
       var options = {};
       var div = null;
 
+      var getSubsContainer = function (id) {
+          parentDiv = document.getElementById('subscontainer');
+          subscriberDiv = document.createElement('div');
+          subscriberDiv.setAttribute('id', 'stream' + id);
+          subscriberDiv.setAttribute('style','display:inline-block;');
+          parentDiv.appendChild(subscriberDiv);
+          return subscriberDiv;
+      };
+
       if ( ev.stream.hasVideo ) {
         log.info('session streamCreated event. Has Video');
-        div = avc.subc();
+        //div = getSubsContainer(ev.stream.streamId);
+        div = avc.subc(ev.stream.streamId);
         options.insertMode = 'append';
         options.width = '100%';
         options.height = '100%';
@@ -525,7 +616,21 @@ define(function(require) {
         log.info('session streamCreated event with only audio.');
       }
 
-      var sub = _ses.subscribe( ev.stream, div, options );
+      var sub = _ses.subscribe(
+              ev.stream,
+              div,
+              options,
+              function (error) {
+                  if ( error ) {
+                      log.error('session subscribe failed: ', error.message);
+                  } else {
+                      log.info('Subscribed to stream: ' + ev.stream.id);
+                      sub.element.setAttribute('id', 'RS_' + ev.stream.id);
+                      avc.svcstyle(sub);
+                      _subs.push(sub);
+                  }
+              });
+
       sub.on('videoDisabled', function (ev) {
         log.info('videoDisabled event on id : ' + sub.id);
         log.info('videoDisabled event reason : ' + ev.reason);
@@ -544,10 +649,13 @@ define(function(require) {
            You may want to add or adjust other UI.
         */
       });
+      sub.on('destroyed', function (ev) {
+        log.info('DOM destroy reason : ' + ev.reason);
+        avc.layout();
+      });
 
-      /* TODO  save sub object */
-      var connectionid = ev.stream.connection.connectionid ;
-      var streamid = ev.stream.streamid ;
+      var connectionid = ev.stream.connection.connectionId;
+      var streamid = ev.stream.streamId;
       log.info('incoming stream streamid: ' + ev.stream.streamId);
       log.info('incoming stream connectionid: ' + ev.stream.connection.connectionId);
 
@@ -555,10 +663,11 @@ define(function(require) {
     },
 
     streamDestroyed : function (ev) {
-      log.info('session streamDestroyed event');
+      /* TODO remove subscriber record */
       if ( ev.stream.hasVideo ) {
         log.info('session streamDestroyed event. has video');
-        avc.layout();
+      } else {
+        log.info('session streamDestroyed event');
       }
     },
 
@@ -567,7 +676,7 @@ define(function(require) {
      */
     streamPropertyChanged : function (ev) {
       log.info('session streamPropertyChanged event');
-      /* get a list of subscribers for a stream */
+      /* TODO get a list of subscribers for a stream */
       var subs = _ses.getSubscribersForStream(ev.stream);
       for ( var i = 0; i < subs.length; i++ ) {
       }
@@ -586,20 +695,21 @@ define(function(require) {
 
   function showMessage ( m ) {
     log.info(m);
+    avc.showMessage(m);
     /* TODO raise an event or show connection status */
   }
 
 
   function send_audio_mute () {
-    f_handle.send_command ('*', 'audio.mute', 'on')
-      .then (
-          function (data) {
-            log.info ('send_audio_must: on: ok', data);
-          },
-          function (err) {
-            log.error ('send_audio_must: on: err: ' + err);
-          }
-          );
+      f_handle.send_command ('*', 'audio.mute', 'on')
+          .then (
+                  function (data) {
+                      log.info ('send_audio_must: on: ok', data);
+                  },
+                  function (err) {
+                      log.error ('send_audio_must: on: err: ' + err);
+                  }
+                );
   }
 
   return ot;

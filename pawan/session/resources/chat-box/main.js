@@ -1,9 +1,10 @@
 var $ = require('jquery-deferred');
 var rest = require('restler');
 var chat = {};
-var room_id = {};
+var m_room = {};  //master room
 var cookie_admin = {};
 var root_url = {};
+var users = {};
 
 /*
  * Login as admin and create a room
@@ -16,11 +17,14 @@ chat.init = function (myinfo, common, handles) {
 	log.info ('chat-box: init :', myinfo);
 	
 	root_url 	= 'http://localhost:5000';		//maybe coming from myinfo
-	var class_title = "room",
-	    random_str  = get_random_string(),
-	    room_name 	= class_title + random_str,			
-	    session_id 	= 'sess' + random_str,
-	    class_desc  = 'desc' + random_str;
+	var random_str  = get_random_string();
+	/*
+	 * create a master room for the session with the following data
+	 */
+    m_room.name 	= 'room' + random_str;			
+	m_room.slug		= 'sess' + random_str;
+	m_room.desc  	= 'desc' + random_str;
+//	room.participants = added in allowuser method
 	
 	var _d_login	= {},
 	    _d_room	= {};	
@@ -28,16 +32,17 @@ chat.init = function (myinfo, common, handles) {
 	/*
 	 * login related calls : admin account (don't get confused, admin is just a name, not a role. Hence no speacial perms yet)
 	 */
-	_d_login = login_to_letsChat( 'admin', 'computerg' );
+	_d_login = login_to_letsChat( 'admin', 'admin1234' );
 
 	_d_login.then(	
 			function done( cookie ){
+				log.debug ('lets-chat: cookie-admin = ' + cookie);
 				cookie_admin = cookie;
-				_d_room = create_room( room_name, session_id, class_desc );
+				_d_room = create_room( m_room.name, m_room.slug, m_room.desc );
 				_d_room.then( 
 						function room_done( rid ){
 							log.info('roomid',rid);
-							room_id = rid;			//store room id for session
+							m_room.id = rid;			//store room id for session
 							_d.resolve(); 
 
 					  	},
@@ -59,11 +64,15 @@ chat.init = function (myinfo, common, handles) {
 
 chat.init_user = function (user) { 
 	var _d = $.Deferred ();
-	var uname 	= {},	//received as argument
+	var uname 	= {},	
 	    passwd 	= {},
 	    cookie_user	= {},
 	    user_token 	= {};
-	//create a user 
+	/*
+	 * create a user 
+	 * username will be saved in lowercase(whatever you pass) and certain queries will not work if uppercase letters are found in username.
+	 * eg. WizIQ will be saved as 'wiziq'
+	 */
 	uname 	= user;
 	passwd 	= generate_password( uname );;
 	log.info( uname, passwd);
@@ -80,12 +89,20 @@ chat.init_user = function (user) {
 									function gotToken( token ){
 										user_token = token;
 										log.info('Chat-Box:', 'init_user resolved');
-										_d.resolve({
-											'root_url' : root_url,
-											'token'    : user_token,
-											'room_id'  : room_id,
-											'username' : user
-										});		
+										/*
+										 * add the user to the room so that room becomes visible to the user
+										 */
+										allow_user_to_room( m_room, uname.toLowerCase() )
+										.then(
+											function(){
+												_d.resolve({
+													'root_url' : root_url,
+													'token'    : user_token,
+													'room_id'  : m_room.id,
+													'username' : user
+											});		
+											}
+										);
 									},
 									function noToken( message ){
 										_d.reject( message );
@@ -102,6 +119,35 @@ chat.init_user = function (user) {
 		);
 	return _d.promise ();
 };
+function allow_user_to_room( room, uname){
+	var _d = $.Deferred();
+	/*
+	 * username is lowercase
+	 * no duplicate entries
+	 * the list sent will be copied as it is(previous data will be overwritten), so you might want to retrieve the list first and then
+	 * send 
+	 * but in our case the local copy should be the same 
+	 */
+	users = users +(!users ? '' : ',' )  + uname; //added to list for now
+	rest.put( root_url + '/rooms/' + m_room.id,
+			 {
+			 	headers 	: 	{ cookie : cookie_admin },
+			 	data 		:	
+					{
+						id 				: m_room.id,
+						name 			: m_room.name,
+						slug			: m_room.slug,
+						description 	: m_room.desc,
+						participants 	: users,
+						password		: ''
+					}
+			 }
+			).on('complete', function(data,res){
+				log.info('update_request got: ' + JSON.stringify(data) );
+				_d.resolve();			
+			});
+	return _d.promise();
+}
 function get_random_string( class_title ){
 	return  Math.random().toString(36).substr(2, 5);
 }
@@ -145,7 +191,6 @@ function login_to_letsChat( username, password ){
 	}).on('complete', function(result, response){
 		if( response && response.headers ){
 			final_cookie = JSON.stringify(response.headers['set-cookie'] );
-			console.log(final_cookie);
 			final_cookie = final_cookie.substr(2, final_cookie.indexOf(';') - 2);
 			_d.resolve( final_cookie  );
 		}
@@ -174,17 +219,16 @@ function get_token( cookie ){
 
 function create_room( name, short_name, desc ){
 	var _d = $.Deferred ();
-	//_d.resolve( "5620a20aa31f5f500c8b9a60");		// just use one room while dev. 
-	//return _d.promise();
-
-	console.log('cookie sent is: ' + cookie_admin );
+//	_d.resolve( "56402abbc1b356030b53bbb5");		// just use one room while dev. 
+//	return _d.promise();
 
 	rest.post( root_url + '/rooms', {				//timeout can be added 
 			headers : { cookie : cookie_admin },
 			data    : { 
 					"slug" 		: short_name,
 					"name" 		: name,
-					"description" 	: desc
+					"description" 	: desc,
+					"private"		: true
 				  }
 
 		}).on('success', function( room ){
@@ -192,6 +236,7 @@ function create_room( name, short_name, desc ){
 				_d.resolve( room.id );
 			}
 		}).on('complete',function(data){
+			log.info ('lets-chat : data = ' + JSON.stringify(data, null, 2));
 			if( _d.state() == 'pending'){
 				_d.reject('room creation failed');
 			}
@@ -202,7 +247,6 @@ function create_room( name, short_name, desc ){
 
 function delete_room( id ){
 	var _d = $.Deferred ();
-	console.log(id);
 	rest.del(
 		root_url + '/rooms' + '/' +  id, 
 		{ headers : { cookie : cookie_admin  }  }

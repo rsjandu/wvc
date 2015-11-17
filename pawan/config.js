@@ -33,8 +33,8 @@ config.determine_site_addr = function () {
 				proto = 'http';
 			}
 			else {
-				host = data.toString().trim();
-				proto = 'https';
+				host = data.toString().trim() + ':' + config.port;
+				proto = 'http';
 			}
 
 			config.site_addr = proto + '://' + host;

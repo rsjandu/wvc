@@ -6,6 +6,10 @@ requirejs.config({
 		 * the jQuery file, relative to baseUrl.
 		 * Also, the path should NOT include
 		 * the '.js' file extension. */
+		
+		/*
+		 * remove this hardcoded server url somehow
+		 */
 		socketio: 'http://localhost:5000/socket.io/socket.io',
 	}
 });
@@ -101,6 +105,7 @@ define(function(require){
 			reverse		: true			//what does this mean
 		},function( messages){
 			log.info('received_messsages', messages);
+			//append the chat retrieved (the chat before user joined the room )
 		});
 	}
 	function send_message( message ){
@@ -119,7 +124,7 @@ define(function(require){
 		$(anchor).html(
 			'<br>'
 //			+ '<ul id="messages"></ul>'
-			+ '<textarea id="messages" rows="4" cols="65" style="color: red; background-color: lightyellow"> History: </textarea>'
+			+ '<textarea id="messages" rows="8" cols="32" style="color: red; background-color: lightyellow"> History: </textarea>'
     			+ '<form>'
 			+ '<input id="m" style="color: red" autocomplete="off" /><input type="button" style="color: Red" id="Submit" value="Send" />'
 			+ '</form>'

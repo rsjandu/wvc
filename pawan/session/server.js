@@ -3,7 +3,6 @@ var url             = require('url');
 var WebSocketServer = require('ws').Server;
 var express         = require('express');
 var app             = express();
-//var test 	    = require('');
 var log             = require("../common/log");
 var config          = require("../config");
 var sess_info       = require("./session-info");

@@ -49,6 +49,6 @@ define(function(require) {
 	urls.session.join  = make ('/session/v1/:session_id:/join' + add_query(query_str));
 	urls.session.load  = make ('/session/v1/:session_id:/load' + add_query(query_str));
 	urls.query_params  = query_params;
-	
+
 	return urls;
 });

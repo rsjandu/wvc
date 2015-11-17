@@ -90,9 +90,8 @@ function actually_join_user (user) {
 	users.mark_joined (user);
 
 	resources.init_user (user)
-		.then (				//shouldn't it be .done
+		.then (
 			function (info) {
-				console.log('sending info : ' + info);
 				users.send_info (user, 'controller', 'framework', 'session-info', info);
 				users.broadcast_info ('controller', 'framework', 'new-johnny', user, user);
 			}

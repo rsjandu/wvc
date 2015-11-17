@@ -6,9 +6,20 @@ requirejs.config({
 		 * the jQuery file, relative to baseUrl.
 		 * Also, the path should NOT include
 		 * the '.js' file extension. */
-		jade: '/javascripts/ext/jade-runtime',
-		jquery: '/javascripts/ext/jquery-1.11.3.min',
-		jquery_drag: '/javascripts/ext/jquery.event.drag-2.2/jquery.event.drag-2.2'
+		jquery:        '/javascripts/ext/jquery-1.11.3.min',
+		jquery_drag:   '/javascripts/ext/jquery.event.drag-2.2/jquery.event.drag-2.2',
+		jquerypp:      '/javascripts/ext/jquerypp.custom',
+		jade:          '/javascripts/ext/jade-runtime',
+		modernizer:    '/javascripts/ext/modernizr.custom',
+		jquery_mmenu:  '/javascripts/ext/jquery.mmenu.min.all',
+		dom_ready:     '/javascripts/ext/domReady',
+		bookblock:     '/javascripts/ext/jquery.bookblock',
+	},
+	'shim' : {
+		'jquery_drag'     : [ 'jquery' ],
+		'jquery_mmenu'    : [ 'jquery' ],
+		'jquerypp'        : [ 'jquery', 'modernizer' ],
+		'bookblock'       : [ 'jquerypp' ]
 	}
 });
 
