@@ -1,11 +1,12 @@
 define(function(require){
 	var $ = require('jquery');
 	var log = require('log')('chat-test', 'info');
-	var framework = require('framework', 'info');
+	var framework = require('framework');
 	var io = require('socketio');
 
 	var chat_box = {};
 	var anchor = {};
+	var f_handle = framework.handle('chat-box');
 	var my_info = {};
 	/*
 	 * create connection
@@ -20,21 +21,20 @@ define(function(require){
 			log.info ('chat_box init called');
 
 			anchor = _framework.anchor;
+			var template = f_handle.template('chat-v1'); //don't hardcode
+			msgTemplate = f_handle.template('message');
+			if(!template){
+				_d.reject ('chat-box: template not found' );
+			}
+			var $room = template(
+							{
+								name : 'class1', 
+								slug : 'chemistry'
+							});
+			$(anchor).append( $room);
+			$('.lcb-entry-button').on('click', sendMessage);
+			$('.lcb-entry-input').on('keypress',sendMessage);
 			
-			load_page();				//for now everything is put here only
-			$('form').on("click", "#Submit", function() {
-				if($('#m').val() !== '') {
-					send_message( $('#m').val());
-					$('#m').val('');
-				}
-			
-			});
-			$(document).keypress(function (e) {
-				if (e.which == 13) {
-					e.preventDefault();
-					$('#Submit').click();
-				}
-			});	
 			_d.resolve();
 
 			return _d.promise();
@@ -43,17 +43,31 @@ define(function(require){
 		log.info ('chat box Stuff = ', sess_info);
 		my_info = sess_info;
 		
-		$(function() {
-			//alert('chat box start called');
-		});
-		//token, to be used as auth-token when communicating
+		/*  token, to be used as auth-token when communicating */
 		my_token = sess_info.token;
 		log.info( my_token );
 		
 		handle_connection(sess_info);
-		//separate the view and control by using (say) events
 
 	};
+	function sendMessage(e){
+		if(e.type === 'keypress' && e.keyCode !== 13 || e.altKey)
+			return;
+		if(e.type === 'keypress' && e.keyCode === 13 && e.shiftKey)
+			return;
+		e.preventDefault();
+
+
+		var $textarea = $('.lcb-entry-input');
+		if(!$textarea.val())
+			return;
+
+		send_message( $textarea.val() );
+		$textarea.val('');
+	}
+	function scrollMessages(){
+		$messages[0].scrollTop = $messages[0].scrollHeight;
+	}
 	function handle_connection( sess_info ){
 		log.info('logging','in');
 		socket = io.connect(		
@@ -77,6 +91,7 @@ define(function(require){
 		socket.emit('rooms:join', { roomId : room_id, password : ''}, function(resRoom){
 			room = resRoom; 	// see it's global
 			log.info('connected ', room);
+			/* here we get the actual data about room  so better add template here*/
 			get_messages(room_id);
 		});
 	}
@@ -98,22 +113,19 @@ define(function(require){
 	function append_message( json_response ){
 		var sender_name = json_response.owner.displayName;
 		var message 	= json_response.text;
-		$("#messages").html(function(i,origText){
-			return origText + "\n" + sender_name + " : " +  message;
-		});
-	}
-	function load_page(){ 
-		
-		$(anchor).html(
-			'<br>' + 
-				'<textarea id="messages" rows="4" cols="65" style="color: red; background-color: lightyellow"> History: </textarea>' + 
-					'<form>' + 
-						'<input id="m" style="color: red" autocomplete="off" /><input type="button" style="color: Red" id="Submit" value="Send" />' + 
-					'</form>'
 
-		);
+
+
+
+		var $message = msgTemplate( json_response.owner);
+
+
+		$messages = $('.lcb-messages');
+		$messages.append('<li>' + $message);
+		$('.lcb-message-text:last').html(message);
+		scrollMessages();
 	}
-	
+		
 	log.info ('notify_box loaded');
 
 	return chat_box;
