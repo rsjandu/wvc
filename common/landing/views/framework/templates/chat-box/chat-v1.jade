@@ -1,10 +1,12 @@
 .lcb-room-chat
 	.lcb-room-header
 		.lcb-room-meta
-			h2.lcb-room-heading
-				span.name #{name}
-				span.name #{slug}
-	ul.lcb-messages(aria-live="polite") 
+			.lcb-room-heading
+				span.name Chat
+
+	.lcb-messages-container
+		ul.lcb-messages(aria-live="polite") 
+
 	form.lcb-entry
 		textarea.lcb-entry-input(placeholder="Got Something To Say", autofocus)
 		button.btn.btn-info.lcb-entry-button(type="submit") Send
