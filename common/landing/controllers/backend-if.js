@@ -65,10 +65,6 @@ controller.get_config = function (sess_id, callback) {
 			 * If a debug argument is provided, use it. Else default to localhost */
 			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
 			port : args.session_server_port () ? args.session_server_port () : config.session_server.default_port,
-
-			/*
-			 * This should ideally be the same as the class uniq identifier */
-			url  : 'xyz',
 			auth : {}
 		},
 		resources : [

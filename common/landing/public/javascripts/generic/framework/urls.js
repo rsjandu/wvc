@@ -28,6 +28,9 @@ define(function(require) {
 
 	init();
 
+	urls.sess_id = function (){
+		return session_id;
+	};
 	urls.params = function (key){
 		if (query_params[key])
 			return query_params[key][0];

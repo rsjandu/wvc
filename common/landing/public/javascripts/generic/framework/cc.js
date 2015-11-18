@@ -1,6 +1,7 @@
 define(function(require) {
 	var identity  = require('identity');
 	var protocol  = require('protocol');
+	var urls      = require('urls');
 	var log       = require('log')('cc', 'info');
 
 	var cc = {};
@@ -19,14 +20,15 @@ define(function(require) {
 
 		log.info ('init : args = ', sess_config);
 		var _d = $.Deferred ();
+		var sess_id;
 
 		_sess_config = sess_config;
 		_req_channel = framwork_handle;
 
 		host = sess_config.session_server.host;
 		port = sess_config.session_server.port;
-		url  = sess_config.session_server.url;
-		server = 'ws://' + host + ':' + port + '/session/' + url;
+		sess_id  = urls.sess_id ();
+		server = 'ws://' + host + ':' + port + '/session/' + sess_id;
 
 		log.info ('Connecting to ' + server + ' ...');
 		sock = new WebSocket (server, 'http');

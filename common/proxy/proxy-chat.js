@@ -17,4 +17,15 @@ var int_port = process.argv[4];
 
 console.log ('Starting proxy for CHAT server @' + host + ':' + ext_port + ' -> localhost:' + int_port);
 
-proxy.register(host + ':' + ext_port, "localhost:" + int_port);
+/*
+ * Routes for the landing page */
+proxy.register(host + ':' + ext_port + '/session/', "localhost:2178/session/");
+proxy.register(host + ':' + ext_port + '/stylesheets/', "localhost:2178/stylesheets/");
+proxy.register(host + ':' + ext_port + '/javascripts/', "localhost:2178/javascripts/");
+proxy.register(host + ':' + ext_port + '/images/', "localhost:2178/images/");
+
+/*
+ * Routes for the session cluster docker for 'test-internal' */
+proxy.register(host + ':' + ext_port + '/session/test-internal', "localhost:7777/");
+
+proxy.register(host + ':' +ext_port, "localhost:" + int_port);
