@@ -324,19 +324,18 @@ define([
 
   __ot_initpub = function ( device, container, opt ) {
     var _d = $.Deferred();
+
+    var div = avc.pubc();
     var options = {};
-    var div = null;
+    options.width = '100%';
+    options.height = '100%';
+    options.insertMode = 'append';
+    options.name = 'saurabh';
 
     if ( __conftype() == 'audiovideo' ) {
-      div = avc.pubc();
       options.publishAudio = true;
       options.publishVideo = true;
-      options.insertMode = 'append';
       options.resolution = __getvideores();
-      options.name = 'saurabh';
-      options.width = '100%';
-      options.height = '100%';
-
       log.info('video res: ' + options.resolution);
     } else {
       /*
@@ -606,15 +605,12 @@ define([
       };
 
       if ( ev.stream.hasVideo ) {
-        log.info('session streamCreated event. Has Video');
-        //div = getSubsContainer(ev.stream.streamId);
-        div = avc.subc(ev.stream.streamId);
-        options.insertMode = 'append';
-        options.width = '100%';
-        options.height = '100%';
-      } else {
-        log.info('session streamCreated event with only audio.');
+          log.info('session streamCreated event. Has Video');
       }
+      div = avc.subc(ev.stream.streamId);
+      options.insertMode = 'append';
+      options.width = '100%';
+      options.height = '100%';
 
       var sub = _ses.subscribe(
               ev.stream,
@@ -643,6 +639,7 @@ define([
       sub.on('videoEnabled', function (ev) {
         log.info('videoEnabled event on id : ' + sub.id);
         log.info('videoEnabled event reason : ' + ev.reason);
+        avc.layout();
         /* You may want to show the subscriber video element:
            domElement = document.getElementById(sub.id);
            domElement.style['visibility'] = 'visible';
