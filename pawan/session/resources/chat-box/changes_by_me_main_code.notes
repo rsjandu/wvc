@@ -1,6 +1,0 @@
-In the file session/resources.js
-
-In the method res.start the counter creates problems because it is initialised with zero.
-It returns just the first resource instead of waiting for others to get loaded.
-As soon as the first promise gets resolved the counter gets decremented and once it becomes zero the server thinks that all promises have been resolved and it sends the class info with just the information of whiteboard( the very first resource).
-Changing it to resources.length works fine.
