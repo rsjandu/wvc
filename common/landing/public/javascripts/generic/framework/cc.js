@@ -27,8 +27,15 @@ define(function(require) {
 
 		host = sess_config.session_server.host;
 		port = sess_config.session_server.port;
+		ssl  = sess_config.session_server.ssl;
 		sess_id  = urls.sess_id ();
-		server = 'ws://' + host + ':' + port + '/session/' + sess_id;
+
+		/*
+		 * Build the session server address */
+		server  = ssl ? 'wss://' : 'ws//';
+		server += host;
+		server += ssl ? '' : ':' + port;
+		server += '/session/' + sess_id;
 
 		log.info ('Connecting to ' + server + ' ...');
 		sock = new WebSocket (server, 'http');

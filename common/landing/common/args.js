@@ -14,4 +14,8 @@ args.session_server_port = function () {
 	return _argv['sess-port'];
 };
 
+args.session_server_ssl = function () {
+	return _argv['ssl'];
+};
+
 module.exports = args;

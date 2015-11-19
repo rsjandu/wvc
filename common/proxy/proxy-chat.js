@@ -1,5 +1,11 @@
 var express = require('express');
-var proxy   = require('redbird')({ port: 443 });
+var proxy   = new require('redbird')({
+	ssl : {
+		port : 443,
+		key : '/etc/ssl/private/server.key',
+		cert : '/etc/ssl/certs/server.crt'
+	}
+});
 var app = express();
 
 app.get('/', function (req, res) {
