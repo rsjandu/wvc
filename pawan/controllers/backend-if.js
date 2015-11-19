@@ -119,7 +119,7 @@ controller.get_config = function (sess_id, callback) {
 			},
 			{
 				name: 'chat-box',
-				display_spec: { widget: 'chat', templates: [ "basic" ] /* ToDo: use templates */ },
+				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'rooms']  },
 				custom: {
 				},
 		}
