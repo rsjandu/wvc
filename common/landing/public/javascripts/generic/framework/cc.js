@@ -32,7 +32,7 @@ define(function(require) {
 
 		/*
 		 * Build the session server address */
-		server  = ssl ? 'wss://' : 'ws//';
+		server  = ssl ? 'wss://' : 'ws://';
 		server += host;
 		server += ssl ? '' : ':' + port;
 		server += '/session/' + sess_id;
@@ -48,7 +48,7 @@ define(function(require) {
 	};
 
 	cc.auth = function (sess_config) {
-		
+
 		log.info ('Auth to ws://' + host + ':' + port);
 
 		var from = 'user:' + identity.name;
@@ -81,7 +81,7 @@ define(function(require) {
 	};
 
 	cc.send_info = function (from, to, id, data) {
-		
+
 		var message = protocol.info_pdu (from, to, id, data);
 
 		if (!message)
@@ -146,22 +146,22 @@ define(function(require) {
 		}
 
 		/*
-		 * remove the 'user:xxx', since noone downstream needs to 
+		 * remove the 'user:xxx', since noone downstream needs to
 		 * know that */
 
 		message.to = message.to.replace(/^user:[^.]+\./, '');
 
 		switch (message.type) {
-			case 'ack' : 
-				process_ack (message); 
+			case 'ack' :
+				process_ack (message);
 				break;
-			case 'info' : 
-				deliver_info (message); 
+			case 'info' :
+				deliver_info (message);
 				break;
-			case 'req' : 
-				deliver_req (message); 
+			case 'req' :
+				deliver_req (message);
 				break;
-			default : 
+			default :
 				log.error ('RX: illegal type (' + message.type + '): message =', message);
 		}
 
