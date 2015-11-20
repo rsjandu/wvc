@@ -1,5 +1,6 @@
 define(function(require){
 	var $ = require('jquery');
+	var moment = require('./moment.min');
 	var log = require('log')('chat-test', 'info');
 	var framework = require('framework');
 	var io = require('socketio');
@@ -71,6 +72,7 @@ define(function(require){
 			scroll_lock = true;
 		}
 	}
+
 	function handle_connection( sess_info ){
 		log.info('logging','in');
 		socket = io.connect(		
@@ -87,11 +89,13 @@ define(function(require){
 		});
 		socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
 	}
+
 	function who_am_i(){
 		socket.emit('account:whoami',function(user){
 			me = user;
 		});
 	}
+
 	function join_room( room_id ){
 		log.info('connecting to', room_id);
 		//check if soket is null
@@ -103,6 +107,7 @@ define(function(require){
 			get_messages(room_id);
 		});
 	}
+
 	function get_messages( room_id ){
 		socket.emit('messages:list',{
 			room 		: room_id,
@@ -123,6 +128,11 @@ define(function(require){
 		if(e.type === 'keypress' && e.keyCode !== 13 || e.altKey)
 			return;
 		if(e.type === 'keypress' && e.keyCode === 13 && e.shiftKey)
+			/* 
+			 * shift+enter let u send multi line messages
+			 * 	this is what sets the paste option 
+			 * 	on receive handle them differently (use pre tag)
+			 */
 			return;
 		e.preventDefault();
 
@@ -134,28 +144,34 @@ define(function(require){
 		send_message( $textarea.val() );
 		$textarea.val('');
 	}
+
 	function send_message( message ){
 		socket.emit( 'messages:create',{ 'room' : my_info.room_id, 'text' :  message });
 	}
-
+	
+	var lastMessageOwner = {};
 	function append_message( messageObj ){
-		var sender_name = messageObj.owner.displayName;
-		var message 	= messageObj.text;
+		/* why this paste..seems like the case of shift+enter */
+		messageObj.paste= false; /* /\n/i.test(message.text)  */
 
+		/* fragement or new message */
+		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
+		messageObj.time = moment(messageObj.posted).calendar();
 
-
-
-		var $message = msgTemplate( messageObj.owner);
+		var $message = msgTemplate( messageObj);
 
 
 		$messages = $('.lcb-messages');
-		$messages.append('<li>' + $message);
-		var lastMessage =$('.lcb-message-text:last');
-		lastMessage.html(message);
+		$messages.append(/*'<li>' +*/ $message);
+
+		if( !messageObj.fragment){
+			lastMessageOwner = messageObj.owner.id;
+		}
 		if( scroll_lock === false || messageObj.owner.id === me.id ){
 			scrollTo( $messages[0] );
 		}
 	}
+
 	function scrollTo( $messages ){
     	//messages.scrollTop =  messages.scrollHeight ;
 		$('.lcb-messages-container').scrollTop( $messages.scrollHeight );
