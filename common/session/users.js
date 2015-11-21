@@ -49,6 +49,12 @@ users.all_waiting = function () {
 
 users.send_info = function (user, from, to, info_id, info) {
 	var _u = list_active[user];
+
+	if (!_u) {
+		log.error ('users:send_info: user \"' + user + '\" not in the active list');
+		return;
+	}
+
 	var conn = _u.conn;
 
 	if (!joined(_u)) {

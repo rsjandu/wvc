@@ -1,0 +1,41 @@
+#!/bin/bash
+
+. common.sh
+BASENAME=`basename $0`
+QUIET='-sS'
+TMP_STDOUT=__$BASENAME.stdout.$$
+TMP_STDERR=__$BASENAME.stderr..$$
+
+trap "rm -f $TMP_STDOUT $TMP_STDERR; exit" SIGHUP SIGINT SIGTERM EXIT
+#set -e
+#
+# Update Subscription
+#
+
+[ $# -lt 1 ] && { echo Usage : $0 'class-config [ -h host [ -p user:password ] --chatty ]'; exit 1; }
+
+CONFIG_FILE=$1; shift;
+
+[ ! -f $CONFIG_FILE ] && { echo Config Profile $CONFIG_FILE non-existent. Exiting...; exit 1; }
+
+while [ $# -gt 0 ];
+do
+		[ "$1" == "-h" ] && { HOST=$2; shift; }
+		[ "$1" == "-p" ] && { USERPASSWORD=$2; shift; }
+		[ "$1" == "--chatty" ] && { QUIET='-v';}
+		shift
+done;
+
+[ "$USERPASSWORD" != "" ] && { USERPASSWORD='-u '$USERPASSWORD; }
+[ "$HOST" == "" ] && {
+		export HOST=http://localhost:2178;
+}
+
+curl $QUIET $USERPASSWORD -k -H "Content-Type: application/json" -X POST -d @$CONFIG_FILE $HOST/api/class/v1/create > $TMP_STDOUT 2> $TMP_STDERR
+
+[ $? -eq 0 ] && { cat $TMP_STDOUT | $JQ; }
+[ $? -ne 0 ] && { cat $TMP_STDOUT $TMP_STDERR; }
+
+rm -f $TMP_STDOUT $TMP_STDERR
+
+echo
