@@ -2,7 +2,7 @@ var $        = require('jquery-deferred');
 var ERR      = require('common/error');
 var hashes   = require('jshashes');
 var db       = require('api-backend/common/db');
-var mylog    = require('api-backend/common/log').child({ module : 'models/class'});
+var mylog    = require('api-backend/common/log').child({ module : 'models/class-config'});
 
 var config = {};
 var class_schema;
@@ -20,13 +20,18 @@ db.emitter.on('db-connected', function () {
 function create_schema () {
 	var Schema = mongoose.Schema;
 
-	return new Schema ({
+	var schema = new Schema ({
 			class_id : { type : String, unique : true },
 			time_spec : {
 				starts : Date,
 				duration : Number
+			},
+			sched : {
+				job_id : String
 			}
 		});
+
+	return schema;
 }
 
 function generate_class_id () {
@@ -68,5 +73,28 @@ config.remove = function (req, class_doc) {
 
 	return d.promise();
 };
+
+config.get = {
+	by_job_id : get.bind (null, 'job_id')
+};
+
+function get (field, value) {
+	var d = $.Deferred();
+	var query = {};
+
+	query[field] = value;
+
+	class_model.findOne (query, function (err, class_doc) {
+
+		if (err) {
+			req.log.error ({ err : err }, 'class get.by_' + field + ' error');
+			return d.reject (ERR.internal(err.errmsg));
+		}
+
+		d.resolve (new class_model(class_doc));
+	});
+
+	return d.promise();
+}
 
 module.exports = config;

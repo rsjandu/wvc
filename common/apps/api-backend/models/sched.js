@@ -9,31 +9,30 @@ var jobs = {};
 
 /*
  * NOTE: the 'when' is assumed to be in Universal time */
-sched.schedule = function (req, when, duration, job) {
-
-	if (!validate_input (req, when, duration))
-		return null;
+sched.schedule = function (req, when, job) {
 
 	if (!can_schedule (req, when))
 		return null;
 
-	return schedule (req, when, duration, job);
+	return schedule (req, when, job);
+};
+
+sched.cancel = function (req, job_id) {
+
+	if (!jobs[job_id]) {
+		req.log.warn ({ schedule : { job_id : job_id } }, 'cant remove - no such job');
+		return false;
+	}
+
+	clearTimeout (jobs[job_id].timer_id);
+	delete jobs[job_id];
+
+	req.log.info ({ schedule : { job_id : job_id } }, 'job removed');
+
+	return true;
 };
 
 var margin_secs = 5;
-
-function validate_input (req, when, duration) {
-	if (!helpers.is_numeric(duration)) {
-			req.log.warn ({ schedule : {
-					duration : duration,
-					}
-			}, 'duration not numeric. rejected');
-
-			return false;
-	}
-
-	return true;
-}
 
 function can_schedule (req, when) {
 	var now = moment ();
@@ -65,45 +64,38 @@ function can_schedule (req, when) {
 	return true;
 }
 
-function schedule (req, when, duration, job) {
+function schedule (req, when, job) {
 	var time_to_start = moment(when).diff(moment());
-	duration = parseFloat(duration) * 1000;
 
 	job_id++;
 
 	jobs[job_id] = {
 		job_id   : job_id,
 		when     : when,
-		duration : duration,
 		req_id   : req.req_id,
 		job      : job
 	};
 
-	jobs[job_id].start_timer = setTimeout (fire_schedule.bind(jobs[job_id], 'start'), time_to_start);
-
-	if (duration > 0)
-		jobs[job_id].end_timer = setTimeout (fire_schedule.bind(jobs[job_id], 'end'), time_to_start + duration);
+	jobs[job_id].timer_id = setTimeout (fire_schedule.bind ( jobs[job_id] ), time_to_start);
 
 	req.log.info ({ schedule : {
 				job_id      : job_id, 
 				when        : moment(when).toISOString(),
 				starts_in   : time_to_start/1000 + ' secs',
-				ends_in     : duration > 0 ? (time_to_start + duration)/1000 + ' secs' : 'instantly',
-				duration    : duration/1000 + ' secs',
 			}}, 
 		'new schedule');
 
 	return job_id;
 }
 
-function fire_schedule (start_end) {
+function fire_schedule () {
 	mylog.info ({ schedule : {
 			job_id : this.job_id,
-			arg    : start_end
+			req_id : this.req_id,
 		}
 	}, 'job fired');
 
-	this.job (this.job_id, start_end);
+	this.job (this.job_id);
 }
 
 module.exports = sched;

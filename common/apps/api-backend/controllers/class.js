@@ -1,6 +1,8 @@
 var $            = require('jquery-deferred');
+var helpers      = require('common/helpers');
 var ERR          = require('common/error');
 var c_config     = require('api-backend/models/class_config');
+var c_runtime    = require('api-backend/models/class_runtime');
 var sched        = require('api-backend/models/sched');
 var mylog        = require('api-backend/common/log').child({ module : 'controllers/class'});
 
@@ -12,32 +14,42 @@ controller.create = function (req, res, next) {
 
 	err = validate_params (class_config);
 	if (err)
-		return send_error.bind(res, req, ERR.bad_request(err));
+		return send_error.bind (res, req, ERR.bad_request(err));
 
-	c_config.create(req, class_config)
-		/* ok */
+	var job_id = sched.schedule (
+					req, 
+					class_config.time_spec.starts, 
+					fire_class
+		);
+
+	if (!job_id)
+		return send_error.call (res, req, ERR.bad_request('incorrect class parameters'));
+
+	class_config.sched = { job_id : job_id };
+
+	c_config.create (req, class_config)
 		.then (
-			function (doc) {
-				var job_id = sched.schedule (
-						req, 
-						class_config.time_spec.starts, 
-						class_config.time_spec.duration, 
-						fire_class);
-
-				if (!job_id) {
-					class_config.remove(req, doc);
-					return send_error.call(res, req, ERR.bad_request('incorrect class parameters'));
-				}
-
-				/* All ij well */
-				return res.send(doc);
-			},
+			/* All ij well */
+			res.send.bind(res),
 			/* fail */
-			send_error.bind(res, req)
+			function (err) {
+				sched.canel (req, job_id);
+				send_error.bind (res, req);
+			}
 		);
 };
 
 function validate_params (class_config) {
+	var duration = class_config.time_spec.duration;
+
+	if (!helpers.is_numeric (duration)) {
+			req.log.warn ({ controller : {
+					duration : duration,
+					}
+			}, 'duration not numeric. rejected');
+
+			return 'invalid duration (not numeric)';
+	}
 	return null;
 }
 
@@ -47,12 +59,20 @@ controller.update = function (req, res, next) {
 controller.remove = function (req, res, next) {
 };
 
-function fire_class (job_id, which_timer) {
-	mylog.info ({ job : {
-		job_id : job_id,
-		now    : (new Date()).toISOString(),
-		which  : which_timer
-	}}, 'Class timer fired');
+function fire_class (job_id) {
+	var class_config;
+
+	/*
+	 * Get the class config */
+	c_config.get.by_job_id (job_id)
+		.then (
+			/*
+			 * Start the class.If there's an error, the runtime will need to handle it. */
+			c_runtime.start,
+			function (err) {
+				mylog.error ({ error : err }, 'could not start class');
+			}
+		);
 }
 
 function send_error (req, err) {
