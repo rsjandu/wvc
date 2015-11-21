@@ -1,8 +1,10 @@
+var $        = require('jquery-deferred');
+var ERR      = require('common/error');
 var hashes   = require('jshashes');
 var db       = require('api-backend/common/db');
 var mylog    = require('api-backend/common/log').child({ module : 'models/class'});
 
-var __class = {};
+var config = {};
 var class_schema;
 var class_model;
 var mongoose = db.mongoose;
@@ -12,7 +14,7 @@ var mongoose = db.mongoose;
 db.emitter.on('db-connected', function () {
 
 	class_schema = create_schema ();
-	class_model  = mongoose.model('class', class_schema);
+	class_model  = mongoose.model('class_config', class_schema);
 });
 
 function create_schema () {
@@ -32,8 +34,8 @@ function generate_class_id () {
 	return new hashes.SHA1().hex(seed_str);
 }
 
-__class.create = function (req, class_config, callback) {
-
+config.create = function (req, class_config) {
+	var d = $.Deferred();
 	var class_doc = new class_model (class_config);
 
 	class_doc.class_id = generate_class_id ();
@@ -41,11 +43,30 @@ __class.create = function (req, class_config, callback) {
 	class_doc.save (function (err) {
 		if (err) {
 			req.log.error ({ err : err }, 'class config save error');
-			return callback (err.errmsg, null);
+			return d.reject (ERR.internal(err.errmsg));
 		}
-		req.log.info ({ class : class_doc }, 'class config saved ok');
-		callback (null, class_doc);
+
+		req.log.info ({ class_doc : class_doc }, 'class config saved ok');
+		d.resolve (class_doc);
 	});
+
+	return d.promise();
 };
 
-module.exports = __class;
+config.remove = function (req, class_doc) {
+	var d = $.Deferred();
+
+	class_doc.remove ({ class_id : class_doc.class_id }, function (err) {
+		if (err) {
+			req.log.error ({ err : err }, 'class config remove error');
+			return d.reject (ERR.internal(err.errmsg));
+		}
+
+		req.log.info ({ class_id : class_doc.class_id }, 'class config removed ok');
+		d.resolve (class_doc);
+	});
+
+	return d.promise();
+};
+
+module.exports = config;
