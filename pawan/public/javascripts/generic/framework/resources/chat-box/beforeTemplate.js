@@ -1,28 +1,28 @@
-requirejs.config({  								//never ever do that again
+requirejs.config({
 	baseUrl: '/javascripts/generic/framework/',
 	paths: {
+		/* the left side is the module ID,
+		 * the right side is the path to
+		 * the jQuery file, relative to baseUrl.
+		 * Also, the path should NOT include
+		 * the '.js' file extension. */
+		
 		/*
 		 * remove this hardcoded server url somehow
-		 * avinash did this..just see how
 		 */
 		socketio: 'http://localhost:5000/socket.io/socket.io',
 	}
 });
-/*
- * DONOT commit this file as is!
- * Don't replace the file in '/common'
- */
+
 define(function(require){
 	var $ = require('jquery');
 	var log = require('log')('chat-test', 'info');
-	var framework = require('framework');
+	var framework = require('framework', 'info');
 	var io = require('socketio');
 
 	var chat_box = {};
-//	var anchor = {};
-	var f_handle = framework.handle('chat-box');	
+	var anchor = {};
 	var my_info = {};
-	var $messages = {};
 	/*
 	 * create connection
 	 * join room
@@ -30,26 +30,27 @@ define(function(require){
 	 */
 
 		
-	chat_box.init = function ( display_spec, custom, perms) {
+	chat_box.init = function (_framework, custom, perms) {
 			var _d = $.Deferred();
 
 			log.info ('chat_box init called');
 
-			var anchor = display_spec.anchor;
-			var template = f_handle.template('chat-v1');//chat-v1 : get from display_spec itself..purpose is lost if we hardcode it
-			msgTemplate = f_handle.template('message');
-			if(!template) {
-				_d.reject ('chat-box: template not found' );
-			}
-			var $room = template(
-							{
-								name : 'class1', 
-								slug : 'chemistry'	
-							});	
-			$(anchor).append( $room);
-			$('.lcb-entry-button').on('click', sendMessage);
-			$('.lcb-entry-input').on('keypress',sendMessage);
+			anchor = _framework.anchor;
 			
+			load_page();				//for now everything is put here only
+			$('form').on("click", "#Submit", function() {
+				if($('#m').val() != '') {
+					send_message( $('#m').val());
+					$('#m').val('');
+				}
+			
+			});
+			$(document).keypress(function (e) {
+				if (e.which == 13) {
+					e.preventDefault();
+					$('#Submit').click();
+				}
+			});	
 			_d.resolve();
 
 			return _d.promise();
@@ -58,31 +59,17 @@ define(function(require){
 		log.info ('chat box Stuff = ', sess_info);
 		my_info = sess_info;
 		
-		/*  token, to be used as auth-token when communicating 	*/
+		$(function() {
+			//alert('chat box start called');
+		});
+		//token, to be used as auth-token when communicating
 		my_token = sess_info.token;
 		log.info( my_token );
 		
 		handle_connection(sess_info);
+		//separate the view and control by using (say) events
 
 	};
-	function sendMessage(e){
-		if(e.type === 'keypress' && e.keyCode !== 13 || e.altKey)
-			return;
-		if(e.type === 'keypress' && e.keyCode === 13 && e.shiftKey)
-			return;
-		e.preventDefault();
-		/*
-		 * if connected */
-		var $textarea = $('.lcb-entry-input');
-		if(!$textarea.val())
-			return;
-
-		send_message( $textarea.val() );		
-		$textarea.val('');
-	}
-	function scrollMessages(){
-		$messages[0].scrollTop = $messages[0].scrollHeight;
-	}
 	function handle_connection( sess_info ){
 		log.info('logging','in');
 		socket = io.connect(		
@@ -106,8 +93,6 @@ define(function(require){
 		socket.emit('rooms:join', { roomId : room_id, password : ''}, function(resRoom){
 			room = resRoom; 	// see it's global
 			log.info('connected ', room);
-			/* here we get the actual data about room */
-			/* addTemplate(); */
 			get_messages(room_id);
 		});
 	}
@@ -120,7 +105,7 @@ define(function(require){
 			reverse		: true			//what does this mean
 		},function( messages){
 			log.info('received_messsages', messages);
-			/* append the chat retrieved (the chat before user joined the room ) 	*/
+			//append the chat retrieved (the chat before user joined the room )
 		});
 	}
 	function send_message( message ){
@@ -130,19 +115,23 @@ define(function(require){
 	function append_message( json_response ){
 		var sender_name = json_response.owner.displayName;
 		var message 	= json_response.text;
-		/*
-		 * add a message template for each new message
-		 * basically as 'li' 
-		 */
-		var $message = msgTemplate( json_response.owner);
-//		$message.find('.lcb-message-text').html( message);
-
-		$messages = $('.lcb-messages');
-		$messages.append('<li>' + $message);
-		$('.lcb-message-text:last').html(message);
-		scrollMessages();
+		$("#messages").html(function(i,origText){
+			return origText + "\n" + sender_name + " : " +  message;
+		});
 	}
+	function load_page(){ 
 		
+		$(anchor).html(
+			'<br>'
+//			+ '<ul id="messages"></ul>'
+			+ '<textarea id="messages" rows="8" cols="32" style="color: red; background-color: lightyellow"> History: </textarea>'
+    			+ '<form>'
+			+ '<input id="m" style="color: red" autocomplete="off" /><input type="button" style="color: Red" id="Submit" value="Send" />'
+			+ '</form>'
+
+		);
+	}
+	
 	log.info ('notify_box loaded');
 
 	return chat_box;

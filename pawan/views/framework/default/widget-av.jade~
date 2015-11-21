@@ -1,5 +1,0 @@
-#widget-av.vc-widget.outer
-	.menu-inner
-		span Menu Inner
-	.main-inner
-		span AV Widget
