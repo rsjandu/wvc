@@ -39,9 +39,6 @@ do
 			__NOW=`date -Iseconds`
 			STARTS_IN=`date -Iseconds -d $__NOW' +'$2' seconds'`
 			FILTER=$FILTER' | .time_spec.starts = "'$STARTS_IN'"'; 
-
-			echo NOW = $__NOW 2> /dev/stderr
-			echo STARTS = $STARTS_IN 2> /dev/stderr
 			shift;
 		}
 		[ "$1" == "--duration" ] && { 
@@ -56,11 +53,6 @@ done;
 # Apply filters from the command line
 #
 cat $CONFIG_FILE | $JQ "$FILTER" > $TMP_JSON
-echo Sending '...' > /dev/stderr
-echo '-------------------------------------' > /dev/stderr
-cat $TMP_JSON | $JQ > /dev/stderr
-echo '-------------------------------------' > /dev/stderr
-echo 'Response ...' > /dev/stderr
 
 [ "$USERPASSWORD" != "" ] && { USERPASSWORD='-u '$USERPASSWORD; }
 [ "$HOST" == "" ] && {

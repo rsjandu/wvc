@@ -15,6 +15,7 @@ function print_json {
 	CODE=`grep HTTP-CODE $FILE | sed 's@^.*HTTP-CODE:@@g'`
 	[ "$CODE" == '200' ] && { 
 		cat $FILE | grep -v HTTP-CODE | $JQ;
+		echo ' - HTTP-CODE:200'
 	}
 	[ "$CODE" != '200' ] && { 
 		cat $FILE;

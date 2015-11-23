@@ -13,8 +13,6 @@ var args            = require('common/args');
 var vc_session_v1   = require('landing/routes/session-v1');
 var auth_v1         = require('landing/routes/auth-v1');
 
-config.determine_site_addr ();
-
 var sess = { cookie:
 				{ },
 				secret: '&^%Gbu45t;#tLa*',
@@ -24,7 +22,7 @@ var sess = { cookie:
 
 var app = express();
 
-app.set('views', config.views);
+app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 if (app.get('env') === 'production') {
 		app.set('trust proxy', true);

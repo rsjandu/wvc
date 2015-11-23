@@ -1,5 +1,4 @@
 var express   = require('express');
-var config    = require('landing/config');
 var log       = require('landing/common/log');
 var router    = express.Router();
 

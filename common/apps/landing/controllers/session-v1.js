@@ -1,6 +1,5 @@
 var path      = require('path');
 var async     = require('async');
-var config    = require('landing/config');
 var backend   = require('landing/controllers/backend-if');
 var provision = require('landing/controllers/provision-server');
 var log       = require('landing/common/log');
@@ -31,7 +30,7 @@ controller.load_page = function (req, res, next) {
 		if (err)
 			return next(err, req, res);
 
-		var _templates = templates.load (config.templates.dir, sess_config);
+		var _templates = templates.load (__dirname + '/../views/framework/templates', sess_config);
 
 		/*
 		 * Get a list of all CSS files to be loaded */

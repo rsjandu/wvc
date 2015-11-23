@@ -1,11 +1,12 @@
 var events   = require('events');
 var mongodb  = require('mongodb');
 var mongoose = require('mongoose');
+var config   = require('common/config');
 var log      = require('api-backend/common/log').child({ module : 'mongoose' });
 
 /*
  * Initialize and connnect */
-mongoose.connect('mongodb://localhost/wiziq-v1');
+mongoose.connect(config.api.mongo);
 
 var state = 'not-open';
 var emitter = new events.EventEmitter();
