@@ -2,9 +2,11 @@ var ioredis = require('ioredis');
 var log     = require('./log');
 var config  = require('../config');
 
+/*
 var redis = new ioredis({
 				retryStrategy : function (times) { return config.redis.retry_interval; }
 		});
+*/
 
 var cache = {};
 cache.connected = false;
