@@ -18,6 +18,13 @@ module.exports = function() {
         app.io.to(room.id)
               .emit('messages:new', msg);
     });
+    core.on('messages:typing',function(room, user) {
+	var msg = {};
+	msg.owner = user;
+	msg.room = room;
+	app.io.to(room.id)
+	      .emit('messages:typing', msg);
+	});
 
     //
     // Routes
@@ -85,7 +92,23 @@ module.exports = function() {
 
                 res.json(messages);
             });
-        }
+        },
+	typing: function(req, res) {		/* added by -pawan */
+		var options = {
+			'owner' : req.user._id,	
+			'room' : req.param('room')
+		    };
+		/*
+		 * throttle here also.
+		 * say send one notification per second   
+		 */
+		core.messages.typing( options, function( err ){
+			if(err){
+				return res.sendStatus(400);
+			}
+			return res.sendStatus(202); 		/* it's OK na? */
+		});
+	}
     });
 
 };
