@@ -73,7 +73,7 @@ chat.init_user = function (user) {
 	 * username will be saved in lowercase(whatever you pass) and certain queries will not work if uppercase letters are found in username.
 	 * eg. WizIQ will be saved as 'wiziq'
 	 */
-	uname 	= user;
+	uname 	= user + get_random_string();					/* add some 5chars random string here, just avoiding removeUser */
 	passwd 	= generate_password( uname );
 	log.info( uname, passwd);
 	var _d_create = create_user( uname, passwd );
@@ -148,7 +148,7 @@ function allow_user_to_room( room, uname){
 			});
 	return _d.promise();
 }
-function get_random_string( class_title ){
+function get_random_string(){
 	return  Math.random().toString(36).substr(2, 5);
 }
 function generate_password( username ){
@@ -159,7 +159,7 @@ function generate_password( username ){
 function create_user(username, password){
 	var _d = $.Deferred ();
 	var email	 = username + '@vc.team'; 
-	var display_name = username;	
+	var display_name = username.slice(0,-5);	
 	rest.post( root_url + '/account/register',{ 
 		data : { 
 			'username' 	: username,
