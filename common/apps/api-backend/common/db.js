@@ -6,25 +6,29 @@ var log      = require('api-backend/common/log').child({ module : 'mongoose' });
 
 /*
  * Initialize and connnect */
-mongoose.connect(config.api.mongo);
+var connection = mongoose.createConnection (config.api.mongo);
 
-var state = 'not-open';
 var emitter = new events.EventEmitter();
-var _db = mongoose.connection;
 
-_db.on('error', function (err) {
+connection.on('error', function (err) {
 	log.error ({ error : err }, 'Connection error');
 });
 
-_db.once('open', function (callback) {
-	state = 'connected';
-	log.info ('connection OK');
+connection.on('disconnected', function () {
+	log.warn ('disconnected');
+});
+
+connection.on('connected', function () {
+	log.info ('connected');
+});
+
+connection.once('open', function (callback) {
+	log.info ({ db : config.api.mongo }, 'connection OK');
 	emitter.emit('db-connected');
 });
 
-
 var db = {};
-db.mongoose = mongoose;
+db.conn = connection;
 db.emitter  = emitter;
 
 module.exports = db;

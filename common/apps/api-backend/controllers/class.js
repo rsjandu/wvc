@@ -1,9 +1,9 @@
 var $            = require('jquery-deferred');
 var helpers      = require('common/helpers');
 var ERR          = require('common/error');
-var c_config     = require('api-backend/models/class_config');
-var c_runtime    = require('api-backend/models/class_runtime');
-var sched        = require('api-backend/models/sched');
+var sched        = require('common/sched');
+var prov_if      = require('api-backend/models/provisioning-if');
+var c_config     = require('api-backend/models/class-config');
 var mylog        = require('api-backend/common/log').child({ module : 'controllers/class'});
 
 var controller = {};
@@ -68,9 +68,9 @@ function fire_class (job_id) {
 		.then (
 			/*
 			 * Start the class.If there's an error, the runtime will need to handle it. */
-			c_runtime.start,
+			prov_if.start,
 			function (err) {
-				mylog.error ({ error : err }, 'could not start class');
+				mylog.error ({ error : err }, 'start class error');
 			}
 		);
 }
