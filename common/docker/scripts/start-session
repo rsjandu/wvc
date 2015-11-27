@@ -1,16 +1,13 @@
 #!/bin/bash
 
+set -e
+
 function abs_path () {
 	target=$1;
 	cd $target > /dev/null 2>&1;
-	[ $? -ne 0 ] && { echo Error : directory \"$target\" does not exist; exit 1; }
+	[ $? -ne 0 ] && { echo Error : directory \"$target\" does not exist > /dev/stderr; exit 1; }
 	pwd
 	cd - > /dev/null 2>&1;
-}
-
-function check_docker () {
-	command -v docker > /dev/null;
-	[ $? -ne 0 ] && { echo Error : docker not installed; exit 1; }
 }
 
 #
@@ -25,7 +22,6 @@ NAME=$1; shift;
 #
 # Do some checks
 #
-check_docker;
 
 ABS_PATH=`abs_path $SESS_DIR`
 IMAGE='wiziq/session:v2.2'
