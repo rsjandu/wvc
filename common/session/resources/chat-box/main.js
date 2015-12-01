@@ -189,13 +189,18 @@ function login_to_letsChat( username, password ){
 	rest.post( root_url + "/account/login",{
 		data 		: { 'username' : username, 'password' : password }
 	}).on('complete', function(result, response){
-		if( response && response.headers ){
-			final_cookie = JSON.stringify(response.headers['set-cookie'] );
-			final_cookie = final_cookie.substr(2, final_cookie.indexOf(';') - 2);
-			_d.resolve( final_cookie  );
+		try{
+			if( response && response.headers ){
+				final_cookie = JSON.stringify(response.headers['set-cookie'] );
+				final_cookie = final_cookie.substr(2, final_cookie.indexOf(';') - 2);
+				_d.resolve( final_cookie  );
+			}
+			else{
+				_d.reject('could not log-in to ' + root_url);
+			}
 		}
-		else{
-			_d.reject('could not log-in to ' + root_url);
+		catch( e){
+			_d.reject('error reading cookie');
 		}
 	});
 	
