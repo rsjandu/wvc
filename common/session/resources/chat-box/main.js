@@ -5,6 +5,7 @@ var m_room = {};  //master room
 var cookie_admin = {};
 var root_url = {};
 var users = {};
+var req_timeout = {};
 
 /*
  * Login as admin and create a room
@@ -17,6 +18,7 @@ chat.init = function (myinfo, common, handles) {
 	log.info ('chat-box: init :', JSON.stringify(myinfo));
 	
 	root_url 	= myinfo.custom.server_url;
+	req_timeout = myinfo.custom.req_timeout;
 	var random_str  = get_random_string();
 	/*
 	 * create a master room for the session with the following data
@@ -64,6 +66,11 @@ chat.init = function (myinfo, common, handles) {
 
 chat.init_user = function (user) { 
 	var _d = $.Deferred ();
+	if( !m_room.id){
+		log.error('no room found');
+		_d.reject('no room created');
+		return _d.promise();
+	}
 	var uname 	= {},	
 	    passwd 	= {},
 	    cookie_user	= {},
@@ -132,6 +139,7 @@ function allow_user_to_room( room, uname){
 	rest.put( root_url + '/rooms/' + m_room.id,
 			 {
 			 	headers 	: 	{ cookie : cookie_admin },
+				timeout		: 	req_timeout,
 			 	data 		:	
 					{
 						id 				: m_room.id,
@@ -145,6 +153,8 @@ function allow_user_to_room( room, uname){
 			).on('complete', function(data,res){
 				log.info('update_request got: ' + JSON.stringify(data) );
 				_d.resolve();			
+			}).on('timeout', function(){
+				_d.reject(' req timed out');
 			});
 	return _d.promise();
 }
@@ -161,6 +171,7 @@ function create_user(username, password){
 	var email	 = username + '@vc.team'; 
 	var display_name = username.slice(0,-5);	
 	rest.post( root_url + '/account/register',{ 
+		timeout : req_timeout,
 		data : { 
 			'username' 	: username,
 			'email'	   	: email,
@@ -178,6 +189,8 @@ function create_user(username, password){
 		else{
 			_d.reject( data.message );
 		}
+	}).on('timeout', function(){
+		_d.reject('request timed out');
 	});
 	return _d.promise();
 }
@@ -187,6 +200,7 @@ function login_to_letsChat( username, password ){
 	var final_cookie 	= {};
 
 	rest.post( root_url + "/account/login",{
+		timeout 	: req_timeout,
 		data 		: { 'username' : username, 'password' : password }
 	}).on('complete', function(result, response){
 		try{
@@ -202,6 +216,9 @@ function login_to_letsChat( username, password ){
 		catch( e){
 			_d.reject('error reading cookie');
 		}
+		
+	}).on('timeout', function(){
+		_d.reject('request timed out');
 	});
 	
 	return _d.promise ();	
@@ -210,7 +227,8 @@ function login_to_letsChat( username, password ){
 function get_token( cookie ){
 	var _d = $.Deferred();
 	rest.post( root_url + '/account/token/generate',{  
-		headers : { 'cookie' : cookie }
+		headers : { 'cookie' : cookie },
+		timeout : req_timeout
 	}).on('success',function( response ){	
 		log.info( response );
 		_d.resolve( response.token );
@@ -218,6 +236,8 @@ function get_token( cookie ){
 		if(_d.state() === 'pending'){
 			_d.reject('could not get token');
 		}
+	}).on('timeout',function(){
+		_d.reject('request timed out');
 	});
 	return _d.promise();
 }
@@ -229,6 +249,7 @@ function create_room( name, short_name, desc ){
 
 	rest.post( root_url + '/rooms', {				//timeout can be added 
 			headers : { cookie : cookie_admin },
+			timeout : req_timeout,
 			data    : { 
 					"slug" 		: short_name,
 					"name" 		: name,
@@ -245,6 +266,8 @@ function create_room( name, short_name, desc ){
 			if( _d.state() == 'pending'){
 				_d.reject('room creation failed');
 			}
+		}).on('timeout',function(){
+			_d.reject('req timed out');
 		});
 		// add handlers for onfailure, onerror, ontimeout etc.
 	return _d.promise(); 
