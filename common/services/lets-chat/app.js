@@ -69,6 +69,14 @@ var session = {
     saveUninitialized: true
 };
 
+app.use( function( req, res, next){
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, set-cookie'); //is this one really needed??
+		res.header('Access-Control-Expose-Headers','set-cookie');
+		next();
+	});
+
+
 // Set compression before any routes
 app.use(compression({ threshold: 512 }));
 
