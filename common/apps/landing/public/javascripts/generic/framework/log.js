@@ -1,6 +1,12 @@
 define(function(require) {
-
+	var logQ = require('log_queue');
+	/* 
+	 * Buffer until sess-info is received
+	 * and then send at intervals maybe!
+	 */
+	
 	return function (prefix, level) {
+//		logQ.sample_run();
 		var log = {};
 		var _level = 0;
 		if (level === 'info')
