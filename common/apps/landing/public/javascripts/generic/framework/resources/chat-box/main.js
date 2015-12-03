@@ -5,7 +5,6 @@ define(function(require){
 	var moment = require('./moment.min');
 	var log = require('log')('chat-test', 'info');
 	var framework = require('framework');
-	var io = require('socketio');
 
 	var chat_box = {};
 	var anchor = {};
@@ -53,8 +52,29 @@ define(function(require){
 		/*  token, to be used as auth-token when communicating */
 		my_token = sess_info.token;
 		
-		handle_connection(sess_info);
+		connect(sess_info)
+		.then(
+			function( sock){
+				socket = sock;
 
+				socket.on('connect', function(){
+					log.info('connect','done');	
+				});
+				socket.on('reconnect',function(){
+					log.info('reconnect done');
+				});
+				socket.on('error', function(){
+					log.error('Chat: ', 'Connection to server failed');
+				});
+				/* add event listeners for reconnect, reconnecting, error */
+				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
+				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room) });
+					
+				socket = sock;
+				room_id = sess_info.room_id;		
+				who_am_i();	
+				join_room(room_id);
+			});
 	};
 
 	/*
@@ -75,30 +95,20 @@ define(function(require){
 		}
 	}
 
-	function handle_connection( sess_info ){
+	function connect( sess_info ){
+		var _d = $.Deferred();
 		log.info('logging','in');
-		socket = io.connect(		
+		
+		require([sess_info.root_url + '/socket.io/socket.io.js'],function( io){
+			
+			var sock = io.connect(		
 				sess_info.root_url,
 				{ 
 					query : 'token=' + my_token
 				});
-	
-		socket.on('connect', function(){
-			log.info('connect','done');	
-			room_id = sess_info.room_id;		
-			who_am_i();	
-			join_room(room_id);
+			_d.resolve( sock);
 		});
-		socket.on('reconnect',function(){
-			log.info('reconnect done');
-		});
-		socket.on('error', function(){
-			log.error('Chat: ', 'Connection to server failed');
-		
-		});
-		/* add event listeners for reconnect, reconnecting, error */
-		socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
-		socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room) });
+		return _d.promise();
 	}
 	var users_typing = {};
 	var interval = 5000;			/*kept to half a minute for now.. actual is to be decided */
