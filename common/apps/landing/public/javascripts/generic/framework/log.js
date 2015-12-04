@@ -1,5 +1,5 @@
 define(function(require) {
-	var logQ = require('log_queue');
+//	var logQ = require('log_queue');
 	/* 
 	 * Buffer until sess-info is received
 	 * and then send at intervals maybe!
