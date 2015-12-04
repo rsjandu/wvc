@@ -3,15 +3,16 @@
  */
 define(function(require) {
     var $ = require('jquery');
+    var remodal = require('remodal');
     var log = require('log')('av-control', 'info');
     var otd = require('./ot-layout');
+    var ssui = require('./screenshare/ssui');
     window.jade = require('jade');
 
     var avc = {};
     var layout = false;
     var display_spec = {};
     var handle = {};
-    var dialog;
 
     var avcontainer;
     var pubsc;
@@ -19,8 +20,11 @@ define(function(require) {
     var _l = {};
     var cbs = {};
     var lvmute = false;
+    var config;
+
 
     window.onresize = __resize;
+
 
     function __resize() {
         if ( layout ) {
@@ -28,12 +32,14 @@ define(function(require) {
         }
     }
 
-    avc.init = function (_display_spec, _handle, _cbs) {
+
+    avc.init = function (_display_spec, _handle, _config, _cbs) {
         var _d = $.Deferred();
 
         display_spec = _display_spec;
         handle = _handle;
         cbs = _cbs;
+        config = _config;
 
         var anchor = display_spec.anchor;
         var template = handle.template('av-tokbox');
@@ -44,10 +50,8 @@ define(function(require) {
         }
 
         $(anchor).append(template());
-        //pubsc = $(anchor).find('#av-primary-outer')[0];
         pubsc = $(anchor).find('#av-primary-cont')[0];
         subsc = $(anchor).find('#av-secondary-outer')[0];
-        dialog = $(anchor).find('#avwarn')[0];
 
         registerHandlers();
         def_pri_vid_ctrl();
@@ -58,28 +62,119 @@ define(function(require) {
         return _d.promise();
     };
 
+
     avc.showMessage = function ( m ) {
     };
 
 
-    /*
-     * Get primary container
-     */
     avc.pubc = function () {
         return pubsc;
     };
 
 
-    /*
-     * Get secondary container
-     */
     avc.subc = function () {
         return subsc;
     };
 
+
+    avc.getScreenShareDiv = function () {
+        return screenShareDiv;
+    };
+
+
     avc.layout = function () {
         _l.layout_p();
         _l.layout_s();
+    };
+
+
+    avc.usermediasuccess = function (type) {
+        showMicMute();
+        hideStart();
+        showDisconnect();
+        if ( config.screenshare ) {
+            ssui.showss();
+        }
+        if ( type === 'audiovideo' ) {
+            $('#avcamstop').show();
+        }
+    };
+
+
+    avc.usermediafail = function (type) {
+
+    };
+
+
+    avc.usermediapublished = function() {
+
+    };
+
+
+    avc.usermediaunpublished = function() {
+
+    };
+
+
+    avc.disconnected = function() {
+        def_pri_vid_ctrl();
+        showStart();
+    };
+
+
+    function showMicMute () {
+        if ( $('#avmic-unmute').is(':hidden') ) {
+            $('#avmic-mute').show();
+        }
+    }
+
+
+    function hideMicMute () {
+        $('#avmic-mute').hide();
+    }
+
+
+    function showMicUnmute () {
+        $('#avmic-unmute').show();
+    }
+
+
+    function hideMicUnmute () {
+        $('#avmic-unmute').hide();
+    }
+
+
+    function showStart () {
+        if ( config.debug_controls ) {
+            $('#avstart').show();
+        }
+    }
+
+
+    function hideStart () {
+        if ( config.debug_controls ) {
+            $('#avstart').hide();
+        }
+    }
+
+
+    function showDisconnect () {
+        if ( config.debug_controls ) {
+            $('#avdisconnect').show();
+        }
+    }
+
+
+    function hideDisconnect () {
+        if ( config.debug_controls ) {
+            $('#avdisconnect').hide();
+        }
+    }
+
+
+    avc.svcstyle = function (sub) {
+        var body = '<div id=' + '"' + 'secvidmenu_' + sub.element.id + '"' + ' class="avsmenu"' + ' </div>';
+        $('#' + sub.element.id).append(body);
     };
 
 
@@ -105,82 +200,56 @@ define(function(require) {
         return subscriberDiv;
     }
 
-    avc.usermediasuccess = function (type) {
-        $('#avstart').hide();
-        $('#avmic-mute').show();
-        $('#avdisconnect').show();
-        if ( type === 'audiovideo' ) {
-            $('#avcamstop').show();
-        }
-    };
-
-    avc.usermediafail = function (type) {
-
-    };
-
-    avc.usermediapublished = function() {
-
-    };
-
-    avc.usermediaunpublished = function() {
-
-    };
-
-    avc.disconnected = function() {
-        def_pri_vid_ctrl();
-        $('#avstart').show();
-    };
-
-    avc.svcstyle = function (sub) {
-
-        var subeid = sub.element.id;
-        var e = '#' + subeid;
-        var secmenu = '<div id="secvidmenu" class="avsmenu" </div>';
-        $(e).append(secmenu);
-        var secVidMenuElemId = 'secvidmenu_' + subeid;
-        $('#secvidmenu').attr('id', secVidMenuElemId);
-        /*
-        var vidbtn = '<div id="secvidmute" class="btn btn-default btn-sm"><span class="fa fa-video-camera"></span></div>';
-        $('#' + secVidMenuElemId).append(vidbtn);
-        var secVidMuteElemId = 'secvidmute_' + subeid;
-        $('#secvidmute').attr('id', secVidMuteElemId);
-        $('#' + secVidMuteElemId).click(secvidclick);
-        var targetPosition = {
-            display : 'inline-block'
-        };
-        $('#secvidmute').css(targetPosition);
-        */
-    };
 
     function maximize() {
         log.info('av maximise button click');
     }
 
+
     function micmute() {
         log.info('micmute button click');
         cbs.mutela();
-        $('#avmic-mute').hide();
-        $('#avmic-unmute').show();
+        hideMicMute();
+        showMicUnmute();
     }
+
 
     function micunmute() {
         log.info('micunmute button click');
         cbs.unmutela();
-        $('#avmic-unmute').hide();
-        $('#avmic-mute').show();
+        hideMicUnmute();
+        showMicMute();
     }
+
 
     function toggleVideo() {
         log.info('toggleVideo button click');
         if ( !lvmute ) {
-            cbs.mutelv();
-            $('#av-menu-outer .btn span.fa-video-camera').css('color', 'red');
+            muteLVideo();
         } else {
-            cbs.unmutelv();
-            $('#av-menu-outer .btn span.fa-video-camera').css('color', 'white');
+            unmuteLVideo();
         }
         lvmute = !lvmute;
     }
+
+
+    function muteLVideo() {
+        cbs.mutelv();
+        $('#av-menu-outer .btn span.fa-video-camera').css('color', 'red');
+    }
+
+
+    function unmuteLVideo() {
+        cbs.unmutelv();
+        $('#av-menu-outer .btn span.fa-video-camera').css('color', 'white');
+    }
+
+
+    function resetLVideo() {
+        lvmute = false;
+        $('#av-menu-outer .btn span.fa-video-camera').css('color', 'white');
+    }
+
 
     function toggleSubVideo (id) {
         log.info('toggleSubVideo button click');
@@ -189,6 +258,7 @@ define(function(require) {
         }
     }
 
+
     function start() {
         log.info('start button click');
         if ( cbs ) {
@@ -196,23 +266,36 @@ define(function(require) {
         }
     }
 
+
     function disconnect() {
         log.info('disconnect called.');
         if ( cbs ) {
             cbs.stop();
             def_pri_vid_ctrl();
-            $('#avstart').show();
+            showStart();
+        }
+        resetLVideo();
+    }
+
+
+    function screenShare() {
+        log.info('screenShare click.');
+        if ( cbs ) {
+            cbs.screenShare();
         }
     }
 
+
     function def_pri_vid_ctrl() {
         $('#avmax').hide();
-        $('#avmic-mute').hide();
-        $('#avmic-unmute').hide();
+        hideMicMute();
+        hideMicUnmute();
         $('#avcamstop').hide();
         $('#avstart').hide();
         $('#avdisconnect').hide();
+        ssui.hidess();
     }
+
 
     function secvidclick() {
         log.info('secvidclick');
@@ -231,19 +314,18 @@ define(function(require) {
         }
     }
 
+
     function registerHandlers() {
         $('#avmax').click(maximize);
         $('#avmic-mute').click(micmute);
         $('#avmic-unmute').click(micunmute);
         $('#avcamstop').click(toggleVideo);
-        $('#avstart').click(start);
-        $('#avdisconnect').click(disconnect);
-        /* $('[data-toggle="tooltip"]').tooltip();
-        $('.avsc').on('transitioned webkitTransitionEnd', function(e){
-            _l.layout();
-        });
-        */
+        if ( config.debug_controls ) {
+            $('#avstart').click(start);
+            $('#avdisconnect').click(disconnect);
+        }
     }
+
 
     return avc;
 });

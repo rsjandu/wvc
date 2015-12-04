@@ -14,6 +14,7 @@ requirejs.config({
 		jquery_mmenu:  '/landing/javascripts/ext/jquery.mmenu.min.all',
 		dom_ready:     '/landing/javascripts/ext/domReady',
 		bookblock:     '/landing/javascripts/ext/jquery.bookblock',
+        remodal:       '/landing/javascripts/ext/remodal.min',
 	},
 	'shim' : {
 		'jquery_drag'     : [ 'jquery' ],
