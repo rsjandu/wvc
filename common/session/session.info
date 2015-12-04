@@ -8,7 +8,10 @@
 			"custom" : { 
 				"apikey" : "45399392",
 				"apisecret" : "db60ab577686ec8fdad5232a4078eaa8ddb9be18",
-				"p2p"	: false
+				"p2p"	: false,
+				"chromelocalextensionid"	: "hmlfjgegnbjjhaacghlfekifkagkmbce",
+				"chromeextensionid"	: "cofnnopnhjmpoomoholnofbneelimjdm",
+				"inlinechromeextinstall" : false
 			}
 		},
 		{

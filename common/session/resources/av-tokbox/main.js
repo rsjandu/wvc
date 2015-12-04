@@ -10,6 +10,9 @@ var sessionid = null;
 var key;
 var secret;
 var init;
+var chromelocalextensionid;
+var chromeextensionid;
+var inlinechromeextinstall;
 
 av_tokbox.init = function (myinfo, common, handles) {
     var _d = $.Deferred ();
@@ -19,6 +22,9 @@ av_tokbox.init = function (myinfo, common, handles) {
     log.info ('av-tokbox: init :', myinfo);
     key = myinfo.custom.apikey;
     secret = myinfo.custom.apisecret;
+    chromelocalextensionid = myinfo.custom.chromelocalextensionid;
+    chromeextensionid = myinfo.custom.chromeextensionid;
+    inlinechromeextinstall = myinfo.custom.inlinechromeextinstall;
     try {
         opentok = new OpenTok(key, secret);
     }
@@ -107,14 +113,17 @@ function createToken (user, cb) {
         key       : key,
         classid   : null,
         username  : user,
-        authid    : null
+        authid    : null,
+        chromelocalextensionid : chromelocalextensionid,
+        chromeextensionid : chromeextensionid,
+        inlinechromeextinstall : inlinechromeextinstall
     };
 
     return cb(null, res);
 }
 
 
-var activeSessionTime = 2*60*60;
+var activeSessionTime = 5*60*60;
 var getTokenExpiry = function getTokenExpiry() {
     return (new Date().getTime() / 1000) + activeSessionTime;
 };

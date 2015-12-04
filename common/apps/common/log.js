@@ -13,29 +13,25 @@ function connect_to_fluent_server () {
 			type : config.log_type, 
 			host : config.rishikesh_ip, 
 			port : config.rishikesh_port
-		}, function () {
-			log.addStream(flogger, 'debug');
+		},
+		function () {
+			log.info ('connected to fluentd server @ ' + config.rishikesh_ip + ':' + config.rishikesh_port);
+			log.addStream(flogger, 'info');
 		});
 	flogger.writeStream.on ('error', function (err) {
 			log.error (err, 'fluentd connection error');
 		} );
 }
 
-if (process.env.NODE_ENV !== 'production') {
-	log =	bunyan.createLogger ({ 
-				name : 'vc',
-				streams : [
-					{
-						stream : process.stdout,
-						level  : 'debug'
-					}
-				]
-			});
-}
+log = bunyan.createLogger ({ name : 'vc',
+			streams : [
+				{
+					stream : process.stdout,
+					level  : 'debug'
+				}
+			]
+		});
 
-connect_to_fluent_server ();
-
-if (process.env.NODE_ENV === 'production') {
-}
+//connect_to_fluent_server ();
 
 module.exports = log;

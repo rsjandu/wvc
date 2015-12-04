@@ -1,7 +1,7 @@
 {
   "apps" : [{
-    "name"        : "app",
-    "script"      : "bin/www",
+    "name"        : "main-app",
+    "script"      : "app.js",
     "args"        : [],
     "node_args"   : "",
     "merge_logs"  : true,

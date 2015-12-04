@@ -9,8 +9,8 @@ var config = {};
 config.log_tag			= 'vc.apps';
 config.log_type			= 'forward';
 /* Rishikesh is where all the log streams meet */
-config.rishikesh_ip 	= '127.0.0.1';
-config.rishikesh_port	= '24224';
+config.rishikesh_ip 	= 'localhost';
+config.rishikesh_port	= '443';
 
 /*
  * Path related configs

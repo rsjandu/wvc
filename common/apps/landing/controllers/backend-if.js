@@ -98,7 +98,7 @@ controller.get_config = function (sess_id, callback) {
 			{
 				name: 'av-tokbox',
 				role: 'av',
-				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'av' ] },
+				display_spec: { widget: 'av', templates: [ 'av-tokbox', 'ssmodal' ], css: [ 'av', 'remodal', 'remodal-default-theme' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
@@ -106,7 +106,9 @@ controller.get_config = function (sess_id, callback) {
 					random_string : 'welcome',
 					config : av_config,
 					user : user_config,
-					server : ot
+					server : ot,
+                    screenshare : true,
+                    debug_controls : false,
 				},
 			},
 			{
