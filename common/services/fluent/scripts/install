@@ -7,10 +7,10 @@ echo updating package list
 sudo apt-get update
 
 echo "\nInstalling ruby"
-sudo apt-get install ruby-full
-echo "done installing ruby"
+sudo apt-get install ruby-full -y
+echo "\nInstalling gcc"
+sudo apt-get install gcc -y
 
 echo "installing fluentd"
 sudo gem install fluentd
-echo "installed fluentd"
 
