@@ -3,7 +3,7 @@
 define(function(require){
 	var $ = require('jquery');
 	var moment = require('./moment.min');
-	var log = require('log')('chat-test', 'info');
+	var log = require('log')('lets-chat', 'info');
 	var framework = require('framework');
 	var io = require('socketio');
 
@@ -92,8 +92,8 @@ define(function(require){
 		socket.on('reconnect',function(){
 			log.info('reconnect done');
 		});
-		socket.on('error', function(){
-			log.error('Chat: ', 'Connection to server failed');
+		socket.on('error', function(err){
+			log.error('Connection to server ' + sess_info.root_url + ' failed. Data = ', err);
 		
 		});
 		/* add event listeners for reconnect, reconnecting, error */

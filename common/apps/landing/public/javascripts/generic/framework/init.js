@@ -13,7 +13,6 @@ requirejs.config({
 		modernizer:    '/landing/javascripts/ext/modernizr.custom',
 		jquery_mmenu:  '/landing/javascripts/ext/jquery.mmenu.min.all',
 		dom_ready:     '/landing/javascripts/ext/domReady',
-		socketio:      '/landing/javascripts/ext/socket.io/socket.io',
 		bookblock:     '/landing/javascripts/ext/jquery.bookblock',
 	},
 	'shim' : {

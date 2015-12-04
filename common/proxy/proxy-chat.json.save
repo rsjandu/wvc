@@ -1,0 +1,14 @@
+{
+  "apps" : [{
+    "name"        : "proxy-chat",
+    "script"      : "proxy-chat.js",
+    "args"        : ["--host=wizizq-ubuntu-a.cloudapp.net"],
+    "node_args"   : "",
+    "merge_logs"  : true,
+    "cwd"         : "",
+    "env": {
+        "NODE_ENV": "production",
+        "PROXY_HOST_NAME": "wiziq-ubuntu-a.cloudapp.net"
+    }
+  }]
+}
