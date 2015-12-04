@@ -2,7 +2,7 @@
   "apps" : [{
     "name"        : "main-app",
     "script"      : "app.js",
-    "args"        : [],
+    "args"        : [ '--sess-ip', 'wiziq-ubuntu-b.cloudapp.net', '--sess-port', '7777', '--ssl' ],
     "node_args"   : "",
     "merge_logs"  : true,
     "cwd"         : "",
