@@ -107,7 +107,7 @@ controller.get_config = function (sess_id, callback) {
 					config : av_config,
 					user : user_config,
 					server : ot,
-                    screenshare : false,
+                    screenshare : true,
                     debug_controls : false,
 				},
 			},
