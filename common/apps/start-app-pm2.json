@@ -1,0 +1,16 @@
+{
+  "apps" : [{
+    "name"        : "app",
+    "script"      : "bin/www",
+    "args"        : [],
+    "node_args"   : "",
+    "merge_logs"  : true,
+    "cwd"         : "",
+    "env": {
+        "NODE_ENV": "production",
+        "VC_SESS_IP": "wiziq-ubuntu-a.cloudapp.net",
+        "VC_SESS_PORT": "7777",
+        "VC_SSL": "true"
+    }
+  }]
+}

@@ -1,44 +1,28 @@
 var bunyan 				= require('bunyan');
 var config 				= require('../config_pwn.js');
-var FluentLogger 		= require('fluent-logger-stream');
+var fluent       		= require('fluent-wiziq');
 
 var log;
-try{
-	var fluentLogger = new FluentLogger( 
-		{ 
-			tag		: config.log_tag, 
-			type	: config.log_type, 
-			host	: config.rishikesh_ip, 
-			port	: config.rishikesh_port
+
+function connect_to_fluent_server () {
+
+	var flogger;
+
+	flogger = new fluent ({ 
+			tag  : config.log_tag, 
+			type : config.log_type, 
+			host : config.rishikesh_ip, 
+			port : config.rishikesh_port
+		}, function () {
+			log.addStream(flogger, 'debug');
 		});
-	/* error in connection crashes the server
-	 * handle it somehow
-	 */
-}
-catch(e){
-	fluentLogger = process.stdout;
+	flogger.writeStream.on ('error', function (err) {
+			log.error (err, 'fluentd connection error');
+		} );
 }
 
 if (process.env.NODE_ENV !== 'production') {
-		
-	log = 	bunyan.createLogger({
-				name : 'wvc',
-				streams : [
-					{
-						stream 	: fluentLogger,
-						level	: 'debug'
-					}
-				]
-			});
-	/* src:true i.e. call source is slow..donot use in production */
-	log.on('error',function( err, stream){
-		/*
-		 * Unable to write
-		 * either buffer or fall back to std output
-		 */
-	});
-	
-	log1 =	bunyan.createLogger ({ 
+	log =	bunyan.createLogger ({ 
 				name : 'vc',
 				streams : [
 					{
@@ -48,6 +32,8 @@ if (process.env.NODE_ENV !== 'production') {
 				]
 			});
 }
+
+connect_to_fluent_server ();
 
 if (process.env.NODE_ENV === 'production') {
 }
