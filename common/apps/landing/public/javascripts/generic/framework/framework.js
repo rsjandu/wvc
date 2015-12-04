@@ -79,7 +79,9 @@ define(function(require) {
 
 		log.info ('starting module \"' + name + '\" ...');
 
-		try { _module.handle.start (session_info.info[name]); }
+		try { 
+			_module.handle.start (session_info.info[name]); 
+		}
 		catch (e) {
 			log.error ('module \"' + name + '\": start err = ' + e);
 		}

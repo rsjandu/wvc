@@ -47,6 +47,11 @@ define(function(require){
 	};
 	chat_box.start = function (sess_info) {
 		log.info ('chat box Stuff = ', sess_info);
+		if (!sess_info) {
+			log.error ('no session info !');
+			return;
+		}
+
 		my_info = sess_info;
 		
 		/*  token, to be used as auth-token when communicating */

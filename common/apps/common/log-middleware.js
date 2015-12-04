@@ -1,7 +1,5 @@
 var log = require('common/log');
 
-var log;
-
 function serializer (req, res) {
 	if (!req || !req.connection)
 		return req;

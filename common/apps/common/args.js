@@ -4,6 +4,12 @@ var log = require('common/log');
 var _argv = minimist(process.argv.slice(2));
 
 log.debug ({ args : _argv}, 'command line arguments');
+log.debug ({ env : {
+		VC_SESS_IP : process.env.VC_SESS_IP,
+		VC_SESS_PORT : process.env.VC_SESS_PORT,
+		VC_SSL : process.env.VC_SSL
+	}}, 'env');
+
 var args = {};
 
 args.session_server_ip = function () {
@@ -21,7 +27,6 @@ args.session_server_port = function () {
 };
 
 args.session_server_ssl = function () {
-	return _argv.ssl;
 	var val = _argv['ssl'];
 	if (!val)
 		val = process.env.VC_SSL;

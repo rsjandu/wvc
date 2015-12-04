@@ -46,5 +46,4 @@ proxy.register(host + '/landing/', "http://localhost:2178/landing/");
 proxy.register(host + '/session/test-internal', "localhost:7777/");
 
 proxy.register(host + '/', "localhost:5000/");
-proxy.register(host + '/lets-chat/', "localhost:5000/");
-proxy.register(host + '/socket.io/', "localhost:5000//socket.io/");
+//proxy.register(host + '/socket.io/', "localhost:5000//socket.io/");
