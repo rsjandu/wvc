@@ -1,5 +1,5 @@
 var bunyan 				= require('bunyan');
-var config 				= require('../config_pwn.js');
+var config 				= require('common/config');
 var fluent       		= require('fluent-wiziq');
 
 var log;
@@ -9,10 +9,10 @@ function connect_to_fluent_server () {
 	var flogger;
 
 	flogger = new fluent ({ 
-			tag  : config.log_tag, 
-			type : config.log_type, 
-			host : config.rishikesh_ip, 
-			port : config.rishikesh_port
+			tag  : config.log.tag, 
+			type : config.log.type, 
+			host : config.log.rishikesh_host, 
+			port : config.log.rishikesh_port
 		},
 		function () {
 			log.info ('connected to fluentd server @ ' + config.rishikesh_ip + ':' + config.rishikesh_port);
@@ -32,6 +32,6 @@ log = bunyan.createLogger ({ name : 'vc',
 			]
 		});
 
-//connect_to_fluent_server ();
+connect_to_fluent_server ();
 
 module.exports = log;
