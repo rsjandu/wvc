@@ -28,12 +28,12 @@ define(function(require){
 			anchor = display_spec.anchor;
 			var templates = display_spec.templates;
 			var template  = f_handle.template( templates[0] );
-			msgTemplate   = f_handle.template( templates[1] );  
-			
+			msgTemplate   = f_handle.template( templates[1] );
+
 			if(!template || !msgTemplate){
 				_d.reject ('chat-box: some template not found' );
 			}
-			
+
 			var $room = template();
 			$(anchor).append( $room);
 			$('.lcb-entry-button').on('click', sendMessage);
@@ -53,17 +53,17 @@ define(function(require){
 		}
 
 		my_info = sess_info;
-		
+
 		/*  token, to be used as auth-token when communicating */
 		my_token = sess_info.token;
-		
+
 		connect(sess_info)
 		.then(
 			function( sock){
 				socket = sock;
 
 				socket.on('connect', function(){
-					log.info('connect','done');	
+					log.info('connect','done');
 				});
 				socket.on('reconnect',function(){
 					log.info('reconnect done');
@@ -74,10 +74,10 @@ define(function(require){
 				/* add event listeners for reconnect, reconnecting, error */
 				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
 				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room) });
-					
+
 				socket = sock;
-				room_id = sess_info.room_id;		
-				who_am_i();	
+				room_id = sess_info.room_id;
+				who_am_i();
 				join_room(room_id);
 			});
 	};
@@ -85,7 +85,7 @@ define(function(require){
 	/*
 	 * private methods
 	 */
-	
+
 	function scrollHandler(){
 		var msg_container = $('.lcb-messages-container')[0];
 		var scrHeight  	= msg_container.scrollHeight;
@@ -103,12 +103,12 @@ define(function(require){
 	function connect( sess_info ){
 		var _d = $.Deferred();
 		log.info('logging','in');
-		
+
 		require([sess_info.root_url + '/socket.io/socket.io.js'],function( io){
-			
-			var sock = io.connect(		
+
+			var sock = io.connect(
 				sess_info.root_url,
-				{ 
+				{
 					query : 'token=' + my_token
 				});
 			_d.resolve( sock);
@@ -122,8 +122,8 @@ define(function(require){
 	/*
 	 * timers : one for my send, and one for each user typing
 	 * a typing event can be sent after an 'interval' only. Sent after a keypress in textArea
-	 * timer is cleared: when message is sent, when a message is received from some user who was typing 
-	 * timer is reset  : when another typing event received from a user typing 
+	 * timer is cleared: when message is sent, when a message is received from some user who was typing
+	 * timer is reset  : when another typing event received from a user typing
 	 */
 	function typing_handler(user, room){
 		log.info(user.displayName+ ' is typing in the room: ' + room);
@@ -133,14 +133,14 @@ define(function(require){
 			return;
 		}
 		/* has just started or was already typing */
-		if( !(user.id in users_typing ) ){ 
-			update_last_two(user);	
+		if( !(user.id in users_typing ) ){
+			update_last_two(user);
 			users_typing[user.id] = setTimeout( remove_user_typing, interval, user.id );
 		//	update_notification(); /* always shows [last 2] and [list.length-2] others are typing */
 		}
 		else{
 			clearTimeout( users_typing[user.id] );
-			update_last_two( user);	
+			update_last_two( user);
 			users_typing[user.id] = setTimeout( remove_user_typing, interval, user.id );
 		}
 		update_notification();
@@ -160,28 +160,28 @@ define(function(require){
 		}
 	}
 	function update_notification(){
-		/* count keys in object */	
+		/* count keys in object */
 		var len = Object.keys( users_typing ).length;
 		if(!len){
 			/* clear notification area */
 			$('.lcb-notification-bar').html('');
 			log.info('no one is typing');
-			return;	
+			return;
 		}
 		var notif =  t_uid.first ;
 		switch( len ){
 			case 1:
-				notif += ' is'; 
+				notif += ' is';
 				break;
 			case 2:
 				notif += ' and ' +  t_uid.second  + ' are';
 				break;
 			default:
 				notif += ', ' 	+ t_uid.second  + ' and ' + (len-2).toString() + ' others are';
-		} 
+		}
 		notif += ' typing...';
 		log.info( notif );
-		/* fill notification area */ 
+		/* fill notification area */
 		$('.lcb-notification-bar').html(notif);
 	}
 	function who_am_i(){
@@ -240,9 +240,9 @@ define(function(require){
 		}
 		if(e.type === 'keypress' && e.keyCode === 13 && e.shiftKey){
 			notify_typing();
-			/* 
+			/*
 			 * shift+enter let u send multi line messages
-			 * 	this is what sets the paste option 
+			 * 	this is what sets the paste option
 			 * 	on receive handle them differently (use pre tag)
 			 */
 			return;
@@ -262,7 +262,7 @@ define(function(require){
 	function send_message( message ){
 		socket.emit( 'messages:create',{ 'room' : my_info.room_id, 'text' :  message });
 	}
-	
+
 	var lastMessageOwner = {};
 	function append_message( messageObj ){
 		/* why this paste..seems like the case of shift+enter */
@@ -291,7 +291,7 @@ define(function(require){
     	//messages.scrollTop =  messages.scrollHeight ;
 		$('.lcb-messages-container').scrollTop( $messages.scrollHeight );
 	}
-		
+
 	log.info ('notify_box loaded');
 
 	return chat_box;

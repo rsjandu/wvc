@@ -77,11 +77,6 @@ define(function(require) {
     };
 
 
-    avc.getScreenShareDiv = function () {
-        return screenShareDiv;
-    };
-
-
     avc.layout = function () {
         _l.layout_p();
         _l.layout_s();
@@ -192,7 +187,7 @@ define(function(require) {
 
 
     function createD(id) {
-        subscriberDiv = document.createElement('div');
+        var subscriberDiv = document.createElement('div');
         subscriberDiv.setAttribute('id', 'stream' + id);
         subscriberDiv.setAttribute('style','display:inline-block;');
         subsc.appendChild(subscriberDiv);

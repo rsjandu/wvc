@@ -69,7 +69,7 @@ define(['require', './../ot-wrap', './../browsertype', './ssui'], function(requi
         OT.checkScreenSharingCapability (function (res) {
             log.info('OT.checkScreenSharingCapability res: ' + JSON.stringify(res));
             if ( !res.supported || res.extensionRegistered === false ) {
-                msg = 'This browser does not support screen sharing. reject promise';
+                var msg = 'This browser does not support screen sharing. reject promise';
                 log.error(msg);
                 _d.reject(msg);
             } else if ( res.extensionInstalled === false ) {
