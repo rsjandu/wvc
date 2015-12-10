@@ -12,8 +12,8 @@ var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 
 // API Access link for creating client ID and secret:
 // https://code.google.com/apis/console/
-var GOOGLE_CLIENT_ID      = "--insert-google-client-id-here--";
-var GOOGLE_CLIENT_SECRET  = "--insert-google-client-secret-here--";
+var GOOGLE_CLIENT_ID      = "110830087787-gatfeqvo3kurncp8mf1h52a1eqa5fbs9.apps.googleusercontent.com";
+var GOOGLE_CLIENT_SECRET  = "Ct6XmPLMMwUI3ptcJjM0Pyr9";
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -44,7 +44,7 @@ passport.use(new GoogleStrategy({
     //then edit your /etc/hosts local file to point on your private IP. 
     //Also both sign-in button + callbackURL has to be share the same url, otherwise two cookies will be created and lead to lost your session
     //if you use it.
-    callbackURL: "http://yourdormain:3000/auth/google/callback",
+    callbackURL: "http://localhost:2178/auth/google/callback",
     passReqToCallback   : true
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -85,7 +85,8 @@ app.use( passport.initialize());
 app.use( passport.session());
 
 app.get('/', function(req, res){
-  res.render('index', { user: req.user });
+	res.send( req.user);
+/*	res.render('index', { user: req.user }); */
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
@@ -111,10 +112,10 @@ app.get('/auth/google', passport.authenticate('google', { scope: [
 //   request.  If authentication fails, the user will be redirected back to the
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
-app.get( '/auth/google/callback', 
+app.get( /*'/auth*/ '/google/callback', 
     	passport.authenticate( 'google', { 
-    		successRedirect: '/',
-    		failureRedirect: '/login'
+    		successRedirect: '/auth',
+    		failureRedirect: '/auth/login'
 }));
 
 app.get('/logout', function(req, res){
