@@ -6,8 +6,13 @@
 		{
 			"name" : "av-tokbox",
 			"custom" : { 
-				"apikey" : "45399392",
-				"apisecret" : "db60ab577686ec8fdad5232a4078eaa8ddb9be18",
+<<<<<<< HEAD
+				"apikey" : "45428662",
+				"apisecret" : "07e19a1eeb65695a5bdf02976036c15b20a79fdf",
+=======
+				"apikey" : "45428742",
+				"apisecret" : "d26833ee5c3f46da716cb303187e90214ff0f24e",
+>>>>>>> 22916db5d3a8579f577418845efe61258e1d1945
 				"p2p"	: false,
 				"chromelocalextensionid"	: "hmlfjgegnbjjhaacghlfekifkagkmbce",
 				"chromeextensionid"	: "cofnnopnhjmpoomoholnofbneelimjdm",

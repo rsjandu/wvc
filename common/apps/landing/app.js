@@ -37,7 +37,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session(sess));
 
 app.use(log.req_logger);
-app.use('/auth/v1', auth_v1);
 app.use('/session/v1', vc_session_v1);
 
 app.use(function(req, res, next) {

@@ -66,6 +66,8 @@ define(['require', './ot-wrap'], function(require) {
       getCSSNumber(container, 'paddingLeft') -
       getCSSNumber(container, 'paddingRight');
 
+    var bigRatio;
+
     var availableRatio = Height/Width;
     var offsetLeft = 0;
     var offsetTop = 0;
@@ -188,7 +190,8 @@ define(['require', './ot-wrap'], function(require) {
           targetHeight,
           targetWidth,
           tWidth,
-          tHeight;
+          tHeight,
+          tRatio;
 
       // Iterate through every possible combination of rows and columns
       // and see which one has the least amount of whitespace

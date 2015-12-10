@@ -1,4 +1,3 @@
-
 define(function(require) {
     var log = require('log')('browsertype', 'info');
 
