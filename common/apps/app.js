@@ -12,17 +12,21 @@ var config          = require('common/config');
 var landing         = require('landing/app');
 var api             = require('api-backend/app');
 var prov            = require('provisioning/app');
+var auth            = require('auth/app');
 
 log.info ('Starting main app');
 var app = express();
 
 /* Load middlewares */
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
 app.use(tracker);
 
 /* Load routes */
 app.use('/landing/', landing);
 app.use('/api/', api);
 app.use('/prov/', prov);
+app.use('/auth/', auth);
 
 /*
  * Error handlers
