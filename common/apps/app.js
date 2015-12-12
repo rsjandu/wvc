@@ -4,6 +4,7 @@ require('app-module-path').addPath(__dirname);
 
 var express         = require('express');
 var path            = require('path');
+var favicon         = require('serve-favicon');
 
 var log             = require('common/log');
 var log_middleware  = require('common/log-middleware');
@@ -18,6 +19,7 @@ log.info ('Starting main app');
 var app = express();
 
 /* Load middlewares */
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(tracker);
