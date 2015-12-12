@@ -85,12 +85,38 @@ app.use( passport.initialize());
 app.use( passport.session());
 
 app.get('/', function(req, res){
-	res.send( req.user);
-/*	res.render('index', { user: req.user }); */
+
+	/* if user has auth cookie and origin_cookie    <========= shouldn't happen but is a possible scenario
+	 * 		maybe delete the cookie and send login page or smth
+	 */
+
+	/* user doesn't hv auth cookie 					<========= mostly the case
+	 * return a login page
+	 */
+	res.render('index', { user: req.user });
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
-  res.render('account', { user: req.user });
+	var origin = req.cookies.wiziq_origin;
+	var MAX_SIZE_COOKIE = 4096;
+	/* read cookie and maybe remove this cookie as it is needed no more */
+	if( origin){
+		var info = {
+			/* all the required fields goes here.. for now just sending the whole payload */
+			user : req.user
+		};
+		var auth_string = JSON.stringify(info);
+		if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
+			auth_string = "error: size_limit_exceeded";
+		}
+		auth_string = new Buffer( JSON.stringify( auth_string)).toString('base64');
+		res.cookie('wiziq_auth' , auth_string );
+		res.redirect( origin);
+	}
+	else{
+		res.send('cookie origin???: ' + origin);
+	}
+/*  res.render('account', { user: req.user }); */
 });
 
 app.get('/login', function(req, res){
@@ -114,7 +140,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: [
 //   which, in this example, will redirect the user to the home page.
 app.get( /*'/auth*/ '/google/callback', 
     	passport.authenticate( 'google', { 
-    		successRedirect: '/auth',
+    		successRedirect: '/auth/account',
     		failureRedirect: '/auth/login'
 }));
 
@@ -133,7 +159,7 @@ app.get('/logout', function(req, res){
 //   login page.
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login');
+  res.redirect('auth/login');
 }
 
 module.exports = app;
