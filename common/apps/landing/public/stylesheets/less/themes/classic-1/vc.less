@@ -17,18 +17,6 @@ body, h1, h2, h3, p {
 	font-family:'LatoWebLight', 'Sans-serif';
 }
 
-.shadow-more {
-	box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
-	-webkit-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
-	-moz-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
-}
-
-.shadow-lighter {
-	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
-	-webkit-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
-	-moz-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
-}
-
 #vc-main-outer {
 }
 
@@ -56,18 +44,18 @@ body, h1, h2, h3, p {
 }
 
 #widget-tabs {
-	background-color: rgba(21, 11, 0, 0.65);
-	.shadow-more;
+	background-color: @brand-primary;
+	.drop-shadow(2px, 2px, 12px, 0.4);
 }
 
 #widget-av {
 	background-color: black;
-	.shadow-more;
+	.drop-shadow(2px, 2px, 12px, 0.4);
 }
 
 #widget-chat {
 	background-color: white;
-	.shadow-more;
+	.drop-shadow(2px, 2px, 12px, 0.4);
 }
 
 #widget-side-right {
@@ -82,17 +70,17 @@ body, h1, h2, h3, p {
 /* Flipboard */
 
 #widget-tabs .bb-item {
-	background-color : @brand-primary;
+	background-color : #fff;
 	background-repeat: repeat;
 }
 
 #widget-tabs .bb-content {
-	background-color : @brand-primary;
+	background-color : #fff;
 	background-repeat: repeat;
 }
 
 #widget-tabs .bb-flipoverlay {
-	background-color : @brand-primary;
+	background-color : @gray-light;
 	background-repeat: repeat;
 }
 

@@ -40,6 +40,12 @@ define(function(require) {
 
 		if ($('#widget-side-right').length !== 0)
 			layout.side_right = $('#widget-side-right')[0];
+
+		/*
+		 * If there is a native menu available then attach a layout-switch handler to 
+		 * it. */
+		if ($('#widget-nav ul.nav li#layout').length)
+			$('#widget-nav ul.nav li#layout').on('click', switch_layout);
 	};
 
 	lc.attach_module = function (_module) {
@@ -75,27 +81,54 @@ define(function(require) {
 		_m.handler (menu_handler);
 	};
 
+	var curr_layout = 'av_default';
+	var list = [
+		{ layout : 'av_default', event : 'default',       body_class : ''},
+		{ layout : 'av_full',    event : 'av-fullscreen', body_class : 'av-fullscreen' },
+		{ layout : 'av_tiled',   event : 'av-tiled',      body_class : 'av-tiled' },
+	];
+
 	function menu_handler (menu_uid) {
 
 		switch (menu_uid) {
 			case 'layout.av_full':
 				$('body').addClass('av-fullscreen');
 				emitter.emit ('av-fullscreen', 'hold on boys ! Video coming up fullscreen !');
+				curr_layout = 'av_full';
 				break;
 
 			case 'layout.av_tiled':
 				$('body').removeClass('av-tiled');
 				emitter.emit ('av-tiled', '... and now ... tilded video');
+				curr_layout = 'av_tiled';
 				break;
 
 			case 'layout.av_default':
 				$('body').removeClass('av-tiled');
 				$('body').removeClass('av-fullscreen');
 				emitter.emit ('default', 'and back to default');
+				curr_layout = 'av_default';
 				break;
 		}
 	}
 
+	function switch_layout () {
+		var list_len = list.length;
+
+		for (var i = 0; i < list_len; i++) {
+			if (list[i].layout == curr_layout) {
+				var next = list[ (i + 1) % list_len];
+				emitter.emit (next.event, 'switching');
+
+				$('body').removeClass(list[i].body_class);
+				if (next.body_class && next.body_class.length)
+					$('body').addClass(next.body_class);
+
+				curr_layout = next.layout;
+				break;
+			}
+		}
+	}
 
 	return lc;
 });

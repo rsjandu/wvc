@@ -1,10 +1,12 @@
 
 @import "./variables.less";
+@import "./mixins.less";
 @import "./container.less";
 @import "./nav.less";
 @import "./av.less";
 @import "./chat.less";
 @import "./tab.less";
+@import "./screenshare.less";
 
 .set-sizes(@width-av) {
 	@av-width : @width-av;
@@ -17,8 +19,11 @@
 	@av-height: @av-width * 15 / 16;
 	@chat-width : @av-width;
 	@chat-top : @nav-height-effective + @av-height + @gutter-eastwest;
+
 	.set-av-size(@av-width, @av-height);
 	.set-chat-params(@chat-top, @chat-width);
+	.set-screenshare-size(@width-av);
+
 	#widget-tabs {
 		width : calc(~'100% - @{av-width} - @{padding-side} * 2 - @{gutter-northsouth}');
 	}
