@@ -9,22 +9,6 @@ var config = {};
 var config_model;
 var db_conn = db.conn;
 
-function create_schema () {
-	var Schema = mongoose.Schema;
-
-	var schema = new Schema ({
-			class_id : { type : String, unique : true },
-			time_spec : {
-				starts : Date,
-				duration : Number
-			},
-			sched : {
-				job_id : String
-			}
-		});
-
-	return schema;
-}
 /*
  * Initialize */
 db.emitter.on('db-connected', function () {
@@ -41,6 +25,11 @@ config.create = function (req, class_config) {
 	var class_doc = new config_model (class_config);
 
 	class_doc.class_id = generate_class_id ();
+
+	/*
+	 * This would be done, typically, for testing */
+	if (class_config.override_class_id)
+		class_doc.class_id = class_config.override_class_id;
 
 	class_doc.save (function (err) {
 		if (err) {

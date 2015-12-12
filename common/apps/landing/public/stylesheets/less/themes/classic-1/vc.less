@@ -1,0 +1,146 @@
+@import "./variables.less";
+@import "../../mixins/elements";
+
+@font-face {
+    font-family: 'LatoWebLight';
+    src: url('../../../fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.eot'); /* IE9 Compat Modes */
+    src: url('../../../fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../../../fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.woff2') format('woff2'), /* Modern Browsers */
+		 url('../../../fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.woff') format('woff'), /* Modern Browsers */
+		 url('../../../fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf') format('truetype');
+		   font-style: normal;
+		   font-weight: normal;
+		   text-rendering: optimizeLegibility;
+}
+
+body, h1, h2, h3, p {
+	font-family:'LatoWebLight', 'Sans-serif';
+}
+
+.shadow-more {
+	box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
+	-webkit-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
+	-moz-box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.7);
+}
+
+.shadow-lighter {
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+	-webkit-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
+}
+
+#vc-main-outer {
+}
+
+#vc-main-inner {
+	background-color: @body-bg;
+}
+
+#widget-nav {
+	color: @brand-primary;
+	padding: 5px;
+}
+
+#widget-nav .nav-inner {
+	span.vc-menu-icon {
+		font-size : 28px;
+		margin-top: 10px;
+		margin-left: 20px;
+	}
+}
+
+#widget-notify {
+}
+
+#widget-side-left {
+}
+
+#widget-tabs {
+	background-color: rgba(21, 11, 0, 0.65);
+	.shadow-more;
+}
+
+#widget-av {
+	background-color: black;
+	.shadow-more;
+}
+
+#widget-chat {
+	background-color: white;
+	.shadow-more;
+}
+
+#widget-side-right {
+}
+
+/*----------------------------------------------
+ * 
+ * Resource specific themeing
+ *
+ *----------------------------------------------*/
+
+/* Flipboard */
+
+#widget-tabs .bb-item {
+	background-color : @brand-primary;
+	background-repeat: repeat;
+}
+
+#widget-tabs .bb-content {
+	background-color : @brand-primary;
+	background-repeat: repeat;
+}
+
+#widget-tabs .bb-flipoverlay {
+	background-color : @brand-primary;
+	background-repeat: repeat;
+}
+
+/* cube */
+
+.inner-shadow2(@horizontal:0, @vertical:1px, @blur:2px, @color:rgba(0, 0, 0, 0.4)) {
+	-webkit-box-shadow: inset @horizontal @vertical @blur @color;
+	-moz-box-shadow: inset @horizontal @vertical @blur @color;
+	box-shadow: inset @horizontal @vertical @blur @color;
+}
+
+.cube > div {
+	position: absolute;
+	border: 1px solid rgba(200, 200, 200, 0.3);
+	background: rgba(255, 255, 255, 0.3);
+	.inner-shadow2(0, 0, 10px, rgba(0, 0, 0, 0.6));
+	box-sizing: border-box;
+	padding: 10px;
+	height: 100%;
+	width: 100%;
+	color: #fff;
+	line-height: 40px;
+	text-align: center;
+	font-size: 30px;
+}
+
+.center .cube > div {
+	position: absolute;
+	border: 1px solid rgba(200, 200, 200, 0.3);
+	background: rgba(255, 255, 255, 0.5);
+	.inner-shadow2(0, 0, 120px, rgba(0, 0, 0, 0.3));
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+	color: #fff;
+	line-height: 120px;
+	text-align: center;
+	font-size: 120px;
+	padding-top: 40px;
+}
+
+.cube > div.protrude {
+	display: none;
+	border: none;
+	background-color: none;
+}
+.center .cube > div.protrude {
+	display: block;
+	border: none;
+	.inner-shadow2(0, 0, 10px, rgba(255, 255, 255, 0.9));
+}

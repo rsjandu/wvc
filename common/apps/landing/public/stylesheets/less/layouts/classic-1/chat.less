@@ -1,0 +1,22 @@
+@import "./variables.less";
+
+#widget-chat {
+	position: absolute;
+	margin-left:   @padding-side;
+	margin-right:   @gutter-northsouth / 2;
+	margin-bottom:   @margin-bottom;
+	left:     0;
+	bottom:   0;
+}
+
+#widget-chat .main-inner {
+	width: 100%;
+	height: 100%;
+}
+
+.set-chat-params(@top, @width) {
+	#widget-chat {
+		top: @top;
+		width: @width;
+	}
+}

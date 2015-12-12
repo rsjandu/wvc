@@ -10,17 +10,9 @@ router.use (function (req, res, next) {
 	next ();
 });
 
-router.post ('/create', function(req, res, next) {
-	return _class.create (req, res, next);
-});
-
-router.post ('/update/:class_id', function(req, res, next) {
-	return _class.update (req, res, next);
-});
-
-router.post ('/remove/:class_id', function(req, res, next) {
-	return _class.remove (req, res, next);
-});
+router.post ('/create', _class.create);
+router.post ('/update/:class_id', _class.update);
+router.post ('/remove/:class_id', _class.remove);
 
 module.exports = router;
 

@@ -1,0 +1,23 @@
+@import "./variables.less";
+
+#widget-av {
+	margin-top:   @nav-height-effective;
+	margin-left:  @padding-side;
+	margin-right: @gutter-northsouth / 2;
+	position:     absolute;
+	left:         0;
+	padding:      0px;
+
+	.main-inner {
+		width: 100%;
+		height: 100%;
+		padding-bottom: 75%;
+	}
+}
+
+.set-av-size(@width, @height) {
+	#widget-av {
+		width      : @width;
+		height     : @height;
+	}
+}

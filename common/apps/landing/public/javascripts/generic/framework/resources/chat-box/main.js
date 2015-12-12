@@ -104,7 +104,7 @@ define(function(require){
 		var _d = $.Deferred();
 		log.info('logging','in');
 
-		require([sess_info.root_url + '/socket.io/socket.io.js'],function( io){
+		require([sess_info.root_url + 'socket.io/socket.io.js'],function( io){
 
 			var sock = io.connect(
 				sess_info.root_url,
