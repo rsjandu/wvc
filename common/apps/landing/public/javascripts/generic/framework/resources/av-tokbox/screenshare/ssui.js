@@ -81,7 +81,8 @@ define(function(require) {
 
 
     function registerHandlers() {
-        $('#screenshare').click(screenShare);
+        $('#screenshare').on('click', screenShare);
+        $('#widget-nav li#nav-screenshare a').on('click', screenShare);
         $('.remodal-confirm').click(onDownload);
     }
 

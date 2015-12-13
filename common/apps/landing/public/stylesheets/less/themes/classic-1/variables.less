@@ -12,7 +12,8 @@
 @gray-dark:              lighten(@gray-base, 20%);   // #333
 @gray:                   lighten(@gray-base, 33.5%); // #555
 @gray-light:             lighten(@gray-base, 46.7%); // #777
-@gray-lighter:           lighten(@gray-base, 93.5%); // #eee
+@gray-lighter:           lighten(@gray-base, 73.5%); // #eee
+@gray-lightest:          lighten(@gray-base, 93.5%); // #eee
 
 @brand-primary:         rgb(77, 107, 126);
 @brand-success:         #5cb85c;
@@ -374,7 +375,7 @@
 @navbar-default-link-hover-bg:             transparent;
 @navbar-default-link-active-color:         #555;
 @navbar-default-link-active-bg:            darken(@navbar-default-bg, 6.5%);
-@navbar-default-link-disabled-color:       #ccc;
+@navbar-default-link-disabled-color:       @gray-lighter;
 @navbar-default-link-disabled-bg:          transparent;
 
 // Navbar brand label

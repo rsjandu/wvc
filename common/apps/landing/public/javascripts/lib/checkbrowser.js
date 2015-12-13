@@ -52,10 +52,8 @@ if (mandatory_count) {
 	$('#message').html('Incompatible Browser. Please use Chrome or Firefox.');
 } else {
 	setCookie('wiziq_bc', 'done', 1);
-	$('#message').html('Browser Compatible. Redirecting ...');
-	var to = getCookie('wiziq_bc_redirect');
-	if (to)
-		window.location = to;
+	$('#message').html('Browser Compatible. Reloading ...');
+	location.reload();
 }
 
 /*

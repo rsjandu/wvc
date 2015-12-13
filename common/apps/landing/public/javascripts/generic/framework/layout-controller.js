@@ -85,7 +85,10 @@ define(function(require) {
 	var list = [
 		{ layout : 'av_default', event : 'default',       body_class : ''},
 		{ layout : 'av_full',    event : 'av-fullscreen', body_class : 'av-fullscreen' },
+		/*
+		 * Until this gets implamented
 		{ layout : 'av_tiled',   event : 'av-tiled',      body_class : 'av-tiled' },
+	     */
 	];
 
 	function menu_handler (menu_uid) {

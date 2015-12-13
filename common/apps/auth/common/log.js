@@ -1,7 +1,7 @@
 var bunyan = require('bunyan');
 var log_inherited = require ('common/log');
 
-var log = log_inherited.child ({ sub_app : 'landing' });
+var log = log_inherited.child ({ sub_app : 'auth' });
 
 function serializer (req, res) {
 	if (!req || !req.connection)
@@ -10,7 +10,12 @@ function serializer (req, res) {
 	var entry =  {
 		method: req.method,
 		url: req.url,
-		remoteAddress: req.ip,
+		req_id: req.req_id,
+		/*
+        header: req.headers,
+        cookie: req.headers.cookie,
+	   */
+		remoteAddress: req.connection.remoteAddress,
 		remotePort: req.connection.remotePort
 	};
 
@@ -23,8 +28,8 @@ function serializer (req, res) {
 }
 
 log.req_logger = function (req, res, next) {
-	req.log = log.child({ req_id : req.req_id });
-	req.log.info({ req : serializer (req, res) }, 'http request');
+	req.log = log;
+	log.info({ req : serializer (req, res) }, 'http request');
 	next();
 };
 

@@ -23,6 +23,7 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(tracker);
+app.set('trust proxy', true);
 
 /* Load routes */
 app.use('/landing/', landing);

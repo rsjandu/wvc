@@ -237,7 +237,7 @@ function get_config_meghadoot (sess_id, callback) {
 			{
 				name: 'av-tokbox',
 				role: 'av',
-				display_spec: { widget: 'av', templates: [ 'av-tokbox', 'ssmodal' ], css: [ 'av', 'remodal', 'remodal-default-theme' ] },
+				display_spec: { widget: 'av', templates: [ 'av-tokbox', 'ssmodal' ], css: [ 'classic-1', 'remodal', 'remodal-default-theme' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },

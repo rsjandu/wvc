@@ -24,10 +24,8 @@ var app = express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
-if (app.get('env') === 'production') {
-		app.set('trust proxy', true);
-		sess.cookie.secure = true;
-}
+app.set('trust proxy', true);
+sess.cookie.secure = true;
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(express.static(path.join(__dirname, 'public')));

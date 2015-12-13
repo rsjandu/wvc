@@ -42,6 +42,8 @@ log.info ({
  * Routes for the landing page */
 proxy.register(host + '/favicon.ico', "http://localhost:2178/favicon.ico");
 proxy.register(host + '/landing/', "http://localhost:2178/landing/");
+proxy.register(host + '/auth/', "http://localhost:2178/auth/");
+proxy.register('chandra.me' + '/auth/', "http://localhost:2178/auth/");
 /*
  * Routes for the session cluster docker for 'test-internal' */
 proxy.register(host + '/session/test-internal', "localhost:7777/");

@@ -9,11 +9,14 @@ var session          = require( 'express-session' );
 var RedisStore       = require( 'connect-redis' )( session );
 var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 
+var args             = require('common/args');
+var log              = require('auth/common/log');
 
+app.use(log.req_logger);
 // API Access link for creating client ID and secret:
 // https://code.google.com/apis/console/
-var GOOGLE_CLIENT_ID      = "110830087787-gatfeqvo3kurncp8mf1h52a1eqa5fbs9.apps.googleusercontent.com";
-var GOOGLE_CLIENT_SECRET  = "Ct6XmPLMMwUI3ptcJjM0Pyr9";
+var GOOGLE_CLIENT_ID      = "821174502133-30he053f5dpn1i00k5sl039d5hc8sinm.apps.googleusercontent.com";
+var GOOGLE_CLIENT_SECRET  = "U-YxKJ5TUF86v8V_reZQ2fUJ";
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
@@ -44,7 +47,7 @@ passport.use(new GoogleStrategy({
     //then edit your /etc/hosts local file to point on your private IP. 
     //Also both sign-in button + callbackURL has to be share the same url, otherwise two cookies will be created and lead to lost your session
     //if you use it.
-    callbackURL: "http://localhost:2178/auth/google/callback",
+    callbackURL: "https://chandra.me/auth/google/callback",
     passReqToCallback   : true
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -100,6 +103,7 @@ app.get('/account', ensureAuthenticated, function(req, res){
 	var origin = req.cookies.wiziq_origin;
 	var MAX_SIZE_COOKIE = 4096;
 	/* read cookie and maybe remove this cookie as it is needed no more */
+	log.info(req.user, 'google user info');
 	if( origin){
 		var info = {
 			/* all the required fields goes here.. for now just sending the whole payload */
@@ -138,7 +142,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: [
 //   request.  If authentication fails, the user will be redirected back to the
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
-app.get( /*'/auth*/ '/google/callback', 
+app.get('/google/callback', 
     	passport.authenticate( 'google', { 
     		successRedirect: '/auth/account',
     		failureRedirect: '/auth/login'
@@ -162,4 +166,5 @@ function ensureAuthenticated(req, res, next) {
   res.redirect('auth/login');
 }
 
+app.use(log.err_logger);
 module.exports = app;
