@@ -57,10 +57,14 @@ define(['require', './../ot-wrap', './../browsertype', './ssui'], function(requi
         return ssui.getScreenShareDiv();
     };
 
+    ss.destroyScreenshare = function () {
+        return ssui.destroyScreenshare ();
+    };
+
 
     ss.onRemoteStream = function (sub) {
         // set high zindex
-        sub.element.style.setProperty('z-index', '100');
+		ssui.setScreenShareDiv(sub);
     };
 
 

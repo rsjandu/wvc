@@ -1,17 +1,16 @@
 var path      = require('path');
 var fs        = require('fs');
 var jade      = require('jade');
-var log       = require('landing/common/log');
 var _E        = require('landing/common/custom-error');
 
 templates = {};
 
-templates.load = function (dir, config) {
+templates.load = function (log, dir, config) {
 
-	return template_list (dir, config);
+	return template_list (log, dir, config);
 };
 
-function template_list (dir, config) {
+function template_list (log, dir, config) {
 	var _templates = {};
 
 	for (var i = 0; i < config.resources.length; i++) {
@@ -22,7 +21,7 @@ function template_list (dir, config) {
 		for (var t = 0; t < _r.display_spec.templates.length; t++) {
 			var tname = _r.display_spec.templates[t];
 			try {
-				_templates[_rname][tname] = function_body (dir + '/' + _rname, tname);
+				_templates[_rname][tname] = function_body (log, dir + '/' + _rname, tname);
 			}
 			catch (e) {
 				log.error ('controller.templates: load failed for ' + _rname + '->' + tname + ', err = ' + e);
@@ -43,7 +42,7 @@ function template_list (dir, config) {
  * --> "template.name = function(locals) { <body> }"
  *
  */
-function function_body (dir, file) {
+function function_body (log, dir, file) {
 
 	log.info ('loading template ' + dir + '/' + file + '.jade');
 

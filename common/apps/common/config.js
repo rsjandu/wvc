@@ -10,7 +10,7 @@ config.log = {
 	type : 'forward',
 	/* Rishikesh is where all the log streams meet */
 	rishikesh_host : 'localhost',
-	rishikesh_port : '443',
+	rishikesh_port : '24224',
 };
 
 /*
