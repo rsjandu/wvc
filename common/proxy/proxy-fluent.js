@@ -10,14 +10,16 @@ var log = bunyan.createLogger ({
 	]
 });
 
+var ssl = {
+	redirectPort : 2178,
+	key  : 'certificates/dev-key.pem',
+	cert : 'certificates/dev-cert.pem'
+};
+
 var proxy   = new require('redbird')({
-	port : 80,
-	ssl : {
-		port : 443,
-		key  : 'certificates/dev-key.pem',
-		cert : 'certificates/dev-cert.pem'
-	}
+	port : 443,
 });
+
 var app = express();
 
 var host = process.argv[2];
@@ -33,19 +35,18 @@ if (!host) {
 
 var ext_port = 443;
 
-log.info ({
-	host : host,
-	port : ext_port
-	}, 'Starting proxy');
+log.info ({ host : host, port : ext_port }, 'Starting proxy');
 
 /*
  * Routes for the landing page */
-proxy.register(host + '/landing/', "http://localhost:2178/landing/");
-proxy.register(host + '/auth/', "http://localhost:2178/auth/");
+proxy.register(host + '/landing/', "http://localhost:2178/landing/", { ssl : ssl });
 /*
  * Routes for the session cluster docker for 'test-internal' */
 proxy.register(host + '/session/test-internal', "localhost:7777/");
 
 proxy.register(host + '/', "localhost:5000/");
-proxy.register(host + '/log', "localhost:24224/");
-//proxy.register(host + '/socket.io/', "localhost:5000//socket.io/");
+
+/* seems a little illogical   */
+proxy.register( host + '/log', "127.0.0.1:24224/");
+/* proxy.register(host + '/', "localhost:24224/", { ssl : true }); 	*/
+/* proxy.register(host + '/socket.io/', "localhost:5000//socket.io/"); 	*/
