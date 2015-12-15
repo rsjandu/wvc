@@ -3,6 +3,17 @@ var log = require ('./log');
 var config = {};
 
 /*
+ * LOG/fluentd config here
+ */
+config.log = {
+	tag : 'vc.apps',
+	type : 'forward',
+	/* Rishikesh is where all the log streams meet */
+	rishikesh_host : 'localhost',
+	rishikesh_port : '24224',
+};
+
+/*
  * API-BACKEND config here
  */
 config.api = {};

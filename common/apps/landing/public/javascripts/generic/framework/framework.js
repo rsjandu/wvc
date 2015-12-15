@@ -103,6 +103,7 @@ define(function(require) {
 	framework.wait_for_start = function () {
 		_d_start = $.Deferred ();
 
+		log.info ('waiting for go-ahead from session cluster ...');
 		/*
 		 * Nothing to be done here, except when we recieve the 
 		 * message from the session controller. We trigger this

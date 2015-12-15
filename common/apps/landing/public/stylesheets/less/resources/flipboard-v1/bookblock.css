@@ -3,7 +3,10 @@
 	height: calc(100% - 30px);
 	margin: 0 auto;
 	position: relative;
-	z-index: 100;
+	/*
+	 * Why do we need this ?
+	 * z-index: 100;
+	 */
 	-webkit-perspective: 1300px;
 	perspective: 1300px;
 	-webkit-backface-visibility: hidden;

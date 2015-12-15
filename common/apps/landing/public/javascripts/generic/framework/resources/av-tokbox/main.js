@@ -3,7 +3,7 @@ define([
 	'jquery',
 	'log',
 	'framework',
-	'./av-conf',
+	'./av-config',
 	'./av-res',
 	'./av-control',
 	'./screenshare/ss',
@@ -222,7 +222,7 @@ define([
     }
 
 
-    initialize = function () {
+    function initialize() {
         var _d = $.Deferred();
         initOT()
             .then ( s, fail );
@@ -238,7 +238,7 @@ define([
         }
 
         return _d.promise();
-    };
+    }
 
 
     function initOT () {
@@ -288,7 +288,7 @@ define([
     }
 
 
-    connect = function ( t ) {
+    function connect (t) {
         log.info('connect called');
         var _d = $.Deferred();
         /* init pub and connect can be done in || */
@@ -308,7 +308,7 @@ define([
         }
 
         return _d.promise();
-    };
+    }
 
 
     /*
@@ -316,7 +316,7 @@ define([
      * get device, set video opts and div etc.
      * stream is not started here
      */
-    init_pub = function () {
+    function init_pub () {
         log.info('av init_pub called');
 
         var _d = $.Deferred();
@@ -341,7 +341,7 @@ define([
         }
 
         return _d.promise();
-    };
+    }
 
 
     function lmediaok (mediatype) {
@@ -358,7 +358,7 @@ define([
     }
 
 
-    get_device = function () {
+    function get_device () {
         log.info('get_device');
         var _d = $.Deferred();
 
@@ -387,10 +387,10 @@ define([
         });
 
         return _d.promise();
-    };
+    }
 
 
-    ot_initpub = function () {
+    function ot_initpub () {
         var _d = $.Deferred();
         var div = avc.pubc();
         var opt = getPublishOpt();
@@ -408,7 +408,7 @@ define([
         });
 
         return _d.promise();
-    };
+    }
 
 
     function oninitPublishOk() {
@@ -514,7 +514,7 @@ define([
     }
 
 
-    start_publish = function () {
+    function start_publish () {
         log.info('start_publish called.');
         var _d = $.Deferred();
         _ses.publish(publisher, function (err) {
@@ -534,7 +534,7 @@ define([
             }
         });
         return _d.promise();
-    };
+    }
 
 
     function muteLocalAudio() {
@@ -580,7 +580,7 @@ define([
 
 
     function muteRemoteVideo (id) {
-        sub = getSub(id);
+        var sub = getSub(id);
         if ( sub ) {
             log.info('muteRemoteVideo subs found');
             sub.vmute = true;
@@ -665,7 +665,7 @@ define([
         var _d = $.Deferred();
         _ses.connect (t, function (err) {
             if ( err ) {
-                onConnectFail();
+                onConnectFail(err);
                 _d.reject('av session connect failed with ' + err.code);
             } else {
                 log.info('You are connected to the av session.');
@@ -677,7 +677,7 @@ define([
     }
 
 
-    function onConnectFail() {
+    function onConnectFail (err) {
         log.error('Failed to connect.');
         if ( err.code === 1006 ) {
             log.error('Failed to connect. Please check your connection and try connecting again.');
@@ -724,7 +724,12 @@ define([
 
         streamDestroyed : function (ev) {
             if ( ev.stream.hasVideo ) {
+
                 log.info('session streamDestroyed event. has video');
+				if ( ev.stream.videoType === 'screen' ) {
+					screenshare.destroyScreenshare ();
+				}
+
             } else {
                 log.info('session streamDestroyed event');
             }

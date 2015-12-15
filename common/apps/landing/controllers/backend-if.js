@@ -31,6 +31,9 @@ controller.get_config = function (sess_id, callback) {
 	 *
 	 *--------------------------------------*/
 
+	if (sess_id === 'meghadoot')
+		return get_config_meghadoot (sess_id, callback);
+
 	var av_config = {
 		maxvideo : 6,
 		conftype :  'audiovideo',
@@ -167,5 +170,140 @@ controller.get_config = function (sess_id, callback) {
 	callback (null, session_config);
 };
 
+function get_config_meghadoot (sess_id, callback) {
+
+	var av_config = {
+		maxvideo : 6,
+		conftype :  'audiovideo',
+		publish : true,
+		videores : 'qvga',
+		hdvideo : false,
+		stats : false,
+		maxvideores : 'vga',
+		videolayout : 'horizontal'
+	};
+
+	var user_config = {
+		name : null,
+		id : null,
+		role : 'moderator'
+	};
+
+	var ot = {
+		name    : 'ot',
+		enabled : true,
+		port : 8080,
+		host : '192.168.56.101'
+	};
+
+	var session_config = {
+		structure: 'classic-1',
+		layout   : 'classic-1',
+		theme    : 'classic-1',
+		auth : {},
+		session_server : {
+			/*
+			 * If a debug argument is provided, use it. Else default to localhost */
+			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
+			port : 7778,
+			ssl  : args.session_server_ssl () ? true: false,
+			auth : {}
+		},
+		resources : [
+			{
+				name: 'menu-sidepush-classic',
+				role: 'menu',
+				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
+				perms: { },
+				custom: {
+					sub_menu_vslide: true,
+					hlight_sel: true,
+				},
+			},
+			{
+				name: 'cube',
+				role: 'whitelabeling',
+				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					small : {
+					},
+					center : {
+					}
+				},
+			},
+			{
+				name: 'av-tokbox',
+				role: 'av',
+				display_spec: { widget: 'av', templates: [ 'av-tokbox', 'ssmodal' ], css: [ 'classic-1', 'remodal', 'remodal-default-theme' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+					random_string : 'welcome',
+					config : av_config,
+					user : user_config,
+					server : ot,
+                    screenshare : true,
+                    debug_controls : false,
+				},
+			},
+			{
+				name: 'flipboard-v1',
+				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
+				/*
+				 * perms must be returned per user */
+				perms: { },
+				custom: {
+				},
+			},
+			{
+				name: 'chat-box',
+				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'rooms']  },
+				custom: {
+				},
+		}
+		],
+		role_map : {
+			teacher : [
+				{
+					name : 'av-test',
+					perms : [
+						'audio.mute:*',
+						'audio.unmute:*',
+					]
+				},
+			],
+			student : [
+				{
+					name : 'av-test',
+					perms : [
+						'audio.mute:*',
+						'audio.unmute:*'
+					]
+				},
+			],
+			observer : {
+			}
+		},
+		attendees : {
+			max : 10,
+			listed : [
+				{
+					name : 'Avinash Bhatia',
+					role : 'teacher',
+					auth : {
+						via : 'noauth' /* noauth, wiziq, local, google+, facebook or other SSOs */
+					}
+				}
+			],
+		}
+	};
+
+
+	callback (null, session_config);
+}
 
 module.exports = controller;

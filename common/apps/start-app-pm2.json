@@ -2,7 +2,7 @@
   "apps" : [{
     "name"        : "main-app",
     "script"      : "app.js",
-    "args"        : [],
+    "args"        : ['here be arguments'],
     "node_args"   : "",
     "merge_logs"  : true,
     "cwd"         : "",
