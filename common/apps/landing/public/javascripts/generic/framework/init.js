@@ -1,4 +1,9 @@
 requirejs.config({
+
+	/*
+	 * Disable the load timeout */
+	waitSeconds : 0,
+
 	baseUrl: '/landing/javascripts/generic/framework/',
 	paths: {
 		/* the left side is the module ID,

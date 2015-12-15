@@ -2,6 +2,7 @@ define(function(require) {
 	var dom         = require('dom_ready');
 	var $           = require('jquery');
 	var framework   = require('framework');
+	var events      = require('events');
 	var cc          = require('cc');
 	var sess_config = require('session-config');
 	var log         = require('log')('core', 'info');
@@ -11,9 +12,16 @@ define(function(require) {
 	var core = {};
 	var modules = [];
 	var __sess_config = {};
+	var core_ev = events.emitter ('core', 'core');
 
+	events.bind ('core', show_progress, 'core');
+	events.bind ('framework-progress', show_progress, 'core');
+
+	core.emitter = core_ev;
 	core.init = function () {
 		var _d = $.Deferred ();
+
+		show_progress ('core init');
 
 		/*
 		 * STAGE I (initialize based on class configuration) */
@@ -32,14 +40,18 @@ define(function(require) {
 			.then ( cc.init.bind(null, framework),  _d.reject.bind(_d) )
 			.then ( auth,                           _d.reject.bind(_d) )
 			.then ( framework.post_init,            _d.reject.bind(_d) )
-			.then ( framework.wait_for_start,       _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE II'), _d.reject.bind(_d) )
 
 		/*
-		 * STAGE III (start the modules) */
+		 * STAGE III (wait for session cluster to start us) */
+			.then ( framework.wait_for_start,       _d.reject.bind(_d) )
+			.then ( mark_complete.bind('STAGE III'), _d.reject.bind(_d) )
+
+		/*
+		 * STAGE IV (start the modules) */
 
 			.then ( start_modules,                   _d.reject.bind(_d) )
-			.then ( mark_complete.bind('STAGE III'), _d.reject.bind(_d) )
+			.then ( mark_complete.bind('STAGE IV'), _d.reject.bind(_d) )
 			.then (_d.resolve.bind(_d),              _d.reject.bind(_d) )
 			;
 
@@ -49,6 +61,7 @@ define(function(require) {
 	function cache_config (_s) {
 		var _d = $.Deferred();
 		__sess_config = _s;
+		core_ev.emit ('cache config conpleted');
 		_d.resolve (_s);
 		return _d.promise();
 	}
@@ -71,6 +84,7 @@ define(function(require) {
 		var _d = $.Deferred();
 
 		dom(function () {
+			core_ev.emit ('DOM Ready');
 			_d.resolve (_s);
 		});
 
@@ -82,8 +96,10 @@ define(function(require) {
 		var _d = $.Deferred();
 		var count = 0;
 
-		function ok () {
+		function ok (module_name) {
 			count--;
+			core_ev.emit ('init ' + module_name + ' ' + this);
+
 			if (!count)
 				_d.resolve(_s);
 		}
@@ -94,7 +110,7 @@ define(function(require) {
 		for (var i = 0; i < modules.length; i++) {
 			count++;
 			var d = __init (modules[i]);
-			d.then (ok.bind(d), ok.bind(d));
+			d.then (ok.bind('ok', modules[i].name), ok.bind('failed', modules[i].name));
 		}
 
 		return _d.promise ();
@@ -123,9 +139,11 @@ define(function(require) {
 			.then (
 				function (status) {
 					log.info ('auth return with ', status);
+					core_ev.emit ('auth ok (status = ' + status + ')');
 					_d.resolve (sess_config);
 				},
 				function (err) {
+					core_ev.emit ('auth failed (err = ' + err + ')');
 					_d.reject (err);
 				}
 			);
@@ -147,6 +165,7 @@ define(function(require) {
 						resource: resource
 				};
 
+				core_ev.emit ('module load ' + resource.name + ' ok');
 				modules.push(module);
 				_d.resolve();
 			},
@@ -166,10 +185,20 @@ define(function(require) {
 	function mark_complete (arg) {
 		var _d = $.Deferred();
 		log.log (this + ' ok');
+		core_ev.emit (this + ' complete', arg);
 		_d.resolve (arg);
 		return _d.promise();
 	}
 
+	function show_progress (ev, data) {
+
+		if (ev == 'STAGE IV complete') {
+			$('#blanket').css('display', 'none');
+		}
+		else {
+			$('#blanket p#progress').append('<br><span><i>stage : ' + ev + '</i></span>');
+		}
+	}
 
 	return core;
 });
