@@ -2,6 +2,7 @@ define(function(require) {
 	var dom         = require('dom_ready');
 	var $           = require('jquery');
 	var framework   = require('framework');
+	var blanket     = require('blanket');
 	var events      = require('events');
 	var cc          = require('cc');
 	var sess_config = require('session-config');
@@ -14,14 +15,11 @@ define(function(require) {
 	var __sess_config = {};
 	var core_ev = events.emitter ('core', 'core');
 
-	events.bind ('core', show_progress, 'core');
-	events.bind ('framework-progress', show_progress, 'core');
-
 	core.emitter = core_ev;
 	core.init = function () {
 		var _d = $.Deferred ();
 
-		show_progress ('core init');
+		blanket.show_progress ('core init');
 
 		/*
 		 * STAGE I (initialize based on class configuration) */
@@ -44,14 +42,14 @@ define(function(require) {
 
 		/*
 		 * STAGE III (wait for session cluster to start us) */
-			.then ( framework.wait_for_start,       _d.reject.bind(_d) )
+			.then ( framework.wait_for_start,        _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE III'), _d.reject.bind(_d) )
 
 		/*
 		 * STAGE IV (start the modules) */
 
 			.then ( start_modules,                   _d.reject.bind(_d) )
-			.then ( mark_complete.bind('STAGE IV'), _d.reject.bind(_d) )
+			.then ( mark_complete.bind('STAGE IV'),  _d.reject.bind(_d) )
 			.then (_d.resolve.bind(_d),              _d.reject.bind(_d) )
 			;
 
@@ -188,16 +186,6 @@ define(function(require) {
 		core_ev.emit (this + ' complete', arg);
 		_d.resolve (arg);
 		return _d.promise();
-	}
-
-	function show_progress (ev, data) {
-
-		if (ev == 'STAGE IV complete') {
-			$('#blanket').css('display', 'none');
-		}
-		else {
-			$('#blanket p#progress').append('<br><span><i>stage : ' + ev + '</i></span>');
-		}
 	}
 
 	return core;

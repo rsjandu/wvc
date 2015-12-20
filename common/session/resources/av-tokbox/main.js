@@ -99,6 +99,7 @@ function createToken (user, cb) {
     var tokenid;
     try {
         tokenid = opentok.generateToken(sessionid, p);
+		log.info ('av-tokbox: token -->' + tokenid);
     } catch ( e ) {
         log.error(e);
         return cb(e, null);

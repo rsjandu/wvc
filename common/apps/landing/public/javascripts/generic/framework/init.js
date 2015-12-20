@@ -30,19 +30,22 @@ requirejs.config({
 });
 
 define(function(require) {
-	var $    = require('jquery');
-	var core = require('core');
-	var log = require('log')('init', 'info');
+	var $       = require('jquery');
+	var core    = require('core');
+	var blanket = require('blanket');
+	var log     = require('log')('init', 'info');
 
 	/*
 	 * Initialize the Core
 	 */
-	core.init (
-		function () {
-			log.info ('init ok');
-		},
-		function (err) {
-			log.error ('fatal : ' + err);
-		}
-	);
+	core.init ()
+		.then (
+			function () {
+				log.info ('init ok');
+			},
+			function (err) {
+				log.error ('fatal : ' + err);
+				blanket.show_error ('fatal: ' + err);
+			}
+		);
 });

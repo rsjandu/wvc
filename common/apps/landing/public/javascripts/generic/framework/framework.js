@@ -3,7 +3,8 @@ define(function(require) {
 	var cc        = require('cc');
 	var lc        = require('layout-controller');
 	var identity  = require('identity');
-	var events      = require('events');
+	var events    = require('events');
+	var notify    = require('notify');
 	var log       = require('log')('framework', 'info');
 
 	var framework     = {};
@@ -174,10 +175,12 @@ define(function(require) {
 	framework.handle = function (module_name) {
 
 		var handle = {
+			identity       : identity,
 			module_name    : module_name,
 			send_command   : send_command,
 			send_info      : send_info,
 			template       : template,
+			notify         : notify,
 			menu           : {
 				module_name : module_name,
 				add : menu_add,

@@ -1,5 +1,6 @@
 define(function(require) {
 	var log = require('log')('identity', 'info');
+	var random_names = require('names');
 
 	var id = {};
 
@@ -12,10 +13,13 @@ define(function(require) {
 	 * Hardcoding for now. */
 
 	id.name = "";
+	id.display_name = random_names();
+	id.sys_assigned = random_names();
+
 	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 	for( var i=0; i < 5; i++ )
-	id.name += possible.charAt(Math.floor(Math.random() * possible.length));
+		id.name += possible.charAt(Math.floor(Math.random() * possible.length));
 
 	return id;
 });
