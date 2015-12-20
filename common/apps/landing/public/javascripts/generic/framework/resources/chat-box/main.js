@@ -265,8 +265,8 @@ define(function(require){
 
 	var lastMessageOwner = {};
 	function append_message( messageObj ){
-		/* why this paste..seems like the case of shift+enter */
-		messageObj.paste= false; /* /\n/i.test(message.text)  */
+		/* The case of shift+enter, multi line message */
+		messageObj.paste=  /\n/i.test(messageObj.text);
 
 		/* fragement or new message */
 		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
