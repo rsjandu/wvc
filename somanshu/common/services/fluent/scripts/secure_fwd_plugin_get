@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+echo "getting secure_forward_plugin for fluentd..."
+gem install fluent-plugin-secure-forward

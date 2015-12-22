@@ -1,0 +1,11 @@
+li.lcb-message
+	if !fragment 
+		img.lcb-message-avatar.lcb-avatar.lcb-room-poke(src="https://www.gravatar.com/avatar/#{owner.avatar}?s=30")
+	.lcb-message-meta
+		if !fragment 
+			span.lcb-message-name
+				span.lcb-room-poke
+					span.lcb-message-displayname #{owner.displayName}
+					span.lcb-message-username @#{owner.username}
+			time.lcb-message-time #{time}
+		.lcb-message-text #{text}
