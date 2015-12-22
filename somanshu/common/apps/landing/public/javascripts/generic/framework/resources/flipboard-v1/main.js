@@ -47,6 +47,7 @@ define(function(require) {
 		//start_shared_text();
 		start_shared_ide();
 		//attach_editor();
+		//ace_code_editor();
 		$(function() {
 			ctx = $(canvas)[0].getContext("2d");
 
@@ -83,10 +84,23 @@ define(function(require) {
 		});
 	}
 
+	function ace_code_editor() {
+		log.info("ace code editor");
+		require(['./ace/ace'], function (tmp) {
+			require(['./ace/mode-javascript'], function (tmp2) {
+				var elem = document.getElementById("ace_editor");
+				editor = ace.edit(elem);
+				require(['ace/mode/javascript'], function (mode) {
+					editor.session.setMode(new (mode.Mode));
+				});
+			});
+		});
+	};
+
 	function start_shared_ide() {
 		console.log('start shared ide');
 		//require(['http://ajaxorg.github.com/ace/build/src/ace.js'], function(tmp1) {
-		require(['./ace-uncompressed'], function() {
+		require(['./ace/ace'], function() {
 				require(['./bcsocket'], function() {
 					//var socket = new BCSocket('http://localhost:7007/channel', {reconnect: true});
 					//console.log(socket);
@@ -100,7 +114,7 @@ define(function(require) {
 							editor.setTheme("ace/theme/idle_fingers");
 						});
 
-						require(['./uncomp_javascript'], function(tmp) {
+						require(['./ace/mode-javascript'], function() {
 							require(['ace/mode/javascript'], function (mode) {
 								var session = editor.getSession();
 								session.setMode(new (mode.Mode));

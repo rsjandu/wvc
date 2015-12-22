@@ -75,7 +75,26 @@
       if (suppress) {
         return;
       }
-      applyToShareJS(editorDoc, change.data, doc);
+	  var delta = change;
+	  var Range = {};
+	  Range.start = change.start;
+	  Range.end = change.end;
+	  delta.range = Range;
+	  delta.action = change.action + "Text";
+	  var charset = change.lines;
+	  var stringline = "";
+	  if (charset.length > 1){
+	  	for (var i=0; i<charset.length;i++){
+		 	 stringline+=charset[i];
+		 	 if(i!==charset.length-1){
+			 	stringline += "\n";
+		 	 } 
+	  	}
+	  } else {
+		  stringline = change.lines[0];
+	  }
+	  delta.text = stringline;
+      applyToShareJS(editorDoc, delta, doc);
       return check();
     };
     replaceTokenizer = function() {
