@@ -76,8 +76,9 @@ function (require, ot, _log, $) {
 			streamCreated : function (ev) {
 				var stream = ev.stream;
 				var id = stream.streamId;
+				var connection_id = stream.connection.connectionId;
 
-				log.info ('stream created: ' + id + ', stream: ', stream);
+				log.info ('stream created: (conn_id = ' + connection_id + ')' + id + ', type: ' + stream.videoType + ', stream: ', stream);
 				handlers.streamCreated (id, stream);
 			},
 
@@ -137,7 +138,7 @@ function (require, ot, _log, $) {
 			name : i_am,
 			publishAudio : true,
 			publishVideo : true,
-			resolution : opts && opts.resolution || "640x480",
+			resolution : opts && opts.resolution || "320x240",
 			showControls : false,
 			style : {
 				audioLevelDisplayMode : 'off',
@@ -147,11 +148,14 @@ function (require, ot, _log, $) {
 			}
 		};
 
+		if (opts && opts.videoSource)
+			options.videoSource = opts.videoSource;
+
 		publisher = OT.initPublisher (div, opts, function (err) {
 			if (err)
 				return d.reject (err);
 
-			return d.resolve (sess_info);
+			return d.resolve (sess_info, publisher);
 		});
 
 		/* Remove any styling introduced by the tokbox api.All our
@@ -161,10 +165,22 @@ function (require, ot, _log, $) {
 		return d.promise();
 	};
 
-	tokbox.publish = function () {
+	tokbox.publish = function (_publisher) {
 		var d = $.Deferred ();
 
-		sess_obj.publish (publisher, function (err) {
+		/*
+		 * This can be called by the local media or the screenshare. Defaults
+		 * to local media */
+		if (!_publisher)
+			_publisher = publisher;
+
+		sess_obj.publish (_publisher, function (err) {
+			if (err) {
+				log.error ('publish: err = ' + err);
+				return d.reject(err);
+			}
+
+			d.resolve(_publisher);
 		});
 
 		return d.promise();
@@ -206,10 +222,15 @@ function (require, ot, _log, $) {
 
 			subscriber.on('audioLevelUpdated', function (ev) {
 			});
+
+			d.resolve();
 		});
 
 		return d.promise ();
 	};
+
+	tokbox.checkScreenSharingCapability   = OT.checkScreenSharingCapability;
+	tokbox.registerScreenSharingExtension = OT.registerScreenSharingExtension;
 
 	var exceptions = {
 		'1004' : 'Authentication error',

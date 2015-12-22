@@ -5,6 +5,8 @@ define(function(require) {
 	var framework   = require('framework');
 	var session     = require('./session');
 	var layout      = require('./layout');
+	var screenshare = require('./screenshare');
+	var cpool       = require('./container-pool');
 
 	var av = {};
 	var f_handle = framework.handle ('av-tokbox-v2');
@@ -23,6 +25,15 @@ define(function(require) {
 		/*
 		 * Initialize the session controller */
 		err = session.init ();
+		if (err) {
+			d.reject (err);
+			return d.promise ();
+		}
+
+		cpool.init (f_handle, display_spec, custom, perms);
+		/*
+		 * Initialize the screenshare controller */
+		err = screenshare.init (f_handle, custom);
 		if (err) {
 			d.reject (err);
 			return d.promise ();

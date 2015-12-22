@@ -75,7 +75,7 @@ define(function(require) {
 	}
 	function streamCreated (ev) {
 		var stream = ev.stream;
-		layout.stream_created (my_container, stream);
+		layout.reveal_video (my_container);
 	}
 	function streamDestroyed (ev) {
 		layout.stream_destroyed (my_container, ev.reason);

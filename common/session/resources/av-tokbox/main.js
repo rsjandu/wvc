@@ -46,6 +46,7 @@ av_tokbox.init = function (myinfo, common, handles) {
         log.info ('av-tokbox: createSession ok');
         _session = session;
         sessionid = session.sessionId;
+		log.info ('av-tokbox: session_id = ' + sessionid);
         key = key;
         secret = secret;
         init = true;
@@ -124,7 +125,7 @@ function createToken (user, cb) {
 }
 
 
-var activeSessionTime = 5*60*60;
+var activeSessionTime = 12*60*60;
 var getTokenExpiry = function getTokenExpiry() {
     return (new Date().getTime() / 1000) + activeSessionTime;
 };

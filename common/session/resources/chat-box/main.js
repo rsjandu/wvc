@@ -101,16 +101,20 @@ chat.init_user = function (user) {
 							 * add the user to the room so that room becomes visible to the user
 							 */
 							allow_user_to_room( m_room, uname.toLowerCase() )
-							.then(
-								function(){
-									_d.resolve({
-									'root_url' : root_url,
-									'token'    : user_token,
-									'room_id'  : m_room.id,
-									'username' : user
-									});		
-								}
-							);
+								.then(
+									function(){
+										_d.resolve({
+										'root_url' : root_url,
+										'token'    : user_token,
+										'room_id'  : m_room.id,
+										'username' : user
+										});		
+									},
+									function (err) {
+										log.error ('allow_user_to_room: err = ' + err);
+										_d.reject(err);
+									}
+								);
 						},
 						function noToken( message ){
 							_d.reject( message );

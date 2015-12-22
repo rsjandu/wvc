@@ -83,12 +83,9 @@ define(function(require) {
 
 	var curr_layout = 'av_default';
 	var list = [
-		{ layout : 'av_default', event : 'default',       body_class : ''},
+		{ layout : 'av_default', event : 'av-default',    body_class : ''},
 		{ layout : 'av_full',    event : 'av-fullscreen', body_class : 'av-fullscreen' },
-		/*
-		 * Until this gets implamented
 		{ layout : 'av_tiled',   event : 'av-tiled',      body_class : 'av-tiled' },
-	     */
 	];
 
 	function menu_handler (menu_uid) {
@@ -119,9 +116,11 @@ define(function(require) {
 		var list_len = list.length;
 
 		for (var i = 0; i < list_len; i++) {
+
 			if (list[i].layout == curr_layout) {
+
 				var next = list[ (i + 1) % list_len];
-				emitter.emit (next.event, 'switching');
+				emitter.emit (next.event, 'switching layouts ...');
 
 				$('body').removeClass(list[i].body_class);
 				if (next.body_class && next.body_class.length)

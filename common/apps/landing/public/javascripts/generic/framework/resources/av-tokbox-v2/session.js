@@ -36,7 +36,7 @@ define(function(require) {
 		/* Get a div for the local media. For now, let's get a primary div. Once 
 		 * the permissions set in, this will depend on the role of the current
 		 * user */
-		var cont = layout.get_container ('primary');
+		var cont = layout.get_container ('video-primary');
 
 		tokbox.init (sess_info)
 			.then ( tokbox.set_handlers.bind(tokbox, handlers),    d.reject.bind(d) )
@@ -82,43 +82,45 @@ define(function(require) {
 
 		var container;
 
-		/* If this event has been raised for our local media 
-		 * then ignore, since we've already done work for it
-		 * in the 'start' method */
-		if (!local_)
-			container = layout.get_container ('secondary');
-		else
-			container = local.container();
+		if (!conn_map[connection_id])
+			conn_map[connection_id] = { streams : {} };
 
-		if (!container) {
-			/* We cannot show this video as we ran out of containers. Here
-			 * we should switch to pure audio. TODO: implement this */
-			f_handle_cached.notify.alert ('TODO: Ran out of video containers - implement audio only containers');
+		if (!local_)
+			local_ = false;
+
+		conn_map[connection_id].local = local_;
+
+		if (conn_map[connection_id].pending) {
+
+			/* 
+			 * See description of the race condition below in "streamCreated"
+			 */
+
+			for (var stream_id in conn_map[connection_id].pending) {
+				var stream = conn_map[connection_id].pending[stream_id];
+
+				/* Delayed call to streamCreated */
+				streamCreated (stream_id, stream);
+			}
+
+			delete conn_map[connection_id].pending;
+		}
+	}
+
+	function connectionDestroyed (connection_id, reason) {
+
+		if (!conn_map[connection_id]) {
+			log.error ('connectionDestroyed: no mapping for connection id ' + connection_id + ' (reason = ' + reason + ')');
 			return;
 		}
 
-		container.set_connection_id (connection_id);
-
-		if (conn_map[connection_id]) {
-			/* See description of the race condition below in "streamCreated" */
-			conn_map[connection_id].container = container;
-			streamCreated (
-				conn_map[connection_id].pending.stream_id,
-				conn_map[connection_id].pending.stream
-			);
-			delete conn_map[connection_id].pending;
-		}
-		else {
-			conn_map[connection_id] = {
-				container : container,
-			};
-		}
-	}
-	function connectionDestroyed (connection_id, reason) {
-		var container = conn_map[connection_id].container;
-
 		log.info ('connection destroyed: ' + connection_id + ', reason = ' + reason);
-		layout.giveup_container (container, reason);
+
+		for (var stream_id in conn_map[connection_id].streams) {
+			var stream = conn_map[connection_id].streams[stream_id];
+			streamDestroyed (stream_id, stream);
+		}
+
 		delete conn_map[connection_id];
 	}
 
@@ -132,32 +134,65 @@ define(function(require) {
 		 * before the connectionCreated callback */
 		if (!conn_map[connection_id]) {
 			log.info ('race-condition: "streamCreated" called before "connectionCreated". Handling it.');
-			conn_map[connection_id] = {
-				pending : {
-					stream_id : stream_id,
-					stream    : stream
-				}
-			};
 
-			/* We'll be called again once the connectionCreated is fired */
+			if (!conn_map[connection_id].pending)
+				conn_map[connection_id] = { pending : {} };
+
+			conn_map[connection_id].pending[stream_id] = stream;
+
+			/* We'll be called again once the connectionCreated is fired (unless tokbox has 
+			 * some bug). */
 			return;
 		}
 
-		var container = conn_map[connection_id].container;
+		/* 
+		 * This is the normal path. Decide the type of container needed and get it.
+		 *
+		 */
+		var local = conn_map[connection_id].local;
+		var type;
 
-		layout.stream_created (container, stream);
+		switch (stream.videoType) {
+			case 'screen': 
+				type = local ? 'screenshare-local' : 'screenshare-remote';
+				break;
+
+			case 'camera':
+				type = local ? 'video-primary' : 'video-secondary';
+				break;
+
+			default:
+				log.error ('Unknown stream type "' + stream.videoType + '", conn_id: ' + connection_id + ', stream_id: ' + stream_id);
+				type = 'video-secondary';
+				break;
+		}
+
+		var container = layout.get_container (type);
+		if (!container) {
+			/* We cannot show this video as we ran out of containers. Here
+			 * we should switch to pure audio. TODO: implement this */
+			f_handle_cached.notify.alert ('TODO: Ran out of video containers - implement audio only containers');
+			return;
+		}
+
+
+		container.set_connection_id (connection_id);
 
 		stream_map[stream_id] = {
-			container : container,
 			connection_id : connection_id,
-			stream : stream
 		};
 
-		conn_map[connection_id].stream = stream;
+		conn_map[connection_id].streams[stream_id] = {
+			stream : stream,
+			container : container
+		};
 
 		tokbox.subscribe (stream, container.div(), opts_override)
 			.then(
 				function () {
+					/* The video should automatically get shown in the container
+					 * that we passed above */
+					layout.reveal_video(container);
 				},
 				function (err) {
 					layout.show_error (container, err);
@@ -166,9 +201,18 @@ define(function(require) {
 	}
 
 	function streamDestroyed (stream_id, reason) {
-		var container = stream_map[stream_id].container;
 
-		layout.stream_destroyed (container, reason);
+		if (!stream_map[stream_id])
+			return;
+
+		var connection_id = stream_map[stream_id].connection_id;
+		var container = conn_map[connection_id].streams[stream_id].container;
+
+		log.info ('stream destroyed: stream_id: ' + stream_id + ', reason = ' + reason);
+		layout.giveup_container (container, reason);
+
+		delete conn_map[connection_id].streams[stream_id];
+		delete stream_map[stream_id];
 	}
 
 	return session;

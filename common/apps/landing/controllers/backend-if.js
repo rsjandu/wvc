@@ -248,6 +248,7 @@ function get_config_meghadoot (sess_id, callback) {
 					server : ot,
                     screenshare : true,
                     debug_controls : false,
+					chromeextensionid : "cofnnopnhjmpoomoholnofbneelimjdm",
 				},
 			},
 			{

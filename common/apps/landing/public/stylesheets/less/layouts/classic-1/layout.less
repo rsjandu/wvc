@@ -25,28 +25,25 @@
 	.set-screenshare-size(@width-av);
 
 	#widget-tabs {
-		width : calc(~'100% - @{av-width} - @{padding-side} * 2 - @{gutter-northsouth}');
+		.tab-width(@av-width);
+		width : @tab-width;
 	}
 }
 
-@media screen and (max-height : 642px) {
-	.set-sizes(150px);
+@media @xs-display {
+	.set-sizes(@av-width-xs);
 }
 
-@media screen {
-	@media (min-height : 643px) and (max-height : 800px) {
-		.set-sizes(320px);
-	}
+@media @sm-display {
+	.set-sizes(@av-width-sm);
 }
 
-@media screen {
-	@media (min-height : 801px) and (max-height : 1080px) {
-		.set-sizes(320px);
-	}
+@media @md-display {
+	.set-sizes(@av-width-md);
 }
 
-@media screen and (min-height : 1081px) {
-	.set-sizes(420px);
+@media @lg-display {
+	.set-sizes(@av-width-lg);
 }
 
 #widget-side-right {

@@ -1,17 +1,7 @@
 @import "./variables.less";
+@import "./mixins.less";
 
 #widget-tabs {
-	margin-top:   @nav-height-effective;
-	margin-left:   @gutter-northsouth / 2;
-	margin-right:   @padding-side;
-	margin-bottom:   @margin-bottom;
-	position: absolute;
-	top:      0px;
-	right:    0px;
-	bottom:   0px;
-	overflow: hidden;
+	.tab-position();
 }
 
-body.av-fullscreen #widget-tabs {
-	height      : 0;
-}

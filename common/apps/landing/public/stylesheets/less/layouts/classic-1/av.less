@@ -22,7 +22,8 @@
 		.trans-size;
 	}
 
-	body.av-fullscreen #widget-av {
+	body.av-fullscreen #widget-av,
+	body.av-tiled #widget-av {
 		width       : calc(~'100% - @{padding-side} * 2');
 		height      : calc(~'100% - @{nav-height-effective} - @{margin-bottom}');
 		margin-right: @padding-side;

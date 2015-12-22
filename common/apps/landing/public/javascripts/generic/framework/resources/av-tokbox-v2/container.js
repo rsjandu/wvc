@@ -15,37 +15,71 @@ define(function(require) {
 	 *
 	 *-----------------------------------------------------------*/
 	var states = [
-		'shunya',
+		'initial',
 		'connected',
 		'streaming',
 		'error',
 	];
 
-	var types = [
+	var modes = [
+		'shunya',
 		'primary',
 		'secondary',
 		'screenshare'
 	];
 
-	function set_type (type) {
+	var types = [
+		'video-primary',
+		'video-secondary',
+		'screenshare-local',
+		'screenshare-remote',
+	];
+
+	function get_mode (mode) {
+		return this.mode;
+	}
+
+	function set_mode (mode) {
 		/*
 		 * Type = 'primary' | 'secondary' | 'screenshare' */
-		if (types.indexOf(type) == -1) {
-			log.error ('unrecognized container type : ' + type);
+		if (modes.indexOf(mode) == -1) {
+			log.error ('set_mode: unrecognized container mode : ' + mode);
 			return;
 		}
 
-		for (var i = 0; i < types.length; i++) {
+		for (var i = 0; i < modes.length; i++) {
 
-			if (type == types[i]) {
-				$(this.div()).addClass('av-' + types[i]);
+			if (mode == modes[i]) {
+				$(this.div()).addClass('av-' + modes[i]);
 				continue;
 			}
 
-			$(this.div()).removeClass('av-' + types[i]);
+			$(this.div()).removeClass('av-' + modes[i]);
 		}
 
-		log.info ('set type = ' + type + ', for #' + this.id());
+		log.info ('set mode = ' + mode + ', for #' + this.id());
+		this.mode = mode;
+	}
+
+	function in_mode (mode) {
+		if (modes.indexOf(mode) == -1) {
+			log.error ('in_mode: unrecognized container mode : ' + mode);
+			return false;
+		}
+
+		return this.mode == mode;
+	}
+
+	function get_type () {
+		return this.type;
+	}
+
+	function set_type (type) {
+		if (types.indexOf(type) === -1) {
+			log.error ('set_type: unknown type "' + type + '" for container #' + this.id());
+			return;
+		}
+
 		this.type = type;
 	}
 
@@ -53,30 +87,26 @@ define(function(require) {
 		this.conn_id = connection_id;
 	}
 
-	function stream_created (type, stream_) {
-		/* Do some formattig stuff here */
-		this.stream = stream_;
-	}
-
 	function stream_destroyed (type, stream) {
-		/* Do some formattig stuff here */
+		change_state.call(this, 'connected');
 	}
 
 	function giveup () {
 		var div = $(this.div());
+		var list = div.attr('class').split(/\s+/);
 
+		/* Remove all classes */
+		$.each(list, function(index, _class) {
+			div.removeClass(_class);
+		});
+
+		/* Add the initial classes */
+		if (!div.hasClass('av-container'))
+			div.addClass('av-container');
 		if (!div.hasClass('av-shunya'))
-			div.removeClass('av-shunya');
+			div.addClass('av-shunya');
 
-		if (div.hasClass('av-visible'))
-			div.removeClass('av-visible');
-		if (div.hasClass('av-connected'))
-			div.removeClass('av-connected');
-		if (div.hasClass('av-streaming'))
-			div.removeClass('av-streaming');
-		if (div.hasClass('av-error'))
-			div.removeClass('av-error');
-
+		this.mode    = 'shunya';
 		this.type    = null;
 		this.state   = 'initial';
 		this.conn_id = null;
@@ -97,11 +127,11 @@ define(function(require) {
 	function reveal () {
 		var div = $(this.div());
 
-		if (!div.hasClass('av-visible'))
-			div.addClass('av-visible');
-
 		if (div.hasClass('av-shunya'))
 			div.removeClass('av-shunya');
+
+		if (!div.hasClass('av-visible'))
+			div.addClass('av-visible');
 	}
 
 	function conceal () {
@@ -153,7 +183,7 @@ define(function(require) {
 		}
 	}
 
-	function is_primary () {
+	function in_mode_primary () {
 		var div = this.div();
 
 		if ($(div).hasClass('av-primary'))
@@ -162,23 +192,32 @@ define(function(require) {
 		return false;
 	}
 
+	function reveal_actual_video () {
+		change_state.call(this, 'streaming');
+	}
+
 	return function (div) {
-		this.id_     = $(div).attr('id');
-		this.div_    = div;
-		this.type    = null;
-		this.state   = 'initial';
-		this.conn_id = null;
-		this.stream  = null;
+		this.id_          = $(div).attr('id');
+		this.div_         = div;
+		this.mode         = 'shunya';
+		this.type         = null;
+		this.state        = 'initial';
+		this.conn_id      = null;
+		this.stream       = null;
 
 		this.div               = function () { return this.div_; };
 		this.id                = function () { return this.id_; };
 		this.set_type          = set_type;
+		this.get_type          = get_type;
+		this.set_mode          = set_mode;
+		this.get_mode          = get_mode;
+		this.in_mode           = in_mode;
 		this.set_connection_id = set_connection_id;
-		this.stream_created    = stream_created;
 		this.stream_destroyed  = stream_destroyed;
 		this.giveup            = giveup;
 		this.show_error        = show_error;
 		this.change_state      = change_state;
-		this.is_primary        = is_primary;
+		this.in_mode_primary   = in_mode_primary;
+		this.reveal_video      = reveal_actual_video;
 	};
 });
