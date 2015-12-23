@@ -16,12 +16,13 @@ define(function(require) {
 
     ssui.init = function (_display_spec, _handle, _cbs) {
         var _d = $.Deferred();
+		var anchor = _display_spec.anchor;
 
         display_spec = _display_spec;
         handle = _handle;
         cbs = _cbs;
 
-        screenShareDiv = $.find('#widget-tabs')[0];
+        screenShareDiv = $('body').find('#widget-screenshare')[0];
 
         registerHandlers();
         init = true;
@@ -32,12 +33,22 @@ define(function(require) {
     };
 
 
-    ssui.getScreenShareDiv = function () {
-        return screenShareDiv;
-    };
+	ssui.getScreenShareDiv = function () {
+		return screenShareDiv;
+	};
 
 
-    ssui.showss = function () {
+	ssui.setScreenShareDiv = function (sub) {
+        sub.element.style.setProperty('z-index', '100');
+		$(screenShareDiv).addClass('active');
+	};
+
+	ssui.destroyScreenshare = function () {
+		$(screenShareDiv).removeClass('active');
+	};
+
+
+	ssui.showss = function () {
         if ( init ) {
             $('#screenshare').show();
         }
@@ -70,7 +81,8 @@ define(function(require) {
 
 
     function registerHandlers() {
-        $('#screenshare').click(screenShare);
+        $('#screenshare').on('click', screenShare);
+        $('#widget-nav li#nav-screenshare a').on('click', screenShare);
         $('.remodal-confirm').click(onDownload);
     }
 

@@ -86,44 +86,50 @@ chat.init_user = function (user) {
 	var _d_create = create_user( uname, passwd );
 
 	_d_create.then(
-			function done(message){
-				log.info('username', uname );
-				var _d_login = login_to_letsChat( uname, passwd);
-				_d_login.then( 
-					function done(cookie){					//is it ok creating methods with the same name
-						cookie_user = cookie;
-						get_token( cookie_user ).then(	
-									function gotToken( token ){
-										user_token = token;
-										log.info('Chat-Box:', 'init_user resolved');
-										/*
-										 * add the user to the room so that room becomes visible to the user
-										 */
-										allow_user_to_room( m_room, uname.toLowerCase() )
-										.then(
-											function(){
-												_d.resolve({
-													'root_url' : root_url,
-													'token'    : user_token,
-													'room_id'  : m_room.id,
-													'username' : user
-											});		
-											}
-										);
+		function done(message){
+			log.info('username', uname );
+			var _d_login = login_to_letsChat( uname, passwd);
+			_d_login.then( 
+				function done(cookie){					//is it ok creating methods with the same name
+					cookie_user = cookie;
+					get_token( cookie_user )
+					.then(	
+						function gotToken( token ){
+							user_token = token;
+							log.info('Chat-Box:', 'init_user resolved');
+							/*
+							 * add the user to the room so that room becomes visible to the user
+							 */
+							allow_user_to_room( m_room, uname.toLowerCase() )
+								.then(
+									function(){
+										_d.resolve({
+										'root_url' : root_url,
+										'token'    : user_token,
+										'room_id'  : m_room.id,
+										'username' : user
+										});		
 									},
-									function noToken( message ){
-										_d.reject( message );
-									});
-					},
-					function fail(message){
-						_d.reject( message );
-					}
-		     		);
-			},
-			function fail(message){
-				_d.reject( message );			
-			}
-		);
+									function (err) {
+										log.error ('allow_user_to_room: err = ' + err);
+										_d.reject(err);
+									}
+								);
+						},
+						function noToken( message ){
+							_d.reject( message );
+						}
+					);
+				},
+				function fail(message){
+					_d.reject( message );
+				}
+     		);
+		},
+		function fail(message){
+			_d.reject( message );			
+		}
+	);
 	return _d.promise ();
 };
 function allow_user_to_room( room, uname){
@@ -203,7 +209,6 @@ function login_to_letsChat( username, password ){
 		timeout 	: req_timeout,
 		data 		: { 'username' : username, 'password' : password }
 	}).on('complete', function(result, response){
-		log.info('\nresult:' + result);
 		try{
 			if( response && response.headers ){
 				final_cookie = JSON.stringify(response.headers['set-cookie'] );

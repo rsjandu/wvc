@@ -4,10 +4,10 @@
 
 	"resources" : [
 		{
-			"name" : "av-tokbox",
+			"name" : "av-tokbox-v2",
 			"custom" : { 
-				"apikey" : "45428742",
-				"apisecret" : "d26833ee5c3f46da716cb303187e90214ff0f24e",
+				"apikey" : "45428662",
+				"apisecret" : "07e19a1eeb65695a5bdf02976036c15b20a79fdf",
 				"p2p"	: false,
 				"chromelocalextensionid"	: "hmlfjgegnbjjhaacghlfekifkagkmbce",
 				"chromeextensionid"	: "cofnnopnhjmpoomoholnofbneelimjdm",
@@ -23,7 +23,7 @@
 		{
 			"name" 		: "chat-box",
 			"custom" 	: {
-				"server_url" : "https://wiziq-ubuntu-a.cloudapp.net",
+				"server_url" : "https://wiziq-ubuntu-b.cloudapp.net",
 				"req_timeout": "5000"
 			} 
 		}

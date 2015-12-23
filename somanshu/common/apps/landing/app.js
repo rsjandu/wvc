@@ -24,10 +24,8 @@ var app = express();
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
-if (app.get('env') === 'production') {
-		app.set('trust proxy', true);
-		sess.cookie.secure = true;
-}
+app.set('trust proxy', true);
+sess.cookie.secure = true;
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -37,7 +35,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session(sess));
 
 app.use(log.req_logger);
-app.use('/auth/v1', auth_v1);
 app.use('/session/v1', vc_session_v1);
 
 app.use(function(req, res, next) {
