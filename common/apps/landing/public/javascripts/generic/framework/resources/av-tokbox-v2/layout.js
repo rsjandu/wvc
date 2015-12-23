@@ -74,24 +74,85 @@ define(function(require) {
 			var div_id = $(clicked_div).attr('id');
 			var clicked_container = cpool.get_container_by_id ('used', div_id);
 
-			if (current_layout === 'av-default' || current_layout === 'av-fullscreen') {
-				/* 
-				 * Video Container's click handler - makes the clicked
-				 * video primary and turns the earstwhile primary into 
-				 * a secondary video. Do nothing for screenshare in av-default.
-				 */
-				if (clicked_container && clicked_container.in_mode('screenshare'))
-					return;
+			if (!clicked_container) {
+				log.error ('clicked_container is null. Ignoring click.');
+				return;
+			}
 
-				var primary = cpool.get_primary_mode_container ();
+			switch (current_layout) {
 
-				if (primary)
-					primary.set_mode ('secondary');
+				case 'av-default':
+					handle_click_default (clicked_container);
+					break;
 
-				if (clicked_container)
-					clicked_container.set_mode ('primary');
+				case 'av-fullscreen':
+					handle_click_fullscreen (clicked_container);
+					break;
+
+				case 'av-tiled':
+					/* Do nothing for now */
+					break;
+
+				default:
+					/* Should not come here */
+					log.error ('unknown layout "' + current_layout + '". Handling as default.');
+					handle_click_default (clicked_container);
+					break;
+
 			}
 		});
+	}
+
+	function handle_click_default (clicked) {
+		var primary, pip;
+
+		/* 
+		 * If screnshare is cliked then make it fullscreen, and 
+		 * make the primary pip. Lose all the secondaries.
+		 */
+		if (clicked.in_mode('screenshare')) {
+			primary = cpool.get_containers_by_mode ('primary')[0];
+			clicked.set_mode ('full');
+			primary.set_mode ('pip');
+			return;
+		}
+
+		/* 
+		 * If the clicked video is secondary, then exchange with primary
+		 */
+		if (clicked.in_mode('secondary')) {
+			primary = cpool.get_containers_by_mode ('primary')[0];
+			primary.set_mode('secondary');
+			clicked.set_mode('primary');
+			return;
+		}
+
+		/* 
+		 * If the clicked video is full, then this happened due to an earlier
+		 * click on the screenshare. Restore the original layout.
+		 */
+		if (clicked.in_mode('full')) {
+			pip = cpool.get_containers_by_mode ('pip')[0];
+			pip.set_mode('primary');
+			clicked.set_mode('screenshare');
+			return;
+		}
+	}
+
+	function handle_click_fullscreen (clicked) {
+		var primary, pip;
+
+		/* 
+		 * In fullscreen layout, we only respond to the clicks
+		 * on a secondary by swapping the primary with it.
+		 */
+		if (clicked.in_mode('secondary')) {
+			primary = cpool.get_containers_by_mode ('primary')[0];
+			clicked.set_mode ('primary');
+			primary.set_mode ('secondary');
+			return;
+		}
+
 	}
 
 	function display_mode (_layout, type) {

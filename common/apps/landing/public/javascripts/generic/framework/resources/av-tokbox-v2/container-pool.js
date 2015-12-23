@@ -50,16 +50,17 @@ define(function(require) {
 		container.giveup ();
 	};
 
-	pool.get_primary_mode_container = function () {
+	pool.get_containers_by_mode = function (mode) {
+		var arr = [];
 
 		for (var c in used) {
 			var container = used[c];
 
-			if (container.in_mode_primary ())
-				return container;
+			if (container.get_mode () == mode)
+				arr.push(container);
 		}
 
-		return null;
+		return arr;
 	};
 
 	pool.get_container_by_id = function (pool, id) {

@@ -25,7 +25,9 @@ define(function(require) {
 		'shunya',
 		'primary',
 		'secondary',
-		'screenshare'
+		'screenshare',
+		'full',
+		'pip'
 	];
 
 	var types = [

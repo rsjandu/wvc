@@ -49,6 +49,25 @@
 		height: @tab-height;
 	}
 
+	.av-visible.av-full {
+		position: absolute;
+		margin: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		z-index: 11;
+	}
+
+	.av-visible.av-pip {
+		position: absolute;
+		margin: 0;
+		left: 0;
+		width: @prime-width / 3;
+		height: @prime-height / 3;
+		z-index: 12;
+		border: 1px solid white;
+	}
+
 }
 .set-sizes(@width-av) {
 	@av-width : @width-av;

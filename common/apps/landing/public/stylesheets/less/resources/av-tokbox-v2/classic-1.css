@@ -71,6 +71,23 @@ button.OT_edge-bar-item.OT_mute.OT_mode-auto {
     width: calc(100vw - 150px - 10px * 2 - 10px);
     height: calc(100vh - 55px - 10px);
   }
+  .av-visible.av-full {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 11;
+  }
+  .av-visible.av-pip {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 50px;
+    height: 37.5px;
+    z-index: 12;
+    border: 1px solid white;
+  }
 }
 @media screen and (min-height: 643px) and (max-height: 800px) {
   /*
@@ -109,6 +126,23 @@ button.OT_edge-bar-item.OT_mute.OT_mode-auto {
     left: calc(320px + 10px);
     width: calc(100vw - 320px - 10px * 2 - 10px);
     height: calc(100vh - 55px - 10px);
+  }
+  .av-visible.av-full {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 11;
+  }
+  .av-visible.av-pip {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 106.66666667px;
+    height: 80px;
+    z-index: 12;
+    border: 1px solid white;
   }
 }
 @media screen and (min-height: 801px) and (max-height: 1080px) {
@@ -149,6 +183,23 @@ button.OT_edge-bar-item.OT_mute.OT_mode-auto {
     width: calc(100vw - 320px - 10px * 2 - 10px);
     height: calc(100vh - 55px - 10px);
   }
+  .av-visible.av-full {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 11;
+  }
+  .av-visible.av-pip {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 106.66666667px;
+    height: 80px;
+    z-index: 12;
+    border: 1px solid white;
+  }
 }
 @media screen and (min-height: 1081px) {
   /*
@@ -187,6 +238,23 @@ button.OT_edge-bar-item.OT_mute.OT_mode-auto {
     left: calc(420px + 10px);
     width: calc(100vw - 420px - 10px * 2 - 10px);
     height: calc(100vh - 55px - 10px);
+  }
+  .av-visible.av-full {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 11;
+  }
+  .av-visible.av-pip {
+    position: absolute;
+    margin: 0;
+    left: 0;
+    width: 140px;
+    height: 105px;
+    z-index: 12;
+    border: 1px solid white;
   }
 }
 #av-wrap,
