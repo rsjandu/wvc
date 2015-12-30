@@ -205,11 +205,12 @@ function login_to_letsChat( username, password ){
 	var _d = $.Deferred ();
 	var final_cookie 	= {};
 
-	rest.post( root_url + "/account/login",{
+	rest.post( root_url + "/account/login/",{
 		timeout 	: req_timeout,
 		data 		: { 'username' : username, 'password' : password }
 	}).on('complete', function(result, response){
 		try{
+			log.warn( "res:::: " + result, "resp::" + response);
 			if( response && response.headers ){
 				final_cookie = JSON.stringify(response.headers['set-cookie'] );
 				final_cookie = final_cookie.substr(2, final_cookie.indexOf(';') - 2);

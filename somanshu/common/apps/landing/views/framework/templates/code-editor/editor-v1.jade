@@ -2,6 +2,14 @@
 	#sce-header
 		h1 Welcome to Shared Editor
 		br
+		select#ace-fontSize
+			option(value="12") 12px
+			option(value="14") 14px
+			option(value="16") 16px
+			option(value="18") 18px
+			option(value="20") 20px
+			option(value="22") 22px
+			option(value="24") 24px
 		select#mode
 			option(value="js") Javascript
 			option(value="html") HTML
@@ -12,4 +20,8 @@
 			option(value="chrome") Chrome
 			option(value="clouds") Clouds
 			option(value="clouds2") Clouds-Midnight
+		button.ace_undo.btn.btn-default.btn-sm Undo
+		button.ace_redo.btn.btn-default.btn-sm Redo
+		button#saveFile.btn.btn-default.btn-sm Save
+		input#loadFile(type = "file")
 	#sce-ace_editor
