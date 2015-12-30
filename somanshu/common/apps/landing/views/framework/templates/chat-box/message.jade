@@ -8,4 +8,8 @@ li.lcb-message
 					span.lcb-message-displayname #{owner.displayName}
 					span.lcb-message-username @#{owner.username}
 			time.lcb-message-time #{time}
-		.lcb-message-text #{text}
+		if !paste
+			.lcb-message-text #{text}
+		else
+			.lcb-message-text
+				pre #{text}

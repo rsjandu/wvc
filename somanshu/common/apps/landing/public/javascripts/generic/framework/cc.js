@@ -16,6 +16,25 @@ define(function(require) {
 	var _req_channel;
 	var msg_q = {};
 
+	var ws_codes = {
+		"1000" : "CLOSE_NORMAL",
+		"1001" : "CLOSE_GOING_AWAY",
+		"1002" : "CLOSE_PROTOCOL_ERROR",
+		"1003" : "CLOSE_UNSUPPORTED",
+		"1004" : "Reserved ",
+		"1005" : "CLOSE_NO_STATUS",
+		"1006" : "CLOSE_ABNORMAL",
+		"1007" : "Unsupported Data",
+		"1008" : "Policy Violation",
+		"1009" : "CLOSE_TOO_LARGE",
+		"1010" : "Missing Extension",
+		"1011" : "Internal Error",
+		"1012" : "Service Restart",
+		"1013" : "Try Again Later",
+		"1014" : "Reserved",
+		"1015" : "TLS Handshake",
+	};
+
 	cc.init = function (framwork_handle, sess_config) {
 
 		log.info ('init : args = ', sess_config);
@@ -41,8 +60,8 @@ define(function(require) {
 		sock = new WebSocket (server, 'http');
 		sock.onopen = on_open.bind(_d, sess_config);
 		sock.onmessage = on_message;
-		sock.onerror = on_error;
-		sock.onclose = on_close;
+		sock.onerror = on_error.bind(_d);
+		sock.onclose = on_close.bind(_d);
 
 		return _d.promise();
 	};
@@ -168,12 +187,32 @@ define(function(require) {
 		return;
 	}
 
-	function on_error () {
-		log.error ('socket error : NOT IMPLEMENTED');
+	function on_error (ev) {
+		/*
+		 * Do nothing here. React in the on_close handle
+		 */
 	}
 
-	function on_close () {
-		log.error ('socket close : NOT IMPLEMENTED');
+	function on_close (ev) {
+		if (ev.code !== 1000) {
+			var reason = ws_codes[ev.code];
+			reason = reason ? reason : '*unkown*';
+			/* 
+			 * This is an abnormal shutdown. If we are in the early stages
+			 * of trying to connect then the deferred stored in the 'this'
+			 * should still be pending - reject it. Else, this is somewhere
+			 * in the middle of an established session.
+			 */
+			var _d = this;
+
+			if (_d.state() === 'pending') {
+				log.info ("on_close : code = " + ev.code + ', reason = ' + reason);
+				return _d.reject ('session connect error: reason : ' + reason);
+			}
+
+			/* Here we should be raising some event or calling a framework
+			 * method to inform. TODO */
+		}
 	}
 
 	function addressed_to_me (to) {
@@ -252,3 +291,4 @@ define(function(require) {
 
 	return cc;
 });
+

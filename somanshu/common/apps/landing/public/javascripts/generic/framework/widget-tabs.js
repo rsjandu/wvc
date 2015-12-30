@@ -10,6 +10,7 @@ define(function(require) {
 
 		attached.push(_module);
 		var module_anchor = create_new_tab (tab_count, 'whiteboard', (tab_count ? false:true));
+		tab_count++;
 		_module.resource.display_spec.anchor = module_anchor;
 
 		/*

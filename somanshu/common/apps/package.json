@@ -27,6 +27,7 @@
     "mongodb": "^2.0.48",
     "mongodb-core": "^1.2.23",
     "mongoose": "^4.2.7",
+    "proxy-addr": "^1.0.10",
     "restler": "^3.4.0",
     "serve-favicon": "^2.3.0",
     "winston": "^2.1.1"

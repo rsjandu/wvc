@@ -11,12 +11,6 @@ define(function(require) {
 	var flipboard = {};
 	var f_handle = framework.handle ('flipboard-v1');
 	var canvas;
-	var editor = {};
-	//var mode = require('./ace/mode-javascript');
-	//var ace = require('./ace_min');
-	//var BCSocket = require('./bcsocket').BCSocket;
-	//var sharejs = require('./share');
-	
 
 	flipboard.init = function (display_spec, custom, perms) {
 		var _d = $.Deferred();
@@ -44,10 +38,6 @@ define(function(require) {
 
 	flipboard.start = function (sess_info) {
 
-		//start_shared_text();
-		start_shared_ide();
-		//attach_editor();
-		//ace_code_editor();
 		$(function() {
 			ctx = $(canvas)[0].getContext("2d");
 
@@ -71,128 +61,6 @@ define(function(require) {
 		}
 		draw (data);
 	};
-
-	function attach_editor() {
-		console.log('attach editor');
-		require (['http://cdn.tinymce.com/4/tinymce.min.js'], function() {
-				tinymce.init({
-					selector: '#editor',
-					theme: 'modern',
-					width: 600,
-					height: 300
-				});
-		});
-	}
-
-	function ace_code_editor() {
-		log.info("ace code editor");
-		require(['./ace/ace'], function (tmp) {
-			require(['./ace/mode-javascript'], function (tmp2) {
-				var elem = document.getElementById("ace_editor");
-				editor = ace.edit(elem);
-				require(['ace/mode/javascript'], function (mode) {
-					editor.session.setMode(new (mode.Mode));
-				});
-			});
-		});
-	};
-
-	function start_shared_ide() {
-		console.log('start shared ide');
-		//require(['http://ajaxorg.github.com/ace/build/src/ace.js'], function(tmp1) {
-		require(['./ace/ace'], function() {
-				require(['./bcsocket'], function() {
-					//var socket = new BCSocket('http://localhost:7007/channel', {reconnect: true});
-					//console.log(socket);
-					require(['./share_uncompressed'], function () {
-					require(['./ace'], function() {
-						var elem = document.getElementById("ace_editor");
-						editor = ace.edit(elem);
-						//var session = editor.getSession();
-						//session.setMode(new (mode.Mode));
-						require(['./theme-idle_fingers'], function() {
-							editor.setTheme("ace/theme/idle_fingers");
-						});
-
-						require(['./ace/mode-javascript'], function() {
-							require(['ace/mode/javascript'], function (mode) {
-								var session = editor.getSession();
-								session.setMode(new (mode.Mode));
-							});
-						});
-						
-						/*var sjs = new sharejs.Connection(socket);
-						var doc = sjs.get('users', 'seph');
-						console.log(doc);
-						doc.subscribe();
-						doc.whenReady(function () {
-							if(!doc.type){
-								doc.create('text');
-							}
-							if(doc.type && doc.type.name === 'text'){
-								console.log('doc ready, data: ', doc.getSnapshot());
-								doc.attach_ace(editor);
-							}
-						});*/
-
-						sharejs.open('hello', 'text', 'http://localhost:8000/channel' ,function(error, doc) {
-							if (error){
-								console.log("Error :"+error);
-							}
-							else{
-								doc.attach_ace(editor);
-								editor.setReadOnly(false);
-							}
-						});
-					});});//});
-
-				});
-		});
-	}
-
-	function start_shared_text() {
-		console.log('start shared text');
-		var elem = document.getElementById("editor");
-		
-		require([ './bcsocket' ],function(){
-			var socket = new BCSocket('http://localhost:7007/channel', {reconnect: true});
-			console.log( socket);
-			var sjs = new sharejs.Connection(socket);
-			var doc = sjs.get('users', 'seph');
-			console.log(doc);
-			doc.subscribe();
-			doc.whenReady(function () {
-				if(!doc.type){
-					doc.create('text');
-				}
-				if(doc.type && doc.type.name === 'text'){
-					console.log('doc ready, data: ', doc.getSnapshot());
-					doc.attachTextarea(elem);
-				}
-			});
-
-			});
-		/*var sjs = new sharejs.Connection(socket);
-		var doc = sjs.get('users', 'seph');
-		console.log(doc);
-		doc.subscribe();
-//		sharejs.open('hello', 'text', 'http://example.com:8000/channel', function(error, doc)  {
-//				if(error){
-//					console.log('ERROR:'+error);
-//				}
-//				else{
-//					doc.subscribe();
-					doc.whenReady(function () {
-						if (!doc.type){
-							doc.create('text');
-						}
-						if (doc.type && doc.type.name === 'text'){
-							doc.attachTextarea(elem);
-						}
-					});
-//				}
-//		});*/
-	}
 
 	function draw (data) {
 
@@ -232,17 +100,11 @@ define(function(require) {
 
 			// add navigation events
 			config.$navNext.on( 'click touchstart', function() {
-				setTimeout(function (){
-					editor.resize(); 
-				},1000);
 				config.$bookBlock.bookblock( 'next' );
 				return false;
 			} );
 
 			config.$navPrev.on( 'click touchstart', function() {
-				setTimeout(function () {
-					editor.resize();
-				}, 1000);
 				config.$bookBlock.bookblock( 'prev' );
 				return false;
 			} );

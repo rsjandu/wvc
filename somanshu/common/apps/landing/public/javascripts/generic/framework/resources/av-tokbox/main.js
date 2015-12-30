@@ -724,7 +724,12 @@ define([
 
         streamDestroyed : function (ev) {
             if ( ev.stream.hasVideo ) {
+
                 log.info('session streamDestroyed event. has video');
+				if ( ev.stream.videoType === 'screen' ) {
+					screenshare.destroyScreenshare ();
+				}
+
             } else {
                 log.info('session streamDestroyed event');
             }

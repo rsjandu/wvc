@@ -10,12 +10,7 @@ function serializer (req, res) {
 	var entry =  {
 		method: req.method,
 		url: req.url,
-		req_id: req.req_id,
-		/*
-        header: req.headers,
-        cookie: req.headers.cookie,
-	   */
-		remoteAddress: req.connection.remoteAddress,
+		remoteAddress: req.ip,
 		remotePort: req.connection.remotePort
 	};
 
@@ -28,8 +23,8 @@ function serializer (req, res) {
 }
 
 log.req_logger = function (req, res, next) {
-	req.log = log;
-	log.info({ req : serializer (req, res) }, 'http request');
+	req.log = log.child({ req_id : req.req_id });
+	req.log.info({ req : serializer (req, res) }, 'http request');
 	next();
 };
 

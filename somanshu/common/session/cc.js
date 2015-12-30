@@ -45,7 +45,10 @@ cc.send_info = function (sock, from, to, info_id, info) {
 		return;
 
 	m.seq = seq++;
-	sock.send (JSON.stringify(m));
+	sock.send (JSON.stringify(m), function (err) {
+		if (err)
+			log.error ('cc: socket send error: ', err, 'to = ' + to + ', info_id = ' + info_id);
+	});
 	protocol.print(m);
 };
 

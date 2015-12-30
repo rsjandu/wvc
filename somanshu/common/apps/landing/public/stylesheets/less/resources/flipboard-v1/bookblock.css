@@ -3,7 +3,10 @@
 	height: calc(100% - 30px);
 	margin: 0 auto;
 	position: relative;
-	z-index: 100;
+	/*
+	 * Why do we need this ?
+	 * z-index: 100;
+	 */
 	-webkit-perspective: 1300px;
 	perspective: 1300px;
 	-webkit-backface-visibility: hidden;
@@ -168,16 +171,7 @@
 	display: none;
 	overflow: hidden;
 }
-#ace_editor { 
-	margin: 20;
-	position: absolute;
-	top: 80px;
-	bottom: 20px;
-	left: 20px;
-	right: 20px;
-	text-align: left;
-	background-color: aliceblue;
-}
+
 /* No JS */
 .no-js .bb-bookblock, 
 .no-js ul.bb-custom-grid li {

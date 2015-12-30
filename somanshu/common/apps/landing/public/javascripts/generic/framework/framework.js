@@ -3,11 +3,14 @@ define(function(require) {
 	var cc        = require('cc');
 	var lc        = require('layout-controller');
 	var identity  = require('identity');
+	var events    = require('events');
+	var notify    = require('notify');
 	var log       = require('log')('framework', 'info');
 
 	var framework     = {};
 	var modules       = {};
 	var menu_handle   = {};
+	var progress_ev = events.emitter ('framework-progress', 'framework');
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -54,10 +57,12 @@ define(function(require) {
 			function() {
 				modules[_module.name] = _module;
 				set_role (_module);
+				progress_ev.emit ('init ' + _module.name + ' ok');
 				_d.resolve (_module);
 			},
 			function (err) {
 				log.error ('init failed for \"' + _module.name + '\" : err = ' + err);
+				progress_ev.emit ('init ' + _module.name + ' failed');
 				_d.reject(err);
 				return;
 			}
@@ -81,9 +86,11 @@ define(function(require) {
 
 		try { 
 			_module.handle.start (session_info.info[name]); 
+			progress_ev.emit ('start ' + _module.name + ' ok');
 		}
 		catch (e) {
 			log.error ('module \"' + name + '\": start err = ' + e);
+			progress_ev.emit ('start ' + _module.name + ' failed');
 		}
 	};
 
@@ -103,6 +110,8 @@ define(function(require) {
 	framework.wait_for_start = function () {
 		_d_start = $.Deferred ();
 
+		log.info ('waiting for go-ahead from session cluster ...');
+		progress_ev.emit ('waiting for session cluster ...');
 		/*
 		 * Nothing to be done here, except when we recieve the 
 		 * message from the session controller. We trigger this
@@ -113,6 +122,7 @@ define(function(require) {
 
 	function started (sess_info) {
 		log.info ('class started : ', sess_info);
+		progress_ev.emit ('session cluster responded with session info');
 		_d_start.resolve (sess_info);
 	}
 
@@ -165,10 +175,12 @@ define(function(require) {
 	framework.handle = function (module_name) {
 
 		var handle = {
+			identity       : identity,
 			module_name    : module_name,
 			send_command   : send_command,
 			send_info      : send_info,
 			template       : template,
+			notify         : notify,
 			menu           : {
 				module_name : module_name,
 				add : menu_add,
