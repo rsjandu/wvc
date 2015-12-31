@@ -1,24 +1,20 @@
 ###########################
 #####################
 Need to start sharejs server for collaborative editing.
-Go to sharejs directory and inside "bin" start "exampleserver".
+Go to sharejs directory and inside "bin" start "exampleserver" which is a script.
+Run by "./exampleserver".
 
-I have made changes inside flipboard resource.
-Code is written in main.js
-created start_shared_ide() function.
+I have created a new resource code-editor in landing.
 added 
 share_uncompressed - gives sharejs object on which i invoke open().
 bcsocket - to implement the browserchannel
 ace - code to integrate sharejs and ace.
 theme-idle_fingers - applies theme to editor
-uncomp_javascript - its unminified file of mode-javascript.js which applies syntax highlighting.
+mode-javascript - which applies syntax highlighting.
+worker-javascript - which applies syntax check.
+snippets - provide code auto completion on pressing ctrl-space.
 
-Unused code:
-shared_text () - shared text area code.
-attach_editor () - its something that i found which applies itself to textarea and creates an editor like etherpad.Problem was shared functionality was not working for the text i wrote inside it.
-
-Unused file:
-inside ace folder "mode-javascript" & "worker-javascript"
+inside ace folder placed files related to ace like mode, worker, snippets.
 these files i have picked up from ace project on github. 
 
 Added a div with id = editor.

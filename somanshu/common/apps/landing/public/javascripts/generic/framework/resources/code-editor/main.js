@@ -138,7 +138,7 @@ define(function(require) {
 		}
 		require(['./ace/mode-'+typeCompiler], function () {
 			require(['ace/mode/'+typeCompiler], function(mode){
-				editor.session.setMode(new (mode.Mode));
+				editor.getSession().setMode(new (mode.Mode));
 			});
 		});
 	};
