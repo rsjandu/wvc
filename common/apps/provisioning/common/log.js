@@ -1,6 +1,6 @@
 var events = require('events');
 var bunyan = require('bunyan');
-var log = require ('common/log').child('provisioning');
+var log = require ('common/log').sub_app('provisioning');
 
 function serializer (req, res) {
 	if (!req || !req.connection)

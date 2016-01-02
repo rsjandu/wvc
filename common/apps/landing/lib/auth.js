@@ -35,8 +35,23 @@ auth.authenticate = function (req, res, next) {
 
 	var wiziq_auth = req.cookies.wiziq_auth;
 	if (!wiziq_auth) {
+
 		res.cookie('wiziq_origin', req.originalUrl, {
 			maxAge : 1000*60*60*24*7,    /* Expires in a long time */
+			path   : '/',
+			secure : true
+		});
+
+		var auth_via = req.wiziq.sess_config.auth_via;
+		var auth_via_str = auth_via.reduce(function (prev, curr, index, arr) {
+								if (!prev)
+									return curr;
+								return prev + ',' + curr;
+							}, null);
+
+		res.cookie('wiziq_auth_via', auth_via_str, {
+			maxAge : 1000*60*60*24*7,    /* Expires in a long time */
+			path   : '/',
 			secure : true
 		});
 		return res.redirect('/auth/login');

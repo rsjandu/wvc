@@ -6,8 +6,12 @@ var browser   = require('landing/lib/browser');
 var auth      = require('landing/lib/auth');
 var router    = express.Router();
 
-router.use(auth.authenticate);
-router.use(browser.check_compatibility);
+/* 
+ * We need the session configuration for auth (to send the auth->via options,
+ * so we pre-load the session config here */
+router.use ('/:session_id', session.load_and_cache_config);
+router.use (auth.authenticate);
+router.use (browser.check_compatibility);
 
 router.get ('/:session_id/', session.load_page);
 router.get ('/:session_id/load', session.load_config);

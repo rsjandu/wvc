@@ -2,7 +2,6 @@ var async     = require('async');
 var config    = require('landing/config');
 var log       = require('landing/common/log');
 var args      = require('common/args');
-var cache     = require('landing/common/cache').init('backend-if', 5*60*60*1000);
 var templates = require('landing/controllers/templates');
 
 
@@ -200,7 +199,9 @@ function get_config_meghadoot (sess_id, callback) {
 		structure: 'classic-1',
 		layout   : 'classic-1',
 		theme    : 'classic-1',
-		auth : {},
+		auth     : {
+			via : [ 'google', 'anon' ]
+		},
 		session_server : {
 			/*
 			 * If a debug argument is provided, use it. Else default to localhost */
