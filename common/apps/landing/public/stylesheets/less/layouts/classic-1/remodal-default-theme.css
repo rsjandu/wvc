@@ -122,7 +122,7 @@
 }
 
 .remodal-close:before {
-  font-family: Arial, "Helvetica CY", "Nimbus Sans L", sans-serif !important;
+  //font-family: Arial, "Helvetica CY", "Nimbus Sans L", sans-serif !important;
   font-size: 25px;
   line-height: 35px;
 

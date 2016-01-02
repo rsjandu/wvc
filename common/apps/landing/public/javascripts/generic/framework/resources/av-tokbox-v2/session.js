@@ -56,9 +56,9 @@ define(function(require) {
 	var stream_map = {};
 
 	function exception_handler (code, title, message) {
-		f_handle_cached.notify.alert ('AV Error (' + code + '): ' + title + ' - ' + message, {
-			level : 'danger',
-			dismissable : 'true'
+		f_handle_cached.notify.alert('AV Error (' + code + ') ' + title, message, 'danger', {
+			non_dismissable : true,
+			button : { }
 		});
 	}
 
@@ -66,9 +66,10 @@ define(function(require) {
 		log.info ('TODO : sessionConnected:', ev);
 	}
 	function sessionDisconnected (ev) {
-		f_handle_cached.notify.alert ('AV: Session Disconnected. Reason: ' + ev.reason, {
-			level : 'danger',
-			dismissable : 'true'
+
+		f_handle_cached.notify.alert ('AV: Session Disconnected', ev.reason, 'danger', {
+			non_dismissable : true,
+			button : { }
 		});
 	}
 	function sessionReconnecting (ev) {
@@ -171,7 +172,13 @@ define(function(require) {
 		if (!container) {
 			/* We cannot show this video as we ran out of containers. Here
 			 * we should switch to pure audio. TODO: implement this */
-			f_handle_cached.notify.alert ('TODO: Ran out of video containers - implement audio only containers');
+			f_handle_cached.notify.alert ('Internal TODO message', 'Ran out of containers ! Implement audio only containers.', 'danger',
+										  {
+											  non_dismissable: false,
+											  button : {
+												  cancel : function () {}
+											  }
+										  });
 			return;
 		}
 

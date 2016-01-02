@@ -40,7 +40,10 @@ define(function (require) {
 					prompt_for_installation (d);
 				},
 				function (err) {
-					f_handle_cached.notify.alert(err);
+					f_handle_cached.notify.alert('Screenshare Error', err, 'danger', {
+						non_dismissable : true,
+						button : { }
+					});
 					d.reject(err);
 				}
 			);

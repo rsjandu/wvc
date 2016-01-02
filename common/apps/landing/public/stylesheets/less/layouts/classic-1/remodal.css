@@ -92,3 +92,12 @@ html.remodal-is-locked {
   /* Disable Anti-FOUC */
   display: inline-block;
 }
+
+.remodal h1 {
+	display: inline;
+}
+
+.remodal span.level {
+	font-size : 36px;
+	margin-right: 10px;
+}
