@@ -1,5 +1,5 @@
 var minimist  = require('minimist');
-var log = require('common/log');
+var log = require('common/log').log;
 
 var _argv = minimist(process.argv.slice(2));
 

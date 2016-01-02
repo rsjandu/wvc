@@ -6,7 +6,7 @@ var cc              = require('./cc');
 var sock_id = 1;
 var list = {};
 
-function set_user (user) {
+function set_user (vc_id) {
 	var conn_id = this.c.id;
 
 	if (!list[conn_id]) {
@@ -14,13 +14,13 @@ function set_user (user) {
 		return false;
 	}
 
-	this.c.user = user;
+	this.c.vc_id = vc_id;
 	return true;
 }
 
 function close () {
 	log.debug ('connection: closed: removing connection # ' + this.c.id);
-	events.emit ('closed', this.c.user);
+	events.emit ('closed', this.c.vc_id);
 	delete list[this.c.id];
 }
 
@@ -31,7 +31,7 @@ function show_conn (c, comment) {
 	if (comment)
 		comment = ' (' + comment +') ';
 
-	log.debug ('connection' + comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.user ? c.user : '-') + ')');
+	log.debug ('connection' + comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.vc_id ? c.vc_id : '-') + ')');
 }
 
 function send_info (from, to, info_id, info) {

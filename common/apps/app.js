@@ -6,7 +6,7 @@ var express         = require('express');
 var path            = require('path');
 var favicon         = require('serve-favicon');
 
-var log             = require('common/log');
+var log             = require('common/log').log;
 var log_middleware  = require('common/log-middleware');
 var tracker         = require('common/tracker');
 var config          = require('common/config');

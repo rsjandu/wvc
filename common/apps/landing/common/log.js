@@ -1,7 +1,6 @@
-var bunyan = require('bunyan');
-var log_inherited = require ('common/log');
-
-var log = log_inherited.child ({ sub_app : 'landing' });
+var events        = require('events');
+var bunyan        = require('bunyan');
+var log           = require ('common/log').child('landing');
 
 function serializer (req, res) {
 	if (!req || !req.connection)

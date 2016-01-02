@@ -12,6 +12,7 @@ var log             = require('landing/common/log');
 var args            = require('common/args');
 var vc_session_v1   = require('landing/routes/session-v1');
 var auth_v1         = require('landing/routes/auth-v1');
+var test            = require('landing/routes/test');
 
 var sess = { cookie:
 				{ },
@@ -36,6 +37,7 @@ app.use(session(sess));
 
 app.use(log.req_logger);
 app.use('/session/v1', vc_session_v1);
+app.use('/test', test);
 
 app.use(function(req, res, next) {
 			var err = new Error('Not Found');

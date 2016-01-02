@@ -80,7 +80,7 @@ chat.init_user = function (user) {
 	 * username will be saved in lowercase(whatever you pass) and certain queries will not work if uppercase letters are found in username.
 	 * eg. WizIQ will be saved as 'wiziq'
 	 */
-	uname 	= user + get_random_string();					/* add some 5chars random string here, just avoiding removeUser */
+	uname 	= user.vc_id + get_random_string();					/* add some 5chars random string here, just avoiding removeUser */
 	passwd 	= generate_password( uname );
 	log.info( uname, passwd);
 	var _d_create = create_user( uname, passwd );

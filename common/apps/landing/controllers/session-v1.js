@@ -47,6 +47,7 @@ controller.load_page = function (req, res, next) {
 			layout     : sess_config.layout,
 			theme      : sess_config.theme,
 			_templates : JSON.stringify(_templates),
+			identity   : req.wiziq.user,
 			styles     : css
 		});
 	});

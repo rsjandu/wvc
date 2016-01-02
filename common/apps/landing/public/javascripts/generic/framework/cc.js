@@ -35,14 +35,14 @@ define(function(require) {
 		"1015" : "TLS Handshake",
 	};
 
-	cc.init = function (framwork_handle, sess_config) {
+	cc.init = function (framework_handle, sess_config) {
 
 		log.info ('init : args = ', sess_config);
 		var _d = $.Deferred ();
 		var sess_id;
 
 		_sess_config = sess_config;
-		_req_channel = framwork_handle;
+		_req_channel = framework_handle;
 
 		host = sess_config.session_server.host;
 		port = sess_config.session_server.port;
@@ -66,12 +66,13 @@ define(function(require) {
 		return _d.promise();
 	};
 
+	var authenticated = false;
 	cc.auth = function (sess_config) {
 		
 		log.info ('Auth to ws://' + host + ':' + port);
 
-		var from = 'user:' + identity.name;
-		var message = protocol.auth_pdu ('controller.auth', from, {});
+		var from = 'user:-not-yet-authenticated-';
+		var message = protocol.auth_pdu ('controller.auth', from, identity.secret);
 
 		message.seq = seq++;
 
@@ -80,7 +81,7 @@ define(function(require) {
 
 	cc.send_command = function (to, sub_resource, op, from_module) {
 		var _d = $.Deferred ();
-		var from = 'user:' + identity.name + 'resource:' + from_module;
+		var from = 'user:' + identity.vc_id + 'resource:' + from_module;
 
 		var message = prot.command_pdu (to, sub_resource, op, from);
 		if (!message) {
@@ -154,14 +155,30 @@ define(function(require) {
 			return;
 		}
 
-		/* is the message addressed to me ? */
-		if (!addressed_to_me (message.to)) {
-			log.error ('RX: illegal to addr (' + message.to + '): message = ', message);
+		if (!authenticated) {
+			/* If we are not yet authenticated then we expect the first incoming
+			 * message to be an ACK to our auth request */
+			var ret = handle_auth_ack (message);
+			if (ret) {
+				message.msg.status = 'error';
+				message.msg.data = ret + '.(original-data = ' + message.msg.data + ')';
+				return process_ack(message);
+			}
 
-			if (message.type === 'req')
-				ack (message, 'error', 'not my problem');
+			authenticated = true;
+		}
+		else {
+			/* Check if the message is addressed to me. Do this only for PDU
+			 * after the auth has happened, because before that, we do not know
+			 * our own identity */
+			if (!addressed_to_me (message.to)) {
+				log.error ('RX: illegal to addr (' + message.to + '): message = ', message);
 
-			return;
+				if (message.type === 'req')
+					ack (message, 'error', 'not my problem');
+
+				return;
+			}
 		}
 
 		/*
@@ -185,6 +202,16 @@ define(function(require) {
 		}
 
 		return;
+	}
+
+	function handle_auth_ack (message) {
+		if (message.from !== 'controller.auth')
+			return 'expected ack for auth: unexpected PDU "from" = ' + message.from;
+
+		if (message.type !== 'ack')
+			return 'expected ack for auth: unexpected PDU "type" = ' + message.type;
+
+		return null;
 	}
 
 	function on_error (ev) {
@@ -218,7 +245,7 @@ define(function(require) {
 	function addressed_to_me (to) {
 		var _to = to.split('.')[0].split(':');
 
-		if ((_to[0] === 'user') && (_to[1] == identity.name))
+		if ((_to[0] === 'user') && (_to[1] == identity.vc_id))
 			return true;
 
 		return false;
@@ -238,12 +265,14 @@ define(function(require) {
 				msg_q[seq]._d.resolve(msg.data);
 				break;
 
+			case 'not-ok':
 			case 'error':
 				msg_q[seq]._d.reject(msg.data);
 				break;
 
 			default :
 				log.error ('RX: ACK: illegal status (' + msg.status + '): message = ', message);
+				msg_q[seq]._d.reject(msg.data);
 				break;
 		}
 

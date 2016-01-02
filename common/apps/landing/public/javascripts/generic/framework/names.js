@@ -18,7 +18,7 @@ define(function(require) {
 		"albattani",
 
 		// Frances E. Allen, became the first female IBM Fellow in 1989. In 2006, she became the first female recipient of the ACM's Turing Award. https://en.wikipedia.org/wiki/Frances_E._Allen
-		"allen",
+		"alien",
 
 		// June Almeida - Scottish virologist who took the first pictures of the rubella virus - https://en.wikipedia.org/wiki/June_Almeida
 		"almeida",
@@ -427,7 +427,7 @@ define(function(require) {
 		var l = Math.floor(Math.random() * left.length);
 		var r = Math.floor(Math.random() * right.length);
 
-		return l + ' ' + r;
+		return left[l] + ' ' + right[r];
 	};
 
 	return name;

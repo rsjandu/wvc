@@ -10,7 +10,8 @@ define(function(require) {
 	var framework     = {};
 	var modules       = {};
 	var menu_handle   = {};
-	var progress_ev = events.emitter ('framework-progress', 'framework');
+	var progress_ev   = events.emitter ('framework-progress', 'framework');
+	var people_ev     = events.emitter ('framework:attendees', 'framework');
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -161,7 +162,19 @@ define(function(require) {
 		switch (to) {
 			case 'framework' :
 				switch (id) {
-					case 'session-info': started (data); break;
+
+					case 'session-info': 
+						started (data); 
+						break;
+
+					case 'new-johnny':
+						people_ev.emit('in', data);
+						break;
+
+					case 'johnny-go-went-gone':
+						people_ev.emit('out', data);
+						break;
+
 					default :
 						log.error ('handler for info \"' + id + '\" NOT IMPLEMENTED (to: ' + to + ')');
 				}
@@ -358,7 +371,7 @@ define(function(require) {
 			this.module_name :
 			'user:' + user + module_suffix;
 
-		var from = 'user:' + identity.name + module_suffix;
+		var from = 'user:' + identity.vc_id + module_suffix;
 
 		cc.send_info (from, to, info_id, data);
 

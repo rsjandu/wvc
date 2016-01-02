@@ -11,7 +11,7 @@ define(function(require) {
 
 	local.init = function (f_handle, container, sess_info) {
 		var d    = $.Deferred ();
-		var i_am = f_handle.identity.display_name;
+		var i_am = f_handle.identity.vc_id;
 		var div  = container.div();
 
 		my_container = container;

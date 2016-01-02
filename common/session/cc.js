@@ -22,6 +22,8 @@ cc.init = function (server, route, sess_config) {
 
 	wss.on('connection', function (ws) {
 
+		//log.info ('incoming ws = ', ws.upgradeReq.headers);
+
 		/* Add connection to list */
 		upstream.new_connection (ws);
 

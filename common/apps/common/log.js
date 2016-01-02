@@ -1,8 +1,11 @@
-var bunyan 				= require('bunyan');
-var config 				= require('common/config');
-var fluent       		= require('fluent-wiziq');
+var events   = require('events');
+var bunyan   = require('bunyan');
+var config   = require('common/config');
+var fluent   = require('fluent-wiziq');
 
-var log;
+var log = {};
+var emitter = new events.EventEmitter();
+var children = [];
 
 function connect_to_fluent_server () {
 
@@ -10,28 +13,51 @@ function connect_to_fluent_server () {
 
 	flogger = new fluent ({ 
 			tag  : config.log.tag, 
-			type : config.log.type, 
+			type : 'forward',
 			host : config.log.rishikesh_host, 
 			port : config.log.rishikesh_port
 		},
 		function () {
-			log.info ('connected to fluentd server @ ' + config.rishikesh_ip + ':' + config.rishikesh_port);
-			log.addStream(flogger, 'info');
+			var stream = { name: 'fluent', type: 'stream', stream: flogger};
+
+			log.addStream(stream);
+			for (var i = 0; i < children.length; i++)
+				children[i].addStream(stream);
+
+			log.info ('connected to fluentd server @ ' + config.log.rishikesh_host + ':' + config.log.rishikesh_port);
 		});
-	flogger.writeStream.on ('error', function (err) {
+
+		flogger.writeStream.on ('error', function (err) {
+
+			log.removeStream('fluent');
+			for (var i = 0; i < children.length; i++)
+				children[i].removeStream('fluent');
+
 			log.error (err, 'fluentd connection error');
 		} );
 }
 
-log = bunyan.createLogger ({ name : 'vc',
-			streams : [
-				{
-					stream : process.stdout,
-					level  : 'debug'
-				}
-			]
-		});
+var log_stdout = bunyan.createLogger ({ 
+	name : 'vc',
+	streams : [
+		{
+			name : "stdout",
+			stream : process.stdout,
+			level  : 'debug'
+		}
+	]
+});
+
+function child (sub_app) {
+	var child = log.child ({sub_app:sub_app});
+	children.push(child);
+	return child;
+}
+
+log = log_stdout;
 
 connect_to_fluent_server ();
 
-module.exports = log;
+module.exports.log = log;
+module.exports.emitter = emitter;
+module.exports.child = child;

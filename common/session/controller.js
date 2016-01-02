@@ -1,7 +1,5 @@
-var WebSocketServer = require('ws').Server;
-var $               = require('jquery-deferred');
+var $               = require("jquery-deferred");
 var log             = require("./common/log");
-var config          = require("./config");
 var auth            = require("./auth");
 var resources       = require("./resources");
 var class_          = require("./class");
@@ -10,8 +8,8 @@ var users           = require("./users");
 var addr            = require("./addr");
 var connection      = require('./connection');
 
-connection.events.on ('closed', function (user) {
-	handle_user_remove (user);
+connection.events.on ('closed', function (vc_id) {
+	handle_user_remove (vc_id);
 });
 
 class_.events.on ('active', function () {
@@ -52,56 +50,59 @@ controller.process = function (conn, from, to, msg) {
 
 function handle_auth (_d, conn, from, msg) {
 
-	var user = protocol.get_user_from_addr (from);
-
+	var user_info = null;
 	/*
 	 * 'auth' is the first PDU we get when a new user 
 	 *  connects. */
-	if (!user)
-		return _d.reject ('no user', 'auth');
 
 	if (!class_.ready ())
 		return _d.reject ('not started', 'auth');
 
-	if (!users.add_user (user, conn))
-		return _d.reject ('कितनी बार आओगे ?', 'auth');
-
-	if (!auth.process (user)) {
-		users.remove_user (user);
-		return _d.reject ('auth failed', 'auth');
+	try {
+		user_info = auth.process (msg);
+	}
+	catch (err) {
+		return _d.reject ('auth failed: reason: ' + err, 'auth');
 	}
 
-	if (!conn.set_user (user)) {
-		users.remove_user (user);
-		return _d.reject ('internal error', 'connection');
+	if (!users.add_user (user_info, conn))
+		return _d.reject ('कितनी बार आओगे ?', 'auth');
+
+	if (!conn.set_user (user_info.vc_id)) {
+		users.remove_user (user_info.vc_id);
+		return _d.reject ('unable to assign user to connection', 'auth');
 	}
 
 	/*
 	 * Send Ack */
-	_d.resolve ('तथास्तु');
+	_d.resolve (user_info);
 
 	if (class_.started()) {
-		process.nextTick (actually_join_user.bind(null, user));
+		process.nextTick (actually_join_user.bind(null, user_info));
 	}
 }
 
 function actually_join_user (user) {
 
-	users.mark_joined (user);
+	users.mark_joined (user.vc_id);
 
 	resources.init_user (user)
 		.then (
 			function (info) {
-				users.send_info (user, 'controller', 'framework', 'session-info', info);
-				users.broadcast_info ('controller', 'framework', 'new-johnny', user, user);
-			}
+				info.attendees = users.get_publishable_info (null, user.vc_id);
+				users.send_info (user.vc_id, 'controller', 'framework', 'session-info', info);
+				users.broadcast_info ('controller', 'framework', 'new-johnny', users.get_publishable_info(user.vc_id), user.vc_id);
+			},
 			/* resources.init should _not_ return an error */
+			function (err) {
+				log.error ('resources.init_user: error = ' + err + '. This is not supposed to happen - indicates a bug in the code');
+			}
 		);
 }
 
-function handle_user_remove (user) {
-	users.remove_user (user);
-	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', user, null);
+function handle_user_remove (vc_id) {
+	users.remove_user (vc_id);
+	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', vc_id, vc_id);
 }
 
 module.exports = controller;

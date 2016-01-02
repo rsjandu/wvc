@@ -1,25 +1,27 @@
 define(function(require) {
 	var log = require('log')('identity', 'info');
-	var random_names = require('names');
-
-	var id = {};
 
 	/*
-	 * This should extract and store the identity of the 
-	 * current user. Likely this will happen by extracting
-	 * the encrypted information in the cookies, which will
-	 * be stored via the passport auth module. TODO.
-	 *
-	 * Hardcoding for now. */
+	 * The '_identity' is set in views/.../vc-frame.jade, as a part of the
+	 * HTML */
+	var identity = _identity;
 
-	id.name = "";
-	id.display_name = random_names();
-	id.sys_assigned = random_names();
+	/*
+	 * The above variable is set only if we were authenticated, which implies
+	 * that we must have the wiziq_auth context stored in our cookie. Save it.
+	 */
+	identity.secret = get_cookie('wiziq_auth');
 
-	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	identity.set_info = function (user_info) {
+		identity.vc_id = user_info.vc_id;
+		identity.nickname = user_info.nickname;
+	};
 
-	for( var i=0; i < 5; i++ )
-		id.name += possible.charAt(Math.floor(Math.random() * possible.length));
+	function get_cookie (name) {
+	  var value = "; " + document.cookie;
+	  var parts = value.split("; " + name + "=");
+	  if (parts.length == 2) return parts.pop().split(";").shift();
+	}
 
-	return id;
+	return identity;
 });

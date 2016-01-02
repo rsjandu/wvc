@@ -71,7 +71,7 @@ define(function (require) {
 	}
 
 	function really_start () {
-		var i_am = f_handle_cached.identity.display_name;
+		var i_am = f_handle_cached.identity.vc_id;
 		var cont = layout.get_container ('screenshare-local');
 
 		tokbox.init_publisher (i_am, null, cont.div(), { videoSource : 'screen' })

@@ -1,7 +1,6 @@
+var events = require('events');
 var bunyan = require('bunyan');
-var log_inherited = require ('common/log');
-
-var log = log_inherited.child ({ sub_app : 'api-backend' });
+var log = require ('common/log').child('api-backend');
 
 function serializer (req, res) {
 	if (!req || !req.connection)

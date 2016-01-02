@@ -8,4 +8,4 @@ fi
 #echo "checking deps"
 #echo "Check for ruby..TBA"
 
-fluentd -c $*
+fluentd -vv -c $*

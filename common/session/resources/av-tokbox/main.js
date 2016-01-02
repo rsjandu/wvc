@@ -94,7 +94,7 @@ function createToken (user, cb) {
     var p = {
         role : 'moderator',
         expireTime : getTokenExpiry(),
-        data : user
+        data : user.vc_id
     };
 
     var tokenid;
@@ -114,7 +114,7 @@ function createToken (user, cb) {
         token     : tokenid,
         key       : key,
         classid   : null,
-        username  : user,
+        username  : user.vc_id,
         authid    : null,
         chromelocalextensionid : chromelocalextensionid,
         chromeextensionid : chromeextensionid,
@@ -125,7 +125,7 @@ function createToken (user, cb) {
 }
 
 
-var activeSessionTime = 12*60*60;
+var activeSessionTime = 48*60*60;
 var getTokenExpiry = function getTokenExpiry() {
     return (new Date().getTime() / 1000) + activeSessionTime;
 };

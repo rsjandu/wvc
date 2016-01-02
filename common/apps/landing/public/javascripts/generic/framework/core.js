@@ -3,6 +3,7 @@ define(function(require) {
 	var $           = require('jquery');
 	var framework   = require('framework');
 	var blanket     = require('blanket');
+	var identity    = require('identity');
 	var events      = require('events');
 	var cc          = require('cc');
 	var sess_config = require('session-config');
@@ -135,9 +136,10 @@ define(function(require) {
 
 		cc.auth(sess_config)
 			.then (
-				function (status) {
-					log.info ('auth return with ', status);
-					core_ev.emit ('auth ok (status = ' + status + ')');
+				function (user_info) {
+					log.info ('auth return with ', user_info);
+					core_ev.emit ('auth-ok');
+					identity.set_info (user_info);
 					_d.resolve (sess_config);
 				},
 				function (err) {
