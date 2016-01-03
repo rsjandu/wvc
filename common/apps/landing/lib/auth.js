@@ -1,3 +1,4 @@
+var url = require('url');
 var cipher = require('common/cipher');
 
 var auth = {};
@@ -36,13 +37,23 @@ auth.authenticate = function (req, res, next) {
 	var wiziq_auth = req.cookies.wiziq_auth;
 	if (!wiziq_auth) {
 
-		res.cookie('wiziq_origin', req.originalUrl, {
+		var original_url = url.format({
+		    protocol: req.protocol,
+		    host: req.get('host'),
+		    pathname: req.originalUrl
+		  });
+
+		res.cookie('wiziq_origin', original_url, {
 			maxAge : 1000*60*60*24*7,    /* Expires in a long time */
 			path   : '/',
 			secure : true
 		});
 
-		var auth_via = req.wiziq.sess_config.auth_via;
+		var auth_via = req.wiziq.sess_config.auth.via;
+
+		if (!auth_via)
+			auth_via = [ 'anon' ];
+
 		var auth_via_str = auth_via.reduce(function (prev, curr, index, arr) {
 								if (!prev)
 									return curr;
@@ -54,6 +65,8 @@ auth.authenticate = function (req, res, next) {
 			path   : '/',
 			secure : true
 		});
+
+		res.set({ 'Referer' : original_url });
 		return res.redirect('/auth/login');
 	}
 

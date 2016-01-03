@@ -1,8 +1,8 @@
 // Mixins
-mixin input(type, label)
+mixin input(type, id, label)
   .input-container
-    input(type='#{type}' id='#{label}' required)
-    label(for='#{label}')=label
+    input(type='#{type}' id='#{id}' required)
+    label(for='#{id}')=label
     .bar
 mixin button(text)
   .button-container
@@ -13,11 +13,10 @@ doctype html
 head
     meta(charset='UTF-8')
     |     
-    title Elastic Login Form
+    title Login Form
     |         
-    link(rel='stylesheet', href='css/style.mat-design.css')
+    link(rel='stylesheet', href='/auth/css/style.mat-design.css')
     link(rel='stylesheet prefetch', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
-    //link(rel='stylesheet', href='css/reset.mat-design.css')
 body
  .pen-title
    h1 WizIQ Virtual Classroom (WebRTC Internal Test)
@@ -26,19 +25,10 @@ body
   .card
     h1.title Login
     form
-      +input('text', 'Username')
-      +input('password', 'Password')
+      +input('text', 'user_id', 'User ID')
+      +input('text', 'display_name', 'Display Name')
       +button('Go')
-      .footer
+      //.footer
         a(href='#') Forgot your password?
-  .card.alt
-    .toggle
-    h1.title Register
-      .close
-    form
-      +input('text', 'Username')
-      +input('password', 'Password')
-      +input('password', 'Repeat Password')
-      +button('Next')
  script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js')
- script(src='js/login.mat-design.js')
+ script(src='/auth/js/login.mat-design.js')

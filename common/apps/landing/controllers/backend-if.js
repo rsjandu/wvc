@@ -61,7 +61,9 @@ controller.get_config = function (sess_id, callback) {
 		structure: 'default',
 		layout   : 'just-3',
 		theme    : 'cardboard',
-		auth : {},
+		auth     : {
+			via : [ 'google', 'anon' ]
+		},
 		session_server : {
 			/*
 			 * If a debug argument is provided, use it. Else default to localhost */

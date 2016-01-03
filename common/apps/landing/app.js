@@ -5,7 +5,6 @@ var cookieParser    = require('cookie-parser');
 var bodyParser      = require('body-parser');
 var session         = require('express-session');
 var express_winston = require('express-winston');
-//var log_middleware  = require('bunyan-middleware');
 
 var config          = require('landing/config');
 var log             = require('landing/common/log');
@@ -29,23 +28,14 @@ app.set('trust proxy', true);
 sess.cookie.secure = true;
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session(sess));
 
-app.use(log.req_logger);
 app.use('/session/v1', vc_session_v1);
 app.use('/test', test);
-
-app.use(function(req, res, next) {
-			var err = new Error('Not Found');
-			err.status = 404;
-			next(err);
-			});
-
-app.use(log.err_logger);
 
 /*
  * Error handlers

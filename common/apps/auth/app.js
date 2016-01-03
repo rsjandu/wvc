@@ -1,6 +1,7 @@
 var express          = require( 'express' );
 var app              = express();
 var server           = require( 'http' ).createServer( app ) ;
+var path            = require('path');
 var passport         = require( 'passport' );
 var util             = require( 'util' );
 var bodyParser       = require( 'body-parser' );
@@ -11,8 +12,8 @@ var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 
 var args             = require('common/args');
 var log              = require('auth/common/log');
+var login            = require('auth/routes/login');
 
-app.use(log.req_logger);
 // API Access link for creating client ID and secret:
 // https://code.google.com/apis/console/
 var GOOGLE_CLIENT_ID      = "821174502133-30he053f5dpn1i00k5sl039d5hc8sinm.apps.googleusercontent.com";
@@ -67,7 +68,6 @@ passport.use(new GoogleStrategy({
 app.set('views', __dirname + '/views');
 app.engine('.html', require('ejs').renderFile);
 app.set('view engine', 'jade');
-app.use( express.static(__dirname + '/public'));
 app.use( cookieParser()); 
 app.use( bodyParser.json());
 app.use( bodyParser.urlencoded({
@@ -123,9 +123,7 @@ app.get('/account', ensureAuthenticated, function(req, res){
 /*  res.render('account', { user: req.user }); */
 });
 
-app.get('/login', function(req, res){
-  res.render('login.mat-design.jade', { user: req.user });
-});
+app.use('/login', login);
 
 // GET /auth/google
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -166,5 +164,4 @@ function ensureAuthenticated(req, res, next) {
   res.redirect('auth/login');
 }
 
-app.use(log.err_logger);
 module.exports = app;

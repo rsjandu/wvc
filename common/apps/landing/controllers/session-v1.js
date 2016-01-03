@@ -11,7 +11,6 @@ controller = {};
 controller.load_and_cache_config = function (req, res, next) {
 
 	var session_id = req.params.session_id;
-	log.debug ('load_and_cache_config called');
 
 	cache.get(session_id)
 		.then(
@@ -22,7 +21,7 @@ controller.load_and_cache_config = function (req, res, next) {
 				if (!req.wiziq)
 					req.wiziq = {};
 
-				req.wiziq.sess_config = sess_config;
+				req.wiziq.sess_config = JSON.parse(sess_config);
 				return next();
 			},
 
@@ -35,7 +34,7 @@ controller.load_and_cache_config = function (req, res, next) {
 					if (err)
 						return next(err, req, res);
 
-					cache.set(session_id, sess_config);
+					cache.set(session_id, JSON.stringify(sess_config));
 
 					if (!req.wiziq)
 						req.wiziq = {};
