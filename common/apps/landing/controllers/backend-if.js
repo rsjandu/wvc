@@ -208,7 +208,7 @@ function get_config_meghadoot (sess_id, callback) {
 			/*
 			 * If a debug argument is provided, use it. Else default to localhost */
 			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
-			port : 7778,
+			port : args.session_server_port () ? args.session_server_port () : 3176,
 			ssl  : args.session_server_ssl () ? true: false,
 			auth : {}
 		},
