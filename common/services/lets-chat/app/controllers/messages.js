@@ -19,11 +19,18 @@ module.exports = function() {
               .emit('messages:new', msg);
     });
     core.on('messages:typing',function(room, user) {
-	var msg = {};
-	msg.owner = user;
-	msg.room = room;
-	app.io.to(room.id)
+		var msg = {};
+		msg.owner = user;
+		msg.room = room;
+		app.io.to(room.id)
 	      .emit('messages:typing', msg);
+	});
+	core.on('messages:ntyping', function(room,user){
+		var msg = {};
+		msg.owner = user;
+		msg.room = room;
+		app.io.to(room.id)
+			.emit('messages:ntyping',msg);
 	});
 
     //
@@ -93,22 +100,34 @@ module.exports = function() {
                 res.json(messages);
             });
         },
-	typing: function(req, res) {		/* added by -pawan */
-		var options = {
-			'owner' : req.user._id,	
-			'room' : req.param('room')
-		    };
-		/*
-		 * throttle here also.
-		 * say send one notification per second   
-		 */
-		core.messages.typing( options, function( err ){
-			if(err){
-				return res.sendStatus(400);
-			}
-			return res.sendStatus(202); 		/* it's OK na? */
-		});
-	}
+		typing: function(req, res) {		/* added by -pawan */
+			var options = {
+				'owner' : req.user._id,	
+				'room' : req.param('room')
+			    };
+			/*
+			 * throttle here also.
+			 * say send one notification per second   
+			 */
+			core.messages.typing( options, function( err ){
+				if(err){
+					return res.sendStatus(400);
+				}
+				return res.sendStatus(202); 		/* it's OK na? */
+			});
+		},
+		ntyping: function(req,res) {
+			var options = {
+				'owner' : req.user._id,
+				'room' 	: req.param('room')
+			};
+			core.messages.ntyping(options, function(err){
+				if(err){
+					return res.sendStatus(400);
+				}
+				return res.sendStatus(202);
+			});
+		}
     });
 
 };

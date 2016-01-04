@@ -74,6 +74,7 @@ define(function(require){
 				/* add event listeners for reconnect, reconnecting, error */
 				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
 				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room) });
+				socket.on('messages:ntyping', function(data){ log.info('received ntyping notif: ', data); ntyping_handler(data.owner, data.room) });
 
 				socket = sock;
 				room_id = sess_info.room_id;
@@ -86,25 +87,11 @@ define(function(require){
 	 * private methods
 	 */
 
-	function scrollHandler(){
-		var msg_container = $('.lcb-messages-container')[0];
-		var scrHeight  	= msg_container.scrollHeight;
-		console.log( scrHeight );
-		var scrTop 		= msg_container.scrollTop;
-		var clientHeight= msg_container.clientHeight;
-		if( scrTop === scrHeight - clientHeight ){
-			scroll_lock = false;
-		}
-		else{
-			scroll_lock = true;
-		}
-	}
-
 	function connect( sess_info ){
 		var _d = $.Deferred();
 		log.info('logging','in');
 
-		require([sess_info.root_url + 'socket.io/socket.io.js'],function( io){
+		require([sess_info.root_url + '/socket.io/socket.io.js'],function( io){
 
 			var sock = io.connect(
 				sess_info.root_url,
@@ -115,75 +102,7 @@ define(function(require){
 		});
 		return _d.promise();
 	}
-	var users_typing = {};
-	var interval = 5000;			/*kept to half a minute for now.. actual is to be decided */
-	var send_interval = interval - 1000;
-	var t_uid = {};
-	/*
-	 * timers : one for my send, and one for each user typing
-	 * a typing event can be sent after an 'interval' only. Sent after a keypress in textArea
-	 * timer is cleared: when message is sent, when a message is received from some user who was typing
-	 * timer is reset  : when another typing event received from a user typing
-	 */
-	function typing_handler(user, room){
-		log.info(user.displayName+ ' is typing in the room: ' + room);
 
-		if( user.id === me.id){
-			log.info( 'this is me.. typing');
-			return;
-		}
-		/* has just started or was already typing */
-		if( !(user.id in users_typing ) ){
-			update_last_two(user);
-			users_typing[user.id] = setTimeout( remove_user_typing, interval, user.id );
-		//	update_notification(); /* always shows [last 2] and [list.length-2] others are typing */
-		}
-		else{
-			clearTimeout( users_typing[user.id] );
-			update_last_two( user);
-			users_typing[user.id] = setTimeout( remove_user_typing, interval, user.id );
-		}
-		update_notification();
-	}
-	function update_last_two( user ){
-		if( t_uid.first == user.displayName)
-			return;
-		t_uid.second 	=	 t_uid.first;
-		t_uid.first 	= 	 user.displayName;
-	}
-	function remove_user_typing( userId){		/* currently fired at timeout. On fire at receive message timer should be cleared */
-		log.info( userId + ' not typing anymore')
-		if( userId in users_typing ){
-//			clearTimeout( users_typing[userId] );  /* case of receive message */
-			delete users_typing[userId];
-			update_notification();
-		}
-	}
-	function update_notification(){
-		/* count keys in object */
-		var len = Object.keys( users_typing ).length;
-		if(!len){
-			/* clear notification area */
-			$('.lcb-notification-bar').html('');
-			log.info('no one is typing');
-			return;
-		}
-		var notif =  t_uid.first ;
-		switch( len ){
-			case 1:
-				notif += ' is';
-				break;
-			case 2:
-				notif += ' and ' +  t_uid.second  + ' are';
-				break;
-			default:
-				notif += ', ' 	+ t_uid.second  + ' and ' + (len-2).toString() + ' others are';
-		}
-		notif += ' typing...';
-		log.info( notif );
-		/* fill notification area */
-		$('.lcb-notification-bar').html(notif);
-	}
 	function who_am_i(){
 		socket.emit('account:whoami',function(user){
 			me = user;
@@ -219,20 +138,6 @@ define(function(require){
 			}
 		});
 	}
-	var timer = null;
-	function notify_typing(){
-		if( !timer){
-			/* send event */
-			log.info('sent message typing event');
-			socket.emit('messages:typing', { 'room' : my_info.room_id } );
-			/* add timer  */
-			timer =	setTimeout( send_timer_timeout, send_interval);
-		}
-		return;
-	}
-	function send_timer_timeout(){
-		timer = null;
-	}
 	function sendMessage(e){
 		if(e.type === 'keypress' && e.keyCode !== 13 || e.altKey){
 			notify_typing();
@@ -255,7 +160,7 @@ define(function(require){
 			return;
 
 		send_message( $textarea.val() );
-		send_timer_timeout();
+		stop_typing();
 		$textarea.val('');
 	}
 
@@ -285,6 +190,123 @@ define(function(require){
 			scrollTo( $messages[0] );
 		}
 /*		remove_user_typing( messageObj.owner.id ); *//* needs handling	*/
+	}
+
+
+  /* typing notification related */
+	
+  /* typing notifs sending related */
+
+	var timer_notif = null;
+	var after_tpevt_expired = 5000;		/*  */
+	function notify_typing(){
+		if( !timer_notif ){
+			start_typing();
+		}
+		else{
+			update_typing();
+		}
+	}
+
+	function start_typing(){
+		socket.emit('messages:typing', { 'room' : my_info.room_id } );
+		/* add timer  */
+		timer_notif =	setTimeout( stop_typing, after_tpevt_expired);
+	}
+
+	function update_typing(){
+		/* reset timer */
+		clearTimeout(timer_notif);
+		timer_notif = setTimeout( stop_typing, after_tpevt_expired);
+	}
+
+	function stop_typing(){
+		socket.emit('messages:ntyping', { 'room' : my_info.room_id });
+		/* clear timeout if still exists */
+		timer_notif = null;	
+	}
+
+  /* typing event receive events */
+	var users_typing = [];
+	function typing_handler(user, room){
+		log.info(user.displayName+ ' is typing in the room: ' + room);
+
+		if( user.id === me.id){
+			log.info( 'this is me.. typing');
+			return;
+		}
+		/* has just started or was already typing */
+		if( !(user in users_typing ) ){
+			users_typing.push(user);
+		}
+		else{
+			/* maybe move that entry to front or smth
+			 *
+			 * but 1st see if it is possible or not
+			*/
+		}
+		update_notification();
+	}
+	function ntyping_handler(user, room){
+		log.info(user.displayName + 'is typing no more' + room);
+		if( arr_del(users_typing, user) ){
+			update_notification();
+		}
+	}
+
+	function arr_del(a, obj) { 	/* check if array contains */
+	    var i = a.length;
+	    while (i--) {
+		       if (a[i].id === obj.id) {
+				   		a.splice(i,1);
+			              return true;
+			          }
+		    }
+	    return false;
+	}
+	function update_notification(){
+		/* count keys in object */
+		var len = Object.keys( users_typing ).length;
+		if(!len){
+			/* clear notification area */
+			$('.lcb-notification-bar').html('');
+			log.info('no one is typing');
+			return;
+		}
+		var notif =  [];
+		notif.push(users_typing[0].displayName) ;
+		switch( len ){
+			case 1:
+				notif.push( 'is');
+				break;
+			case 2:
+				notif.push( 'and ' +  users_typing[1].displayName  + ' are' );
+				break;
+			default:
+				notif.push( ', ' 	+ users_typing[1].displayName  + ' and ' + (len-2).toString() + ' others are');
+		}
+		notif.push( 'typing...');
+		notif = notif.join(' ');		/* avoids extra string objs and executes faster than '+' */
+		log.info( notif );
+		/* fill notification area */
+		$('.lcb-notification-bar').html(notif);
+	}
+	
+
+	/* auto-scroll related */
+
+	function scrollHandler(){
+		var msg_container = $('.lcb-messages-container')[0];
+		var scrHeight  	= msg_container.scrollHeight;
+		console.log( scrHeight );
+		var scrTop 		= msg_container.scrollTop;
+		var clientHeight= msg_container.clientHeight;
+		if( scrTop === scrHeight - clientHeight ){
+			scroll_lock = false;
+		}
+		else{
+			scroll_lock = true;
+		}
 	}
 
 	function scrollTo( $messages ){
