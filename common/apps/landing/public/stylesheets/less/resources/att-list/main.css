@@ -1,0 +1,16 @@
+.atl-list-item{
+	display : block;
+
+}
+#atl-list-wrap li{
+	margin : 2px;
+	border-bottom : 1px solid #fff;
+}
+
+.atl-list-wrap{
+	height : 80%;
+	overflow : scroll;
+}
+.atl-wrapper{
+	height : 100%;
+}

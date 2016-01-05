@@ -70,7 +70,7 @@ function get_config_meghadoot (sess_id, callback) {
 			/*
 			 * If a debug argument is provided, use it. Else default to localhost */
 			host : args.session_server_ip () ? args.session_server_ip () : 'localhost',
-			port : args.session_server_port () ? args.session_server_port () : 3176,
+			port : args.session_server_port () ? args.session_server_port () : 3179,
 			ssl  : args.session_server_ssl () ? true: false,
 			auth : {}
 		},
@@ -130,7 +130,13 @@ function get_config_meghadoot (sess_id, callback) {
 				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'rooms']  },
 				custom: {
 				},
-		}
+			},
+			{
+				name: 'att-list',
+				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main'] },
+				custom: {
+				},
+			}
 		],
 		role_map : {
 			teacher : [

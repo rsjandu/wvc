@@ -3,6 +3,7 @@ define(function(require) {
 	var av        = require('widget-av');
 	var nav       = require('widget-nav');
 	var chat	  = require('widget-chat');
+	var attendees = require('widget-attendees');
 	var notify    = require('widget-notify');
 	var tabs      = require('widget-tabs');
 	var events    = require('events');
@@ -32,6 +33,9 @@ define(function(require) {
 		if ($('#widget-chat').length !== 0)
 			layout.chat = $('#widget-chat')[0];
 
+		if ($('#widget-attendees').length !== 0)
+			layout.attendees = $('#widget-attendees')[0];
+
 		if ($('#widget-tabs').length !== 0)
 			layout.tabs = $('#widget-tabs')[0];
 
@@ -54,12 +58,13 @@ define(function(require) {
 
 		switch (widget) {
 
-			case 'none'   : return null;
-			case 'av'     : return av.attach (layout.av, _module);
-			case 'notify' : return notify.attach (layout.notify, _module);
-			case 'tabs'   : return tabs.attach (layout.notify, _module);
-			case 'nav'    : return nav.attach (layout.nav, _module);
-			case 'chat'	  : return chat.attach (layout.chat, _module);
+			case 'none'   		: return null;
+			case 'av'     		: return av.attach (layout.av, _module);
+			case 'notify' 		: return notify.attach (layout.notify, _module);
+			case 'tabs' 		: return tabs.attach (layout.notify, _module);
+			case 'nav'    		: return nav.attach (layout.nav, _module);
+			case 'chat'		  	: return chat.attach (layout.chat, _module);
+			case 'attendees'	: return attendees.attach (layout.attendees, _module);
 
 			default : 
 				log.error ('_module ' + _module.name + ' requesting non-existent widget ' + widget);
