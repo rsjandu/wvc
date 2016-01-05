@@ -88,6 +88,41 @@ MessageManager.prototype.typing = function( options, cb){
 
 };
 
+MessageManager.prototype.ntyping = function( options, cb){
+	var Room = mongoose.model('Room'),
+	    User = mongoose.model('User');
+	
+	if (typeof cb !== 'function') {
+		cb = function() {};
+	}
+
+	Room.findById(options.room, function(err, room) {
+		if (err) {
+		    console.error(err);
+		    return cb(err);
+		}
+		if (!room) {
+		    return cb('Room does not exist.');
+		}
+		if (room.archived) {
+		    return cb('Room is archived.');
+		}
+		if (!room.isAuthorized(options.owner)) {
+		    return cb('Not authorized.');
+		}
+		User.findOne( options.owner, function(err, user){
+			if(err){
+				console.error(err);
+				return cb(err);
+			}
+			cb(null);
+			this.core.emit('messages:ntyping', room, user);
+		}.bind(this));
+	}.bind(this));
+
+};
+
+
 MessageManager.prototype.list = function(options, cb) {
     var Room = mongoose.model('Room');
 
