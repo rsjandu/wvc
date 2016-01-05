@@ -71,7 +71,7 @@ define(function(require) {
 		var _d_arr = [];
 
 		for (var i = 0; i < resources.length; i++) {
-			_d_arr.push(__load (resources[i]));
+			_d_arr.push (load (resources[i]));
 		}
 
 		$.whenall(_d_arr).then(function() { _d.resolve(_s); });
@@ -151,31 +151,69 @@ define(function(require) {
 		return _d.promise();
 	}
 
-	function __load (resource) {
+	function load (resource) {
+		var _d = $.Deferred();
+
+		/*
+		 * Try loading the optimized file first */
+		__load(resource, true)
+			.then(
+				_d.resolve.bind(_d),
+				function () {
+					/* Now try loading the unoptimized version */
+					__load(resource, false)
+						.then(
+							_d.resolve.bind(_d),
+							_d.resolve.bind(_d)
+						);
+				}
+			);
+
+		return _d.promise();
+	}
+	function __load (resource, optimized) {
 		var _d = $.Deferred();
 
 		/*
 		 * Push into 'modules' only those which have been succesfully loaded
 		 */
-		require([ 'resources/' + resource.name + '/main' ],
-			function (arg) {
-				var module = {
-						name: resource.name,
-						handle: arg,
-						resource: resource
-				};
+		log.info ('Attempting to loading ' + (optimized ? 'optimzied': 'unoptimized') + ' ' + resource.name);
+		require([ 'resources/' + resource.name + '/' + resource.name + (optimized ? '.min' : '') ],
+			function (mod) {
+				/*
+				 * this should be hit in the dev environment */
+				if (mod)
+					return __really_load (_d, resource, mod);
 
-				core_ev.emit ('module load ' + resource.name + ' ok');
-				modules.push(module);
-				_d.resolve();
+				/*
+				 * This should get hit on the load of the optimized version */
+				require([ resource.name ], 
+						function (mod) {
+							return __really_load(_d, resource, mod);
+						},
+						function (err) {
+							_d.reject();
+						}
+				);
 			},
 			function (err) {
-				log.error ('load module err for ' + resource.name + ' :reason ' + err);
-				_d.resolve();
+				_d.reject();
 			}
 		);
 
 		return _d.promise();
+	}
+
+	function __really_load (_d, resource, mod) {
+		var module = {
+			name: resource.name,
+			handle: mod,
+			resource: resource
+		};
+
+		core_ev.emit ('module load ' + resource.name + ' ok');
+		modules.push(module);
+		_d.resolve();
 	}
 
 	function __init (module) {
