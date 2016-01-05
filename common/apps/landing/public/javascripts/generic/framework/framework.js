@@ -86,7 +86,7 @@ define(function(require) {
 		log.info ('starting module \"' + name + '\" ...');
 
 		try { 
-			_module.handle.start (session_info.info[name]); 
+			_module.handle.start (session_info.info[name], session_info); 
 			progress_ev.emit ('start ' + _module.name + ' ok');
 		}
 		catch (e) {
