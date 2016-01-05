@@ -2,6 +2,7 @@ define(function (require) {
 	var $            = require('jquery');
 	var log          = require('log')('av-screenshare', 'info');
 	var layout       = require('./layout');
+	var remodal      = require('remodal');
 	var tokbox       = require('./tokbox');
 
 	var screenshare = {};
