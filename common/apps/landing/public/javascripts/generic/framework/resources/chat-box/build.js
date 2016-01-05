@@ -17,6 +17,7 @@
 		"widget-chat" :  "../../widget-chat",
 		"widget-tabs" :  "../../widget-tabs",
 		"widget-notify" :  "../../widget-notify",
+		"widget-attendees" :  "../../widget-attendees",
 		"events" :  "../../events",
 		"notify" :  "../../notify",
 
@@ -44,6 +45,7 @@
 		"widget-chat",
 		"widget-tabs",
 		"widget-notify",
+		"widget-attendees",
 		"events",
 		"notify",
 

@@ -60,6 +60,8 @@ proxy.register(host + '/session/rishi', "localhost:7789/");
 proxy.register(host + '/session/parth', "localhost:7790/");
 proxy.register(host + '/session/sunil', "localhost:7791/");
 proxy.register(host + '/session/rahul', "localhost:7792/");
+proxy.register(host + '/session/kalyan', "localhost:7793/");
+proxy.register(host + '/session/qa', "localhost:7794/");
 
 proxy.register(host + '/', "localhost:5000/");
 proxy.register(host + '/socket.io/', "localhost:5000/socket.io/");
