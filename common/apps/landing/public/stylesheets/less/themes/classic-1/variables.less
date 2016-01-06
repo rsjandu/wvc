@@ -21,6 +21,32 @@
 @brand-warning:         #f0ad4e;
 @brand-danger:          #d9534f;
 
+@font-normal : 'LatoWebLight';
+@font-bold   : 'LatoWebBold';
+@font-face {
+    font-family: @font-normal;
+    src: url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.eot'); /* IE9 Compat Modes */
+    src: url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.woff2') format('woff2'), /* Modern Browsers */
+		 url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.woff') format('woff'), /* Modern Browsers */
+		 url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Light.ttf') format('truetype');
+		   font-style: normal;
+		   font-weight: normal;
+		   text-rendering: optimizeLegibility;
+}
+
+@font-face {
+    font-family: @font-bold;
+    src: url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Bold.eot'); /* IE9 Compat Modes */
+    src: url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Bold.woff2') format('woff2'), /* Modern Browsers */
+		 url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Bold.woff') format('woff'), /* Modern Browsers */
+		 url('/landing/stylesheets/fonts/Lato2OFLWeb/Lato/fonts/Lato-Bold.ttf') format('truetype');
+		   font-style: normal;
+		   font-weight: normal;
+		   text-rendering: optimizeLegibility;
+}
+
 
 //== Scaffolding
 //
@@ -43,7 +69,7 @@
 //
 //## Font, line-height, and color for body text, headings, and more.
 
-@font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-sans-serif:  @font-normal, "Helvetica Neue", Helvetica, Arial, sans-serif;
 @font-family-serif:       Georgia, "Times New Roman", Times, serif;
 //** Default monospace fonts for `<code>`, `<kbd>`, and `<pre>`.
 @font-family-monospace:   Menlo, Monaco, Consolas, "Courier New", monospace;

@@ -176,7 +176,7 @@ define(function(require){
 		/* fragement or new message */
 		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
 		messageObj.time = moment(messageObj.posted).calendar();
-		messageObj.classs = (messageObj.owner.id === me.id)? "lcb-message-own" : "lcb-message swatch_" + color_manager.my_color( messageObj.owner.id );
+		messageObj.classs = (messageObj.owner.id === me.id)? "lcb-message-own" : "lcb-message swatch-" + color_manager.my_color( messageObj.owner.id );
 
 		var $message = msgTemplate( messageObj);
 

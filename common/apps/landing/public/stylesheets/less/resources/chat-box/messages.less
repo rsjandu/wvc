@@ -19,11 +19,19 @@
 }
 
 .triangle_left() {
-	top:13px; /* controls vertical position */
-	left:-8px; /* value = - border-left-width - border-right-width */
+	top:0px; /* controls vertical position */
+	left:-6px; /* value = - border-left-width - border-right-width */
 	bottom:auto;
-	border-width:8px 8px 8px 0;
+	border-width:0px 12px 16px 0;
 	border-color:transparent #f3961c;
+}
+
+.triangle_right() {
+	top:0px; /* controls vertical position */
+	left: initial;
+	right:-6px; /* value = - border-left-width - border-right-width */
+	bottom:auto;
+	border-width:0 0 16px 12px;
 }
 
 .gradient(@start, @end) {
@@ -33,10 +41,10 @@
 	background:linear-gradient(@start, @end);
 }
 
-.round-corners(@amount) {
-	-webkit-border-radius:@amount;
-	-moz-border-radius:@amount;
-	border-radius:@amount;
+.round-corners(@top, @right:@top, @bottom:@top, @left:@top) {
+	-webkit-border-radius:@top @right @bottom @left;
+	-moz-border-radius:@top @right @bottom @left;
+	border-radius:@top @right @bottom @left;
 }
 .lcb-messages {
     padding: 0;
@@ -47,9 +55,9 @@
     //.transform(translate3d(0,0,0));
 }
 
-.lcb-message {
-    min-height: 47px;
-	padding-top: 5px;
+.lcb-message, .lcb-message-own {
+    min-height: 20px;
+	padding-top: 1px;
 	padding-right : 7px;
 	padding-left : 7px;
 	padding-bottom : 0px;
@@ -64,9 +72,6 @@
         min-height: 0;
         margin-top: -@messagePadding / 2;
         border-top: none;
-    }
-    &.lcb-message-own {
-        background: #fcffd8;
     }
     &.lcb-message-mentioned {
         background: #ffe9ee;
@@ -115,13 +120,15 @@
     width: 35px;
     border-radius: 50%;
     /* margin-top: 20px; */
-    color: white;
     font-size: 1.7em;
     font-weight: bold;
     text-align: center;
     /* padding-top: 1px; */
     position: absolute;
     /* top: 43px; */
+	.lcb-message-own & {
+		right : 5px;
+	}
 }
 .lcb-message-avatar {
     position: absolute;
@@ -132,16 +139,29 @@
     margin-left: 40px;
 
 	position:relative;
-	padding:10px;
+	padding:8px;
 	margin:0 0 .5em;
 	background:#f3961c; /* default background for browsers without gradient support */
 
 	.gradient(#f3961c, 'white');
 
 	/* css3 */
-	.round-corners(10px);
+	.round-corners(0px, 10px, 10px, 10px);
 	margin-left:40px;
 	background:#f3961c;
+
+	.lcb-message-own & {
+		margin-left: 2px;
+		position : relative;
+		margin: 0 40px 0 0.5em;
+		padding:8px;
+		.round-corners(10px, 0px, 10px, 10px);
+
+		&:after {
+			.make_triangle();
+			.triangle_right();
+		}
+	}
 
 	&:after {
 		.make_triangle();
