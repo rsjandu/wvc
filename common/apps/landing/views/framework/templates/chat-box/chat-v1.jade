@@ -2,7 +2,7 @@
 	.lcb-room-header
 		.lcb-room-meta
 			.lcb-room-heading
-				span.name Chat
+				include chat.svg
 
 	.lcb-messages-container
 		ul.lcb-messages(aria-live="polite")
@@ -11,4 +11,4 @@
 
 	form.lcb-entry
 		textarea.lcb-entry-input(placeholder="Got Something To Say", autofocus)
-		button.btn.btn-primary.lcb-entry-button(type="submit") Send
+		button.lcb-entry-button.fa.fa-check.text-success(type="submit")
