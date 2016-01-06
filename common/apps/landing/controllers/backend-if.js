@@ -127,7 +127,7 @@ function get_config_meghadoot (sess_id, callback) {
 			},
 			{
 				name: 'chat-box',
-				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'rooms']  },
+				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'chat-box.min']  },
 				custom: {
 				},
 			},

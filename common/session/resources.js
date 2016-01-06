@@ -77,6 +77,7 @@ res.init_user = function (user) {
 	}
 
 	function mod_err (m, err) {
+		log.warn ('resoruces.init_user: error - module(' + m + ') = ' + err);
 		info_err[m] = err;
 		counter--;
 		if (!counter)

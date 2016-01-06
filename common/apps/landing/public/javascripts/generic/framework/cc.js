@@ -57,7 +57,13 @@ define(function(require) {
 		server += '/session/' + sess_id;
 
 		log.info ('Connecting to ' + server + ' ...');
-		sock = new WebSocket (server, 'http');
+		try {
+			sock = new WebSocket (server, 'http');
+		}
+		catch(e) {
+			_d.reject('Connection to Session Cluster failed: reason: ' + e.message);
+			return _d.promise();
+		}
 		sock.onopen = on_open.bind(_d, sess_config);
 		sock.onmessage = on_message;
 		sock.onerror = on_error.bind(_d);

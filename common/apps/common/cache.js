@@ -37,7 +37,7 @@ cache.init = function (namespace, expire) {
 
 		set : function (key, value) {
 
-			key = namespace + '->' + key;
+			key = namespace + '::' + key;
 
 			if (!cache.connected) {
 				mylog.warn ({ key:key }, 'set key failed. Not connected.');
@@ -54,7 +54,7 @@ cache.init = function (namespace, expire) {
 			var reject  = _p.reject.bind(_p);
 			var resolve = _p.resolve.bind(_p);
 
-			key = namespace + '->' + key;
+			key = namespace + '::' + key;
 
 			if (!cache.connected) {
 				mylog.warn ({key:key}, 'get key failed. Not connected.');
@@ -77,7 +77,7 @@ cache.init = function (namespace, expire) {
 		},
 
 		invalidate : function (key) {
-			key = namespace + '->' + key;
+			key = namespace + '::' + key;
 			mylog.warning ('cache:invalidating key: ' + key);
 			redis.del (key);
 		}

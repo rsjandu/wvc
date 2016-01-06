@@ -83,7 +83,7 @@ chat.init_user = function (user) {
 	uname 	= user.vc_id + get_random_string();					/* add some 5chars random string here, just avoiding removeUser */
 	passwd 	= generate_password( uname );
 	log.info( uname, passwd);
-	var _d_create = create_user( uname, passwd );
+	var _d_create = create_user( uname, passwd, user );
 
 	_d_create.then(
 		function done(message){
@@ -172,29 +172,38 @@ function generate_password( username ){
 	return 'computerg';
 }
 
-function create_user(username, password){
+function create_user(username, password, user_info) {
 	var _d = $.Deferred ();
-	var email	 = username + '@vc.team'; 
-	var display_name = username.slice(0,-5);	
+	var email	 = user_info.emails ? (
+					user_info.emails.length > 0 ? user_info.emails[0].value : username + '-pseudo@webrtc.vc'
+					): username + '-pseudo@webrtc.vc';
+	var display_name = user_info.displayName;
+	var first_name = display_name.split(' ')[0];
+	var last_name = display_name.split(' ')[1] || '*';
+	var chat_data = { 
+		'username' 	: username,
+		'email'	   	: email,
+		'display-name'  : display_name,
+		'first-name'	: first_name,
+		'last-name'	: last_name,
+		'password'	: password,
+		'password-confirm' : password 
+	};
+
+	log.debug ('chat_data sent = ', JSON.stringify(chat_data, '-', 2));
+
 	rest.post( root_url + '/account/register',{ 
 		timeout : req_timeout,
-		data : { 
-			'username' 	: username,
-			'email'	   	: email,
-			'display-name'  : display_name,
-			'first-name'	: username,
-			'last-name'	: username,
-			'password'	: password,
-			'password-confirm' : password 
-		 }
+		data : chat_data
 	}).on('complete', function( data){
-		log.info('createUser: ', data);
 		if(data.status === 'success'){
-			_d.resolve( data.message );
+			log.info ('createUser: ', data);
+			return _d.resolve( data.message );
 		}
-		else{
-			_d.reject( data.message );
-		}
+
+		log.error ('createUser: error:', data.message);
+		_d.reject( data.message );
+
 	}).on('timeout', function(){
 		_d.reject('request timed out');
 	});

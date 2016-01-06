@@ -1,6 +1,20 @@
 @import "./variables.less";
 @import "../../mixins/elements";
 
+@start-color : lighten(@brand-primary, 50%);
+.color-palette(@color, @swatches, @index: 0) when (@index =< (@swatches - 1)) {
+
+	@step : 360/@swatches;
+	&.swatch-@{index} {
+		background-color: spin(@color, (90 * @step) + (@index * @step));
+		&:after {
+			border-color: transparent spin(@color, (@index * @step));
+		}
+	}
+
+	.color-palette(@color, @swatches, (@index + 1));
+}
+
 .lcb-message {
 	font-size : 1em;
 
@@ -10,4 +24,30 @@
 	img {
 		margin-top : 0.5em;
 	}
+
+	&.lcb-message-own {
+		background: #fcffd8;
+	}
+	&.lcb-message-mentioned {
+		background: #ffe9ee;
+	}
+	&.lcb-message-mentioned:before {
+		background: #f22472;
+	}
+	pre {
+		background: none;
+	}
+
+	.lcb-initial {
+		background-color: @gray-light;
+		.color-palette(@start-color, 12);
+	}
+	.lcb-message-meta {
+		background : @gray-lightest;
+		&:after {
+			border-color: transparent @gray-lightest;
+		}
+		.color-palette(@start-color, 12);
+	}
+
 }
