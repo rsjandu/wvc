@@ -176,6 +176,7 @@ define(function(require){
 		/* fragement or new message */
 		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
 		messageObj.time = moment(messageObj.posted).calendar();
+		messageObj.classs = (messageObj.owner.id === me.id)? "lcb-message-own" : "lcb-message swatch_" + color_manager.my_color( messageObj.owner.id );
 
 		var $message = msgTemplate( messageObj);
 
@@ -189,9 +190,26 @@ define(function(require){
 		if( scroll_lock === false || messageObj.owner.id === me.id ){
 			scrollTo( $messages[0] );
 		}
-/*		remove_user_typing( messageObj.owner.id ); *//* needs handling	*/
 	}
 
+	/* different colors for different users */
+	var color_manager = {
+		colors 			: [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"],
+		index  			: 0, 
+		get_next_color 	: function(){
+									var temp = this.index;
+									index = (++this.index) % this.colors.length;
+									return this.colors[ temp ];	
+						  },
+		colorOf 		: {},			/* map of userid : color */
+		my_color 		: function( id){
+								var color = this.colorOf[id];
+								if( !color){
+									color = this.colorOf[ id] = this.get_next_color();
+								}	
+								return color;
+						  }
+	};
 
   /* typing notification related */
 	
