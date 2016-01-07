@@ -1,15 +1,17 @@
 li(class="#{classs}")
 	if !fragment 
 		//img.lcb-message-avatar.lcb-avatar.lcb-room-poke(src="https://www.gravatar.com/avatar/#{owner.avatar}?s=30")
-		div.lcb-initial A
+		-var initial = owner.displayName.charAt(0)
+		div.lcb-initial #{initial} 
 	.lcb-message-meta
 		if !fragment 
 			div.lcb-message-name
 				div.lcb-room-poke
 					span.lcb-message-displayname #{owner.displayName}
 					time.lcb-message-time #{time}
+		-var txt_class = ( fragment ? 'lcb-message-fragment' :  'lcb-message-text' )
 		if !paste
-			.lcb-message-text #{text}
+			div(class=txt_class) #{text}
 		else
-			.lcb-message-text
+			div(class=txt_class)
 				pre #{text}
