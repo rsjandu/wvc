@@ -62,7 +62,7 @@ function get_config_meghadoot (sess_id, callback) {
 	var session_config = {
 		structure: 'classic-1',
 		layout   : 'classic-1',
-		theme    : 'classic-1',
+		theme    : 'sujits-vision',
 		auth     : {
 			via : [ 'google', 'anon' ]
 		},

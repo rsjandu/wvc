@@ -1,0 +1,21 @@
+@import "./variables.less";
+@import "../../mixins/elements";
+
+#av-containers {
+	justify-content: center;
+}
+
+.av-container.av-primary {
+	.drop-shadow(2px, 2px, 12px, 0.4);
+}
+
+.av-container.av-secondary {
+	height : 25%;
+	width: 25%;
+	border-radius: 50%;
+	.drop-shadow(2px, 2px, 16px, 0.6);
+
+	video {
+		border-radius: 50%;
+	}
+}

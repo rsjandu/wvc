@@ -9,9 +9,8 @@ li(class="#{classs}")
 				div.lcb-room-poke
 					span.lcb-message-displayname #{owner.displayName}
 					time.lcb-message-time #{time}
-		-var txt_class = ( fragment ? 'lcb-message-fragment' :  'lcb-message-text' )
 		if !paste
-			div(class=txt_class) #{text}
+			div.lcb-message-text #{text}
 		else
-			div(class=txt_class)
+			div.lcb-message-text
 				pre #{text}

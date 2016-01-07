@@ -72,9 +72,9 @@ prot.info_pdu = function (from, to, info_id, info) {
 	if (!to || !from || !info_id || !info) {
 		log.error ('protocol.info_pdu: null arguments(s):' +
 				   'to - ' + to +
-				   'from - ' + from +
-				   'info_id - ' + info_id +
-				   'info - ' + info
+				   ', from - ' + from +
+				   ', info_id - ' + info_id +
+				   ', info - ' + info
 				  );
 		return null;
 	}

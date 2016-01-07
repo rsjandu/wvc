@@ -73,8 +73,8 @@ define(function(require){
 				});
 				/* add event listeners for reconnect, reconnecting, error */
 				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
-				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room) });
-				socket.on('messages:ntyping', function(data){ log.info('received ntyping notif: ', data); ntyping_handler(data.owner, data.room) });
+				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room); });
+				socket.on('messages:ntyping', function(data){ log.info('received ntyping notif: ', data); ntyping_handler(data.owner, data.room); });
 
 				socket = sock;
 				room_id = sess_info.room_id;
@@ -177,6 +177,8 @@ define(function(require){
 		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
 		messageObj.time = moment(messageObj.posted).calendar();
 		messageObj.classs = (messageObj.owner.id === me.id)? "lcb-message-own" : "lcb-message swatch-" + color_manager.my_color( messageObj.owner.id );
+		if (messageObj.fragment)
+			messageObj.classs += " lcb-fragment";
 
 		var $message = msgTemplate( messageObj);
 
@@ -187,6 +189,7 @@ define(function(require){
 		if( !messageObj.fragment){
 			lastMessageOwner = messageObj.owner.id;
 		}
+
 		if( scroll_lock === false || messageObj.owner.id === me.id ){
 			scrollTo( $messages[0] );
 		}

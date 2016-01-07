@@ -10,7 +10,7 @@
 		.lcb-initial, .lcb-message-meta {
 			background-color: @mycolor;
 			&:after {
-				border-color: @mycolor;
+				background: @mycolor;
 			}
 		}
 	}
@@ -56,12 +56,10 @@
 	}
 
 	.color-palette(@start-color, 12);
-
-
 }
 
 .lcb-message-own {
-	color: @gray-lightest;
+	color: @gray-darker;
 
 	& .lcb-initial {
 		background-color: @gray-lighter;
@@ -69,12 +67,12 @@
 	& .lcb-message-meta {
 		background : @gray-lighter;
 		&:after {
-			border-color: transparent @gray-lighter;
+			background-color: @gray-lighter;
 		}
 	}
 
 	& .lcb-message-name {
-		border-bottom: 1px solid @gray-lightest;
+		border-bottom: 1px solid @gray-darker;
 	}
 }
 
