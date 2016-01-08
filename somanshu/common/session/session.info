@@ -15,7 +15,7 @@
 			}
 		},
 		{
-			"name" : "wboard-basic",
+			"name" : "flipboard-v1",
 			"custom" : { 
 				"background" : "default"
 			}
@@ -26,6 +26,25 @@
 				"server_url" : "https://wiziq-ubuntu-a.cloudapp.net/",
 				"req_timeout": "15000"
 			} 
+		},
+		{
+			"name"	:	"code-editor",
+			"custom"	:	{
+				"languages"	:	[
+					{	"value" : "js",			"text": "Javascript"},
+					{	"value" : "html",		"text": "HTML"},
+					{	"value" : "cpp",		"text" : "C++"}
+				],
+				"themes"	:	[
+					{	"value"	:	"monokai",		"text"	:	"Monokai"},
+					{	"value"	:	"solar_dark",	"text"	:	"Solarized_Dark"},
+					{	"value"	:	"chrome",		"text"	:	"Chrome"},
+					{	"value"	:	"clouds",		"text"	:	"Clouds"},
+					{	"value"	:	"clouds2",		"text"	:	"Clouds Midnight"}
+				],
+				"current_lang"	:	"js",
+				"current_theme"	:	"monokai"
+			}
 		}
 	]
 }

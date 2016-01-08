@@ -1,6 +1,6 @@
 #sce-custom-wrapper
 	#sce-header
-		h1 Welcome to Shared Editor
+		h1 Shared Code Editor
 		br
 		select#ace-fontSize
 			option(value="12") 12px
@@ -11,15 +11,11 @@
 			option(value="22") 22px
 			option(value="24") 24px
 		select#mode
-			option(value="js") Javascript
-			option(value="html") HTML
-			option(value="cpp") C & C++
+			-for (var x=0 ; x<languages.length; x++)
+				option(value="#{languages[x].value}") #{languages[x].text}
 		select#theme
-			option(value="monokai") Monokai	
-			option(value="solar_dark") Solarized_Dark
-			option(value="chrome") Chrome
-			option(value="clouds") Clouds
-			option(value="clouds2") Clouds-Midnight
+			-for (var x=0 ; x<themes.length; x++)
+				option(value="#{themes[x].value}") #{themes[x].text}
 		button.ace_undo.btn.btn-default.btn-sm Undo
 		button.ace_redo.btn.btn-default.btn-sm Redo
 		button#saveFile.btn.btn-default.btn-sm Save
