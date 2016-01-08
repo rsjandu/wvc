@@ -23,7 +23,11 @@
 	min-height: initial;
 	line-height: initial;
 	height: initial;
-	.drop-shadow(2px, 2px, 12px, 0.6);
+	.drop-shadow2(0px, 8px, 12px, -8px, 0.6);
+
+	body.av-fullscreen & svg path {
+		fill: white;
+	}
 }
 
 .lcb-message, .lcb-message-own {
@@ -76,9 +80,33 @@
 	}
 }
 
+.lcb-room-heading {
+	body.av-fullscreen & svg:hover {
+		cursor: pointer;
+		path {
+			fill: @brand-warning;
+		}
+	}
+}
+
+.lcb-notification-bar {
+	color: @brand-primary;
+	body.av-fullscreen & {
+		color: white;
+	}
+}
 .lcb-entry {
-	.drop-shadow(0px, 0px, 12px, 0.2);
+	.drop-shadow2(0px, -8px, 12px, -8px, 0.6);
 	border-top : 1px solid @gray-lighter;
+	background: transparent;
+	textarea {
+		background: transparent;
+	}
+	body.av-fullscreen & {
+		textarea.lcb-entry-input {
+			color: white;
+		}
+	}
 }
 .lcb-entry-button {
 	font-size: 2em !important;
@@ -88,3 +116,4 @@
 		color: @brand-warning;
 	}
 }
+

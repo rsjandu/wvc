@@ -18,24 +18,23 @@
 		z-index : 0;
 
 		body.av-fullscreen & {
-			height : calc(~'100% - @{prime-height}/2');
+			height : 100%;
 		}
 	}
 
 	.av-visible.av-secondary {
 		align-self: flex-end;
 		width: 25%;
-		height: 20%;
+		height: 25%;
 		z-index : 10;
 
 		body.av-fullscreen & {
-			width: @prime-width / 2;
-			height : @prime-height / 2;
+			width: calc(~'100vw / 9');
+			height: calc(~'100vw / 9');
 		}
 
 		body.av-tiled & {
-			//width: calc(~'32vw');
-			min-height : calc(~'32vw * 2.8 / 4')
+			min-height : calc(~'32vw * 2.8 / 4') !important;
 		}
 	}
 

@@ -45,6 +45,10 @@
     z-index: 1;
     .flex-display;
     .flex-direction(row);
+
+	body.av-fullscreen & {
+		border: none;
+	}
 }
 
 .lcb-room-meta {
@@ -54,6 +58,7 @@
 }
 
 .lcb-room-heading {
+	position: initial;
     font-size: 24px;
     font-weight: 300;
     color: #555;
@@ -65,6 +70,15 @@
         font-size: 14px;
         cursor: default;
     }
+
+	body.av-fullscreen & {
+		/* this depends on the padding-side */	
+		right : -45px;
+		position: absolute;
+	}
+	body.av-fullscreen & svg {
+		margin-left : 5px;
+	}
 }
 
 .lcb-room-heading-loud {

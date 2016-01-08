@@ -3,6 +3,11 @@
 
 #av-containers {
 	justify-content: center;
+
+	body.av-fullscreen &,
+	body.av-tiled & {
+		background: black;
+	}
 }
 
 .av-container.av-primary {
@@ -15,7 +20,11 @@
 	border-radius: 50%;
 	.drop-shadow(2px, 2px, 16px, 0.6);
 
-	video {
+	body & video,
+	body.av-fullscreen & video {
 		border-radius: 50%;
+	}
+	body.av-tiled & video {
+		border-radius: 0%;
 	}
 }

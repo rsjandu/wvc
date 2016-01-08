@@ -102,7 +102,7 @@ function get_config_meghadoot (sess_id, callback) {
 			{
 				name: 'av-tokbox-v2',
 				role: 'av',
-				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'classic-1' ] },
+				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'classic-1.min' ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },

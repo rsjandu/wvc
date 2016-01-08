@@ -3,6 +3,7 @@
 define(function(require){
 	var $ = require('jquery');
 	var moment = require('./moment.min');
+	var events = require('events');
 	var log = require('log')('lets-chat', 'info');
 	var framework = require('framework');
 
@@ -41,8 +42,11 @@ define(function(require){
 			$('.lcb-messages-container').scroll( scrollHandler );
 			/* make the text area uneditable, untill the connection is made(with the chat server) */
 		 	$('.lcb-entry-input').attr("placeholder","Connecting To Chat...").prop('disabled', true);
-			_d.resolve();
 
+			events.bind('framework:layout', layout_changed, 'chat-box');
+			$('#widget-chat .lcb-room-header svg').on('click', handle_click);
+
+			_d.resolve();
 			return _d.promise();
 	};
 	chat_box.start = function (sess_info) {
@@ -336,6 +340,39 @@ define(function(require){
 	}
 
 	log.info ('notify_box loaded');
+
+	var current_layout;
+
+	function layout_changed (ev, data) {
+		/* Just note the current layout for now */
+		current_layout = ev;
+		if (current_layout != 'av-fullscreen')
+			$('#widget-chat').removeClass('chat-visible');
+		return;
+	}
+
+	/* This variable indicates the visibility of the chat widget in av-fullscreen
+	 * layout _ONLY_. So, by default it is false, since the chat widget is not 
+	 * visible in that layout */
+	var am_i_visible = false;
+
+	function handle_click (ev) {
+		log.info ('chat-box: myicon clicked');
+		if (current_layout && current_layout === 'av-fullscreen') {
+
+			if (!am_i_visible) {
+				$('#widget-chat').addClass('chat-visible');
+				am_i_visible = true;
+			}
+			else {
+				$('#widget-chat').removeClass('chat-visible');
+				am_i_visible = false;
+			}
+		}
+
+		ev.preventDefault();
+		return;
+	}
 
 	return chat_box;
 });
