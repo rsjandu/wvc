@@ -35,6 +35,7 @@ define(function(require) {
 	};
 
 	layout.giveup_container = function (container, reason) {
+		layout_set_to_default(current_layout, null);
 		return cpool.giveup_container (container);
 	};
 
@@ -66,7 +67,7 @@ define(function(require) {
 
 	function set_handlers () {
 
-		events.bind('framework:layout', layout_changed, 'av-layout');
+		events.bind('framework:layout', layout_set_to_default, 'av-layout');
 
 		$('.av-container').on('click', function (ev) {
 			var clicked_div = ev.currentTarget;
@@ -203,7 +204,7 @@ define(function(require) {
 		return mode[type];
 	}
 
-	function layout_changed (ev, data) {
+	function layout_set_to_default (ev, data) {
 		var new_layout = ev;
 
 		cpool.get_used_list ().forEach(function (container, index, arr) {

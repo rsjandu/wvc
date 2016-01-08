@@ -49,14 +49,19 @@ define(function(require) {
 			return;
 		}
 
+		var div = $(this.div());
+
 		for (var i = 0; i < modes.length; i++) {
+			var _class = 'av-' + modes[i];
 
 			if (mode == modes[i]) {
-				$(this.div()).addClass('av-' + modes[i]);
+				if (!div.hasClass(_class))
+					div.addClass(_class);
 				continue;
 			}
 
-			$(this.div()).removeClass('av-' + modes[i]);
+			if (div.hasClass(_class))
+				div.removeClass(_class);
 		}
 
 		log.info ('set mode = ' + mode + ', for #' + this.id());
@@ -113,6 +118,7 @@ define(function(require) {
 		this.state   = 'initial';
 		this.conn_id = null;
 		this.stream  = null;
+		log.info ('gave up container ' + this.id());
 	}
 
 	function show_error (error) {
@@ -160,13 +166,16 @@ define(function(require) {
 		 *     + av-error
 		 */
 		for (var i = 0; i < states.length; i++) {
+			var _class = 'av-' + states[i];
 
 			if (state != states[i]) {
-				div.removeClass('av-' + states[i]);
+				if (div.hasClass(_class))
+					div.removeClass(_class);
 				continue;
 			}
 
-			div.addClass('av-' + state);
+			if (!div.hasClass(_class))
+				div.addClass(_class);
 		}
 
 		this.state = state;

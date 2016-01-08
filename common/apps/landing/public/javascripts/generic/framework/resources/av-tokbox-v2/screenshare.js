@@ -17,12 +17,12 @@ define(function (require) {
 		$('.remodal-confirm').click(close_modal);
 
 		/* Screenshare menu handler */
-		$('#widget-nav li#nav-screenshare a').on('click', screenshare.start);
+		$('#widget-nav li#nav-screenshare a').on('click', start);
 
 		return null;
 	};
 
-	screenshare.start = function () {
+	function start () {
 		var d = $.Deferred ();
 
 		tokbox.registerScreenSharingExtension('chrome', custom_config_cached.chromeextensionid);
@@ -31,8 +31,7 @@ define(function (require) {
 			.then(
 				function (extension_installed) {
 					if (extension_installed) {
-						d.resolve();
-						return really_start ();
+						return really_start (d);
 					}
 
 					/* 
@@ -50,7 +49,7 @@ define(function (require) {
 			);
 
 		return d.promise ();
-	};
+	}
 
 	function check_capability () {
 		var d = $.Deferred();
@@ -71,20 +70,45 @@ define(function (require) {
 		return d.promise();
 	}
 
-	function really_start () {
+	var my_container;
+	function really_start (d) {
 		var i_am = f_handle_cached.identity.vc_id;
-		var cont = layout.get_container ('screenshare-local');
 
-		tokbox.init_publisher (i_am, null, cont.div(), { videoSource : 'screen' })
-			.then(
-				function (na, _publisher) {
-					publisher = _publisher;
-					tokbox.publish (publisher);
-					layout.reveal_video(cont);
-				},
-				function (err) {
-					log.error ('screenshare: failed to initialize publisher: ' + err);
-				}
+		my_container = layout.get_container ('screenshare-local');
+		if (!my_container) {
+			f_handle_cached.notify.alert('Screenshare Error', 'Ran out of free containers', 'danger', {
+				non_dismissable : false,
+				button : { }
+			});
+			d.reject ('ran out of free containers !');
+			return;
+		}
+
+		/* OT destroys the div upon mediastream destruction, so create a child under it,
+		 * and pass */
+		$(my_container.div()).append('<div id="av-ot-screenshare-wrap"></div>');
+		var div = $('div#av-ot-screenshare-wrap');
+		tokbox.init_publisher (i_am, null, div[0], { 
+				videoSource : 'screen'
+			}).then(
+					function (na, _publisher) {
+						publisher = _publisher;
+						set_handlers();
+						tokbox.publish (publisher);
+						layout.reveal_video(my_container);
+						return d.resolve();
+					},
+					function (err) {
+						f_handle_cached.notify.alert('Screenshare Error', err, 'danger', {
+							non_dismissable : false,
+							button : { }
+						});
+						$(my_container.div()).find('div#av-ot-screenshare-wrap').remove();
+						layout.giveup_container(my_container);
+						my_container = null;
+						log.error ('screenshare: failed to initialize publisher: ', err);
+						return d.reject(err);
+					}
 			);
 	}
 
@@ -101,6 +125,51 @@ define(function (require) {
 
 	function close_modal () {
 		modal.close ();
+	}
+
+	function set_handlers () {
+		tokbox.set_pub_handlers ({
+			'accessAllowed'        : accessAllowed,
+			'accessDenied'         : accessDenied,
+			'accessDialogOpened'   : accessDialogOpened,
+			'accessDialogClosed'   : accessDialogClosed,
+			'destroyed'            : destroyed,
+			'mediaStopped'         : mediaStopped,
+			'streamCreated'        : streamCreated,
+			'streamDestroyed'      : streamDestroyed,
+		});
+	}
+
+	/*
+	 * ___________ Handlers ____________
+	 *
+	 */
+
+	function accessAllowed (ev) {
+		/* All is well - do nothing */
+	}
+	function accessDenied (ev) {
+		log.error ('it seems, access to local media was denied by the user. TODO: Show a modal error here.');
+	}
+	function accessDialogOpened (ev) {
+		/* All is well - do nothing */
+	}
+	function accessDialogClosed (ev) {
+		/* All is well - do nothing */
+	}
+	function destroyed (ev) {
+		log.info ('publisher element destroyed: reason: ' + ev.reason);
+	}
+	function mediaStopped (ev) {
+		/* All is well - do nothing */
+	}
+	function streamCreated (ev) {
+		var stream = ev.stream;
+		layout.reveal_video (my_container);
+	}
+	function streamDestroyed (ev) {
+		log.info ('streamDestroyed: ev = ', ev);
+		layout.giveup_container (my_container, ev.reason);
 	}
 
 	return screenshare;
