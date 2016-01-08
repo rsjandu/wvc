@@ -347,25 +347,28 @@ define(function(require){
 		/* Just note the current layout for now */
 		current_layout = ev;
 		if (current_layout != 'av-fullscreen')
-			$('#widget-chat').removeClass('chat-visible');
+			$('#widget-chat').removeClass('chat-fullheight');
+		else
+			$('#widget-chat').addClass('chat-fullheight');
+
 		return;
 	}
 
 	/* This variable indicates the visibility of the chat widget in av-fullscreen
-	 * layout _ONLY_. So, by default it is false, since the chat widget is not 
-	 * visible in that layout */
-	var am_i_visible = false;
+	 * layout _ONLY_. True initially */
+	var am_i_visible = true;
 
 	function handle_click (ev) {
-		log.info ('chat-box: myicon clicked');
+
 		if (current_layout && current_layout === 'av-fullscreen') {
+			/* Just toggle */
 
 			if (!am_i_visible) {
-				$('#widget-chat').addClass('chat-visible');
+				$('#widget-chat').addClass('chat-fullheight');
 				am_i_visible = true;
 			}
 			else {
-				$('#widget-chat').removeClass('chat-visible');
+				$('#widget-chat').removeClass('chat-fullheight');
 				am_i_visible = false;
 			}
 		}
