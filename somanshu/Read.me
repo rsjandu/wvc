@@ -18,5 +18,15 @@ inside ace folder placed files related to ace like mode, worker, snippets.
 these files i have picked up from ace project on github. 
 
 Added a div with id = editor.
+
+
+==========================================================================================
+
+set of languages and themes is now sent from session.info which is then sent to jade template so that drop down is created based on those options.
+
+Synced the language drop down i.e. changing the language on one client will change it on other clients as well. Also the new user which connects to an existing session will have the language set as the one selected currently in the session.
+
+Used existing control channel to pass info which contains the current language(or mode).
+==========================================================================================
 ####################################
 ########################################
