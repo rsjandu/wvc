@@ -1,5 +1,6 @@
 define(function(require) {
 	var $           = require('jquery');
+	var events      = require('events');
 	var log         = require('log')('av-session', 'info');
 	var local       = require('./local-media');
 	var layout      = require('./layout');
@@ -21,6 +22,7 @@ define(function(require) {
 		'streamCreated'          : streamCreated,
 		'streamDestroyed'        : streamDestroyed
 	};
+	var conn_emitter = events.emitter('av:connection', 'av:session.js');
 
 	session.init = function (display_spec, custom, perms) {
 		tokbox.set_exception_handler (exception_handler);
@@ -39,10 +41,10 @@ define(function(require) {
 		var cont = layout.get_container ('video-primary');
 
 		tokbox.init (sess_info)
-			.then ( tokbox.set_handlers.bind(tokbox, handlers),    d.reject.bind(d) )
-			.then ( tokbox.connect,                                d.reject.bind(d) )
-			.then ( local.init.bind(null, f_handle, cont),         d.reject.bind(d) )
-			.then ( local.start,                                   d.reject.bind(d) )
+			.then ( tokbox.set_handlers.bind(tokbox, handlers),          d.reject.bind(d) )
+			.then ( tokbox.connect,                                      d.reject.bind(d) )
+			.then ( local.init.bind(null, f_handle, cont, conn_emitter), d.reject.bind(d) )
+			.then ( local.start,                                         d.reject.bind(d) )
 			;
 
 		return d.promise();
@@ -79,7 +81,7 @@ define(function(require) {
 		log.info ('TODO : sessionConnected', ev);
 	}
 
-	function connectionCreated (connection_id, local_) {
+	function connectionCreated (connection_id, data, local_) {
 
 		var container;
 
@@ -90,6 +92,13 @@ define(function(require) {
 			local_ = false;
 
 		conn_map[connection_id].local = local_;
+		conn_map[connection_id].vc_id = data;
+
+		conn_emitter.emit('incoming-connection', {
+			connection_id : connection_id,
+			vc_id         : data,
+			local         : local_
+		});
 
 		if (conn_map[connection_id].pending) {
 
@@ -200,11 +209,23 @@ define(function(require) {
 					/* The video should automatically get shown in the container
 					 * that we passed above */
 					layout.reveal_video(container);
+
+					conn_emitter.emit('incoming-media', {
+						connection_id : connection_id,
+						stream_id     : stream_id,
+						stream        : stream
+					});
 				},
 				function (err) {
 					layout.show_error (container, err);
+					conn_emitter.emit('incoming-media', {
+						err           : err,
+						connection_id : connection_id,
+					});
 				}
 			);
+
+
 	}
 
 	function streamDestroyed (stream_id, reason) {

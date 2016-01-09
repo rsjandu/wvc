@@ -52,12 +52,13 @@ function (require, ot, _log, $) {
 			connectionCreated : function (ev) {
 				var connection = ev.connection;
 				var id = connection.connectionId;
+				var data = connection.data;
 
 				add_to_list (id, connection);
 				var local = (id == sess_obj.connection.connectionId) ? true : false;
 				log.info ('connection created: ' + id + ' (local = ' + local + '), data: ' + connection.data);
 
-				handlers.connectionCreated (id, local);
+				handlers.connectionCreated (id, data, local);
 			},
 
 			connectionDestroyed : function (ev) {

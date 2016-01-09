@@ -3,10 +3,79 @@
 @import "../../layouts/classic-1/variables.less";
 @import "../../layouts/classic-1/mixins.less";
 @import "./tokbox-overrides.less";
+@import "../../mixins/elements.less";
 
 @avcontrols-height : 30px;
 @element-gap : 5px;
 @pub-vid-height : 405px;
+@transition-time : 1.2s;
+
+.fade-in(@start-opacity, @duration:@transition-time) {
+
+	@keyframes fade-in {
+		0% {
+			opacity: @start-opacity;
+		}
+
+		100% {
+			opacity: 1;
+		}
+	}
+
+	animation: fade-in @duration ease-out both;
+	-webkit-animation: fade-in @duration ease-out both;
+	-moz-animation: fade-in @duration ease-out both;
+}
+
+.fade-in-and-zoom-out(@start-opacity, @start-scale, @duration:@transition-time) {
+
+	@keyframes zoom-out {
+		0% {
+			opacity: @start-opacity;
+			transform: scale(@start-scale, @start-scale);
+		}
+
+		100% {
+			opacity: 1;
+			transform: scale(1, 1);
+		}
+	}
+
+	animation: zoom-out @duration ease-out both;
+	-webkit-animation: zoom-out @duration ease-out both;
+	-moz-animation: zoom-out @duration ease-out both;
+}
+
+.expand(@duration:@transition-time) {
+	transition : all @duration ease-out;
+	-webkit-transition : all @duration ease-out;
+	-moz-transition : all @duration ease-out;
+}
+
+.fade-out(@end-scale, @duration:@transition-time) {
+
+	@keyframes fade-out {
+		0% {
+			opacity: 1;
+			transform: scale(1, 1);
+		}
+
+		100% {
+			opacity: 0;
+			transform: scale(@end-scale, @end-scale);
+		}
+	}
+
+	animation: fade-out @duration ease-out both;
+	-webkit-animation: fade-out @dduration ease-out both;
+	-moz-animation: fade-out @dduration ease-out both;
+}
+
+.swell() {
+	animation: swell @transition-time cubic-bezier(.36,.07,.19,.97) both;
+	-webkit-animation: swell @transition-time cubic-bezier(.36,.07,.19,.97) both;
+	-moz-animation: swell @transition-time cubic-bezier(.36,.07,.19,.97) both;
+}
 
 .set-av-size(@prime-width, @prime-height) {
 	.av-visible.av-primary {
@@ -24,6 +93,7 @@
 
 	.av-visible.av-secondary {
 		align-self: flex-end;
+		top : 0;
 		width: 25%;
 		height: 25%;
 		z-index : 10;
@@ -121,31 +191,58 @@
 	}
 }
 
+.transition(@prop) {
+	transition: @prop @transition-time ease-out;
+	-webkit-transition: @prop @transition-time ease-out;
+	-moz-transition: @prop @transition-time ease-out;
+}
+
 .av-container {
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 
-	transition: all 0.2s ease-out;
-	-webkit-transition: all 0.2s ease-out;
+	/*
+	transition: all 2s ease-out;
+	-webkit-transition: all 2s ease-out;
 	-moz-transition: all 0.2s ease-out;
+	*/
 
 	&.av-shunya {
 		height : 0px;
 		width : 0px;
 	}
 
+	.shake() {
+		animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+		-webkit-animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+		-moz-animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+	}
+
 	&.av-visible {
 
+		background-image: url('https://lh6.googleusercontent.com/-pL53uK2k-x8/AAAAAAAAAAI/AAAAAAAAAnw/WnxuROVOEYw/photo.jpg');
+		background-image: url('http://37.media.tumblr.com/4ffa5869f6600fbcad83f5ee8284c106/tumblr_n32ub3H32w1six59bo2_r1_250.gif');
+		background-position: center;
+		background-repeat: repeat;
+		background-size: auto;
+
+		&.av-primary {
+			video {
+				.fade-in(0.2, 10s);
+			}
+		}
+
+		body.av-fullscreen &.av-primary {
+		}
+
+		&.av-secondary {
+			video {
+			}
+		}
+
 		&.av-secondary:hover {
-			animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
-			-webkit-animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
-			-moz-animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
-
-			transform: translate3d(0, 0, 0);
-			-webkit-transform: translate3d(0, 0, 0);
-			-moz-transform: translate3d(0, 0, 0);
-
+			.swell();
 			backface-visibility: hidden;
 			perspective: 1000px;
 			-webkit-perspective: 1000px;
@@ -153,11 +250,6 @@
 		}
 
 		&.av-connected {
-			background-image: url('https://lh6.googleusercontent.com/-pL53uK2k-x8/AAAAAAAAAAI/AAAAAAAAAnw/WnxuROVOEYw/photo.jpg');
-			background-image: url('http://37.media.tumblr.com/4ffa5869f6600fbcad83f5ee8284c106/tumblr_n32ub3H32w1six59bo2_r1_250.gif');
-			background-position: center;
-			background-repeat: repeat;
-			background-size: auto;
 
 			video {
 				display: none;
@@ -165,8 +257,6 @@
 		}
 
 		&.av-streaming {
-			background-color: black;
-
 			video {
 				display: block;
 			}
@@ -203,6 +293,74 @@
 
 #av-menu-outer .btn span.fa-phone.fa-flip-vertical {
 	color: red;
+}
+
+#av-menu-outer {
+	#av-indicator {
+		width: 4px;
+		height: 4px;
+		background: orange;
+		border-radius: 50%;
+		display: block;
+		top: 13px;
+		left: 13px;
+		position: absolute;
+	}
+}
+
+/*
+ * Transitions
+ */
+.av-container.av-shunya {
+	.fade-in(0, 5s);
+}
+
+.av-container.av-visible {
+}
+
+.av-container.av-visible.av-connected {
+}
+
+.av-container.av-visible.av-streaming video {
+	.fade-in-and-zoom-out(0, 1.05, .7s);
+}
+
+.glow (@spread, @color:orange) {
+	-webkit-box-shadow: 0px 0px 10px @spread @color;
+	-moz-box-shadow: 0px 0px 10px @spread @color;
+	box-shadow: 0px 0px 10px @spread @color;
+}
+
+#av-indicator.flash {
+	@keyframes flash {
+		0% {
+			transform: scale(1.5, 1.5);
+			.glow(3px);
+		}
+
+		100% {
+			transform: scale(.5, .5);
+			.glow(1px);
+		}
+	}
+
+	animation: flash 1s ease-out infinite;
+	-webkit-animation: flash 1s ease-out infinite;
+	-moz-animation: flash 1s ease-out infinite;
+}
+
+@keyframes swell {
+	0% {
+		transform: scale(1, 1);
+	}
+
+	25% {
+		transform: scale(1.2, 1.2);
+	}
+
+	50%, 100% {
+		transform: scale(1, 1);
+	}
 }
 
 @keyframes shake {

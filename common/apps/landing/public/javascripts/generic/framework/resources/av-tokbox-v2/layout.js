@@ -68,6 +68,7 @@ define(function(require) {
 	function set_handlers () {
 
 		events.bind('framework:layout', layout_set_to_default, 'av-layout');
+		events.bind('av:connection', flasher, 'av-layout');
 
 		$('.av-container').on('click', function (ev) {
 			var clicked_div = ev.currentTarget;
@@ -202,6 +203,24 @@ define(function(require) {
 		}
 
 		return mode[type];
+	}
+
+	var incomning_count = 0;
+	function flasher (ev, data) {
+
+		var flasher_el = $('#av-indicator');
+
+		if (ev === 'incoming-connection')
+			incomning_count++;
+		if (ev === 'incoming-media')
+			incomning_count--;
+
+		if (incomning_count) {
+			$(flasher_el).css('display', 'block');
+		}
+		else {
+			$(flasher_el).css('display', 'none');
+		}
 	}
 
 	function layout_set_to_default (ev, data) {

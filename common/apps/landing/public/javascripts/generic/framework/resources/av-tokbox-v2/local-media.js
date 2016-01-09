@@ -8,13 +8,15 @@ define(function(require) {
 	var local = {};
 	var publisher;
 	var my_container;
+	var conn_emitter_cached;
 
-	local.init = function (f_handle, container, sess_info) {
+	local.init = function (f_handle, container, conn_emitter, sess_info) {
 		var d    = $.Deferred ();
 		var i_am = f_handle.identity.vc_id;
 		var div  = container.div();
 
 		my_container = container;
+		conn_emitter_cached = conn_emitter;
 
 		tokbox.init_publisher (i_am, sess_info, div)
 			.then (set_pub_handlers.bind(d, sess_info), d.reject.bind(d));
@@ -76,6 +78,12 @@ define(function(require) {
 	function streamCreated (ev) {
 		var stream = ev.stream;
 		layout.reveal_video (my_container);
+
+		conn_emitter_cached.emit('incoming-media', {
+			connection_id : null,
+			stream_id     : stream.stream_id,
+			stream        : stream
+		});
 	}
 	function streamDestroyed (ev) {
 		log.info ('streamDestroyed: ev = ', ev);
