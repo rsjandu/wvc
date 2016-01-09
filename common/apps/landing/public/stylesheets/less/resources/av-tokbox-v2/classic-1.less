@@ -229,6 +229,11 @@
 	margin: 0px auto 0px auto;
 	z-index: 2;
 	background-color: rgba(0, 0, 0, 0.2);
+
+	body.av-fullscreen &,
+	body.av-tiled & {
+		display: none;
+	}
 }
 
 #av-menu-outer .btn {
@@ -277,11 +282,11 @@
 
 body {
 
-	.av-container.av-visible.av-streaming.av-primary,
-	.av-container.av-visible.av-streaming.av-secondary {
-		video {
-			.fade-in-and-zoom-out(f2, 0, 1.2, 1s);
-		}
+	.av-container.av-visible.av-streaming.av-primary video {
+		.fade-in-and-zoom-out(f1, 0.5, 1.05, 1s);
+	}
+	.av-container.av-visible.av-streaming.av-secondary video {
+		.fade-in-and-zoom-out(f2, 0.5, 1.08, 1s);
 	}
 
 	.av-container.av-visible.av-streaming.av-screenshare video {
@@ -300,10 +305,10 @@ body {
 
 		.av-container.av-visible.av-streaming {
 			&.av-primary video {
-				.fade-in-and-zoom-out(full-f2, 0, 1.05, 1s);
+				.fade-in-and-zoom-out(full-f2, 0, 1.02, 1s);
 			}
 			&.av-secondary video {
-				.fade-in-and-zoom-out(full-f3, 0, 1, 2s);
+				.fade-in-and-zoom-out(full-f3, 0, 1.05, 2s);
 			}
 		}
 	}
@@ -311,7 +316,7 @@ body {
 	&.av-tiled {
 		.av-container.av-visible.av-streaming {
 			& video {
-				.fade-in-and-zoom-out(tiled-f2, 0, 1.1, 1s);
+				.fade-in-and-zoom-out(tiled-f2, 0, 1.02, 1s);
 			}
 		}
 	}
