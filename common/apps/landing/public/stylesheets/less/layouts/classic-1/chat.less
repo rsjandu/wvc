@@ -53,6 +53,18 @@ body.av-fullscreen #widget-chat {
 		 transition: left .2s ease-out;
 		 -webkit-transition: left .2s ease-out;
 		 -moz-transition: left .2s ease-out;
+
+		 animation : fade-in 1s ease-out both;
+		 -webkit-animation : fade-in 1s ease-out both;
+		 -moz-animation : fade-in 1s ease-out both;
 	 }
 }
 
+@keyframes fade-in {
+	0% {
+		opacity : 0;
+	}
+	100% {
+		opacity : 1;
+	}
+}

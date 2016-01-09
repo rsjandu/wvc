@@ -215,6 +215,9 @@ define(function(require) {
 		if (ev === 'incoming-media')
 			incomning_count--;
 
+		if (incomning_count < 0)
+			incomning_count = 0;
+
 		if (incomning_count) {
 			$(flasher_el).css('display', 'block');
 		}
