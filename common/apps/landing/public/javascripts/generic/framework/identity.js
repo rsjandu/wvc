@@ -15,6 +15,8 @@ define(function(require) {
 	identity.set_info = function (user_info) {
 		identity.vc_id = user_info.vc_id;
 		identity.nickname = user_info.nickname;
+		identity.displayName = user_info.displayName;
+		identity.full_user_info = user_info;
 	};
 
 	function get_cookie (name) {

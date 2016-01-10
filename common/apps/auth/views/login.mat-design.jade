@@ -30,7 +30,8 @@ body
   .card-block
     .card
     .card
-      h1.title Anonymous
+      h1#main-title.title Anonymous
+      h1#cookie-error.title(style="display: none") This site requires cookies to function properly. Please enable cookies and retry again.
       form
         +input('text', 'user_id', 'User ID')
         +input('text', 'display_name', 'Display Name')
