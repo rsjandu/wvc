@@ -17,14 +17,28 @@ function get_cookie(name) {
 }
 
 if (!is_cookie_enabled()) {
+	$('#cookie-error').html('I need cookies to function properly. Enable cookies, go back and retry again.');
 	$('#cookie-error').css('display', 'block');
 	$('#main-title').css('display', 'none');
 	$('input#user_id').prop('disabled', true);
 	$('input#display_name').prop('disabled', true);
 	$('button').prop('disabled', true);
+
+	throw 'no cookies enabled';
 }
 
 var redirect_to = get_cookie('wiziq_origin');
+
+if (!redirect_to) {
+	$('#cookie-error').html('Can\'t seem to know where you came from. Enable your cookies, go back and try again');
+	$('#cookie-error').css('display', 'block');
+	$('#main-title').css('display', 'none');
+	$('input#user_id').prop('disabled', true);
+	$('input#display_name').prop('disabled', true);
+	$('button').prop('disabled', true);
+
+	throw 'no cookies enabled';
+}
 
 $('button').on('click', function () {
 	var id = $('input#user_id').val();
