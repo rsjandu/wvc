@@ -26,6 +26,13 @@ define(function(require){
 
 			log.info ('chat_box init called');
 
+			if (!Date.now) {						/* some browsers don't support Date.now.. check if it works or not */
+			  Date.now = function now() {
+			      return new Date().getTime();
+			    };
+			
+			}
+
 			anchor = display_spec.anchor;
 			var templates = display_spec.templates;
 			var template  = f_handle.template( templates[0] );
@@ -78,7 +85,6 @@ define(function(require){
 				/* add event listeners for reconnect, reconnecting, error */
 				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
 				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room); });
-				socket.on('messages:ntyping', function(data){ log.info('received ntyping notif: ', data); ntyping_handler(data.owner, data.room); });
 
 				socket = sock;
 				room_id = sess_info.room_id;
@@ -115,7 +121,7 @@ define(function(require){
 
 	function join_room( room_id ){
 		log.info('connecting to', room_id);
-		//check if soket is null
+		//check if socket is null
 		socket.emit('rooms:join', { roomId : room_id, password : ''}, function(resRoom){
 			var room = resRoom; 											/* Canbe made global in place of room-id */
 			log.info('connected ', room);
@@ -133,22 +139,22 @@ define(function(require){
 			//since_id 	: 1,
 			take		: 10,
 			expand		: 'owner, room',
-			reverse		: true			//what does this mean
+			reverse		: true			/* tells about the order of the messages */
 		},function( messages){
 			log.info('received_messsages', messages);
 			scroll_lock = false;
 			for(var i= messages.length-1; i>=0; i--){
-				append_message (messages[i] );
+				append_message (messages[i], true);
 			}
 		});
 	}
 	function sendMessage(e){
 		if(e.type === 'keypress' && e.keyCode !== 13 || e.altKey){
-			notify_typing();
+			tell_typing.notify();
 			return;
 		}
 		if(e.type === 'keypress' && e.keyCode === 13 && e.shiftKey){
-			notify_typing();
+			tell_typing.notify();
 			/*
 			 * shift+enter let u send multi line messages
 			 * 	this is what sets the paste option
@@ -164,7 +170,7 @@ define(function(require){
 			return;
 
 		send_message( $textarea.val() );
-		stop_typing();
+		tell_typing.clear();
 		$textarea.val('');
 	}
 
@@ -173,7 +179,10 @@ define(function(require){
 	}
 
 	var lastMessageOwner = {};
-	function append_message( messageObj ){
+	function append_message( messageObj, history ){
+		if(!history){
+			typing.remove( messageObj.owner);
+		}
 		/* The case of shift+enter, multi line message */
 		messageObj.paste=  /\n/i.test(messageObj.text);
 
@@ -220,39 +229,26 @@ define(function(require){
 
   /* typing notification related */
 	
-  /* typing notifs sending related */
+	var tell_typing = {
+				timer : null,
+				timeout : 5000,					/* typing evt once sent will be valid till 'timeout' then we need to send again */
+				notify: function(){
+							if( !this.timer){
+								this.timer = setTimeout( function(){ this.timer = null; }.bind(this), this.timeout );
+								this.emit();	/* emit_on_socket */
+							}
+						},
+				emit : function(){
+					socket.emit('messages:typing', {'room' : my_info.room_id, 'time': Date.now()}); /* Date.now needs smth for compatibility in <IE8 */
+				},
+				clear : function(){
+					clearTimeout(this.timer);
+					this.timer = null;
+				}
+		};
 
-	var timer_notif = null;
-	var after_tpevt_expired = 5000;		/*  */
-	function notify_typing(){
-		if( !timer_notif ){
-			start_typing();
-		}
-		else{
-			update_typing();
-		}
-	}
-
-	function start_typing(){
-		socket.emit('messages:typing', { 'room' : my_info.room_id } );
-		/* add timer  */
-		timer_notif =	setTimeout( stop_typing, after_tpevt_expired);
-	}
-
-	function update_typing(){
-		/* reset timer */
-		clearTimeout(timer_notif);
-		timer_notif = setTimeout( stop_typing, after_tpevt_expired);
-	}
-
-	function stop_typing(){
-		socket.emit('messages:ntyping', { 'room' : my_info.room_id });
-		/* clear timeout if still exists */
-		timer_notif = null;	
-	}
-
-  /* typing event receive events */
-	var users_typing = [];
+  	/* typing event receive events */
+	var typing = require('./notif');
 	function typing_handler(user, room){
 		log.info(user.displayName+ ' is typing in the room: ' + room);
 
@@ -260,63 +256,8 @@ define(function(require){
 			log.info( 'this is me.. typing');
 			return;
 		}
-		/* has just started or was already typing */
-		if( !(user in users_typing ) ){
-			users_typing.push(user);
-		}
-		else{
-			/* maybe move that entry to front or smth
-			 *
-			 * but 1st see if it is possible or not
-			*/
-		}
-		update_notification();
+		typing.someone(user);
 	}
-	function ntyping_handler(user, room){
-		log.info(user.displayName + 'is typing no more' + room);
-		if( arr_del(users_typing, user) ){
-			update_notification();
-		}
-	}
-
-	function arr_del(a, obj) { 	/* check if array contains */
-	    var i = a.length;
-	    while (i--) {
-		       if (a[i].id === obj.id) {
-				   		a.splice(i,1);
-			              return true;
-			          }
-		    }
-	    return false;
-	}
-	function update_notification(){
-		/* count keys in object */
-		var len = Object.keys( users_typing ).length;
-		if(!len){
-			/* clear notification area */
-			$('.lcb-notification-bar').html('');
-			log.info('no one is typing');
-			return;
-		}
-		var notif =  [];
-		notif.push(users_typing[0].displayName) ;
-		switch( len ){
-			case 1:
-				notif.push( 'is');
-				break;
-			case 2:
-				notif.push( 'and ' +  users_typing[1].displayName  + ' are' );
-				break;
-			default:
-				notif.push( ', ' 	+ users_typing[1].displayName  + ' and ' + (len-2).toString() + ' others are');
-		}
-		notif.push( 'typing...');
-		notif = notif.join(' ');		/* avoids extra string objs and executes faster than '+' */
-		log.info( notif );
-		/* fill notification area */
-		$('.lcb-notification-bar').html(notif);
-	}
-	
 
 	/* auto-scroll related */
 
