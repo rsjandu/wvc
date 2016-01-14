@@ -71,7 +71,7 @@ var session = {
 
 app.use( function( req, res, next){
 		res.header('Access-Control-Allow-Origin', '*');
-		res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, set-cookie'); //is this one really needed??
+		res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Authorization, Content-Type, Accept, set-cookie'); //is this one really needed??
 		res.header('Access-Control-Expose-Headers','set-cookie');
 		next();
 	});

@@ -1,20 +1,39 @@
 /* The time has come to break the code in modules */
 
 define(function(require){
-	var $ = require('jquery');
-	var moment = require('./moment.min');
-	var events = require('events');
-	var log = require('log')('lets-chat', 'info');
-	var framework = require('framework');
+	var mod_name = "lets-chat";						/* the name of this module */
+	
+	var $ 			= require('jquery'),
+		events 		= require('events'),
+		log 		= require('log')( mod_name, 'info'),
+		framework 	= require('framework'),
+		moment 		= require('./moment.min'),
+		store 		= require('./store');
+		mod_message	= require('./message');
 
+	var	f_handle 	= framework.handle('chat-box'),
+		emitter 	= null,
+		anchor 		= {},
+		scroll_lock = false,
+		my_info 	= {},
+		msgTemplate = {},
+		rooms 		= {
+						main : {			/* leaving scope for pvt chat */
+							id 			: null,
+							joined 		: false,
+							lastMessageId: 0
+						}					
+					  },
+		users 		= {
+						me : null
+					  },
+		connection  = {
+						connected : false	
+					  },
+		socket 		= {},
+		$messages 	= {};		/* will store the anchor of the message list */
+		
 	var chat_box = {};
-	var anchor = {};
-	var f_handle = framework.handle('chat-box');
-	var my_info = {};
-	var msgTemplate = {};
-	var room_id = {};
-	var me = {};
-	var scroll_lock = false;
 	/*
 	 * create connection
 	 * join room
@@ -32,7 +51,7 @@ define(function(require){
 			    };
 			
 			}
-
+			emitter = events.emitter("chat", mod_name );
 			anchor = display_spec.anchor;
 			var templates = display_spec.templates;
 			var template  = f_handle.template( templates[0] );
@@ -44,6 +63,8 @@ define(function(require){
 
 			var $room = template();
 			$(anchor).append( $room);
+			
+			$messages = $('.lcb-messages');			/* get it once, not everytime */
 			$('.lcb-entry-button').on('click', sendMessage);
 			$('.lcb-entry-input').on('keypress',sendMessage);
 			$('.lcb-messages-container').scroll( scrollHandler );
@@ -64,32 +85,52 @@ define(function(require){
 		}
 
 		my_info = sess_info;
-
-		/*  token, to be used as auth-token when communicating */
-		my_token = sess_info.token;
+		store.server_url = sess_info.root_url;
+		store.auth_token = sess_info.token;
 
 		connect(sess_info)
 		.then(
 			function( sock){
 				socket = sock;
-
+				rooms.main.id = my_info.room_id;
+				
 				socket.on('connect', function(){
+					emitter.emit('chat:connection', data = { 'status' : 'ok'});
+					connection.connected = true; 
 					log.info('connect','done');
+
+					who_am_i();
+					join_room(rooms.main.id);
 				});
 				socket.on('reconnect',function(){
+					emitter.emit('chat:connection', data = { 'status' : 'ok'});				/* is it ok? */
+					/* rejoin all rooms where joined is true, main room for now */
+					rejoinRoom( rooms.main.id);
 					log.info('reconnect done');
 				});
 				socket.on('error', function(err){
+					emitter.emit('chat:connection', data = { 'status' : 'not-ok', 'reason' : err});
 					log.error('Connection to server ' + sess_info.root_url + ' failed. Data = ', err);
 				});
-				/* add event listeners for reconnect, reconnecting, error */
-				socket.on('messages:new', function(data){ log.info('received message:', data);  append_message(data); });
-				socket.on('messages:typing', function(data){ log.info('received typing notif: ', data); typing_handler(data.owner, data.room); });
+				
+				socket.on('messages:new', function(msg){ 
+					log.info('received message:', msg);  
+					emitter.emit('chat:new-message', data = { 'from': msg.owner.vc_id });
+					append_message(msg); 
+				});
 
-				socket = sock;
-				room_id = sess_info.room_id;
-				who_am_i();
-				join_room(room_id);
+				socket.on('messages:typing', function(data){ 
+					log.info('received typing notif: ', data); 
+					typing_handler(data.owner, data.room); 
+				});
+
+				socket.on('files:new', function( file){
+//					addFile( file);
+				});
+				
+				socket.on('disconnect', function(){
+					connection.connected = false;
+				});
 			});
 	};
 
@@ -104,9 +145,12 @@ define(function(require){
 		require([sess_info.root_url + '/socket.io/socket.io.js'],function( io){
 
 			var sock = io.connect(
-				sess_info.root_url,
-				{
-					query : 'token=' + my_token
+				sess_info.root_url,{
+					reconnection 		 : true, 	/* defaults to true */
+					reconnectionDelay 	 : 500,		/* defaults to 1000 */
+					reconnectionDelayMax : 1000,	/* defaults to 5000 */
+					timeout 			 : 10000, 	/* defaults to 20000 */
+					query 				 : 'token=' + sess_info.token
 				});
 			_d.resolve( sock);
 		});
@@ -115,28 +159,36 @@ define(function(require){
 
 	function who_am_i(){
 		socket.emit('account:whoami',function(user){
-			me = user;
+			users.me = user;
 		});
 	}
 
-	function join_room( room_id ){
+	function rejoinRoom( room_id){
+		join_room( room_id, true);
+	}
+
+	function join_room( room_id, rejoin ){
+		if( !rejoin && rooms.main.joined){
+			/* it is duplicate call from connect (after a reconnect) */
+			return ;
+		}
 		log.info('connecting to', room_id);
 		//check if socket is null
 		socket.emit('rooms:join', { roomId : room_id, password : ''}, function(resRoom){
-			var room = resRoom; 											/* Canbe made global in place of room-id */
+			rooms.main.joined = true;
+			var room = resRoom; 											
 			log.info('connected ', room);
-			/* here we get the actual data about room  so better add template here*/
-		 	$('.lcb-entry-input').attr("placeholder","Got Something To Say?").prop('disabled', false);
 
-			/* consider the case of reconnection..duplicate messages should not be allowed */
-			get_messages(room_id);
+			$('.lcb-entry-input').attr("placeholder","Got Something To Say?").prop('disabled', false);
+
+			get_messages(room_id, rejoin? rooms.main.lastMessageId : 0 );
 		});
 	}
 
-	function get_messages( room_id ){
+	function get_messages( room_id, since ){
 		socket.emit('messages:list',{
 			room 		: room_id,
-			//since_id 	: 1,
+			since_id 	: since,
 			take		: 10,
 			expand		: 'owner, room',
 			reverse		: true			/* tells about the order of the messages */
@@ -183,29 +235,40 @@ define(function(require){
 		if(!history){
 			typing.remove( messageObj.owner);
 		}
+		rooms.main.lastMessageId = messageObj.id;	/* why shouldn't it be here? think!*/
 		/* The case of shift+enter, multi line message */
 		messageObj.paste=  /\n/i.test(messageObj.text);
 
 		/* fragement or new message */
 		messageObj.fragment = lastMessageOwner === messageObj.owner.id;
 		messageObj.time = moment(messageObj.posted).calendar();
-		messageObj.classs = (messageObj.owner.id === me.id)? "lcb-message-own" : "lcb-message swatch-" + color_manager.my_color( messageObj.owner.id );
+		messageObj.classs = (messageObj.owner.id === users.me.id)? "lcb-message-own" : "lcb-message swatch-" + color_manager.my_color( messageObj.owner.id );
 		if (messageObj.fragment)
 			messageObj.classs += " lcb-fragment";
 
 		var $message = msgTemplate( messageObj);
 
+		format_message( $message, function( html){
+						$messages.append(/*'<li>' +*/ html);
+						if( !messageObj.fragment){
+							lastMessageOwner = messageObj.owner.id;
+						}
 
-		$messages = $('.lcb-messages');
-		$messages.append(/*'<li>' +*/ $message);
+						if( scroll_lock === false || messageObj.owner.id === users.me.id ){
+							scrollTo( $messages[0] );
+						}
+		});
 
-		if( !messageObj.fragment){
-			lastMessageOwner = messageObj.owner.id;
-		}
+	}
 
-		if( scroll_lock === false || messageObj.owner.id === me.id ){
-			scrollTo( $messages[0] );
-		}
+	function format_message( html, cb){				/* here we get a HTML string, which is diff to manipulate */
+		var text = $(html).find('.lcb-message-text').html();
+		mod_message.format( text, function( res){
+			if( res){
+				html = html.replace(text, res);
+			}
+			cb( html);
+		});
 	}
 
 	/* different colors for different users */
@@ -252,7 +315,7 @@ define(function(require){
 	function typing_handler(user, room){
 		log.info(user.displayName+ ' is typing in the room: ' + room);
 
-		if( user.id === me.id){
+		if( user.id === users.me.id){
 			log.info( 'this is me.. typing');
 			return;
 		}
