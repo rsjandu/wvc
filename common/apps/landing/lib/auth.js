@@ -35,6 +35,7 @@ auth.authenticate = function (req, res, next) {
 	log.info ({ module: 'auth', cookies : req.cookies });
 
 	var wiziq_auth = req.cookies.wiziq_auth;
+       // console.log('wiziq_auth *************** '+wiziq_auth+' '+req.cookies.wiziq_auth);
 	if (!wiziq_auth) {
 
 		var original_url = url.format({
@@ -72,8 +73,8 @@ auth.authenticate = function (req, res, next) {
 
 	var user_info;
 	try {
-		user_info = cipher.decode (log, 'auth', wiziq_auth);
-	}
+	        user_info = cipher.decode (log, 'auth', wiziq_auth);
+            }
 	catch (e) {
 		log.warn ({ module:'auth', error : e }, 'invalid cipher: decode error');
 		return next(e);

@@ -15,7 +15,7 @@ var proxy   = new require('redbird')({
 	ssl : {
 		port : 443,
 		key  : 'certificates/dev-key.pem',
-		cert : 'certificates/dev-cert.pem'
+		cert : 'certificates/dev-cert.pem',
 	}
 });
 var app = express();
@@ -40,6 +40,7 @@ log.info ({
 
 /*
  * Routes for the landing page */
+
 proxy.register(host + '/landing/', "http://localhost:2178/landing/");
 proxy.register(host + '/auth/', "http://localhost:2178/auth/");
 /*
