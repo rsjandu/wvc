@@ -8,7 +8,7 @@ define(function(require){
 		log 		= require('log')( mod_name, 'info'),
 		framework 	= require('framework'),
 		moment 		= require('./moment.min'),
-		store 		= require('./store');
+		store 		= require('./store'),
 		mod_message	= require('./message');
 
 	var	f_handle 	= framework.handle('chat-box'),
@@ -40,11 +40,13 @@ define(function(require){
 	 * and do your stuff
 	 */
 
+
 	chat_box.init = function (display_spec, custom, perms) {
 			var _d = $.Deferred();
 
 			log.info ('chat_box init called');
 
+			init_linkify();							/* can be improved a little */
 			if (!Date.now) {						/* some browsers don't support Date.now.. check if it works or not */
 			  Date.now = function now() {
 			      return new Date().getTime();
@@ -138,6 +140,12 @@ define(function(require){
 	 * private methods
 	 */
 
+	function init_linkify(){				/* used to handle hyperlinks in the message */
+			linkify 	= require('./linkify'),
+			linkify();
+			link_html 	= require('./linkify-html');
+			link_html(window.linkify);
+	}
 	function connect( sess_info ){
 		var _d = $.Deferred();
 		log.info('logging','in');
@@ -265,6 +273,7 @@ define(function(require){
 		var text = $(html).find('.lcb-message-text').html();
 		mod_message.format( text, function( res){
 			if( res){
+				res  = window.linkifyHtml ? window.linkifyHtml( res, {}) : res;
 				html = html.replace(text, res);
 			}
 			cb( html);
