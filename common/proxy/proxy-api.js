@@ -40,59 +40,39 @@ dockermonitor();
 
 
 proxy_api.register = function (req, res, next) {
-	var serverid = req.body.server_id;
-	var path = req.body.path;
+	var key = req.body.key;
+	var value = req.body.value;
 	log.info('proxy_api registered route');
-	log.info('Server id == '+ serverid);
-	log.info('Server path == ' + path);
-	var Validity = checkrequest(serverid, path, "r");
+	log.info("key="+key + "::value=" + value);
+	var Validity = checkrequest(key, value, "r");
 	if (Validity.valid) {
-		switch(serverid){
-			case "landing":
-			case "auth":
-			case "code-editor":
-				proxy.register(host + '/' + serverid + '/', path);
-				res.status(200).json({message : "server registered"});
-				break;
-			case "chat":
-				proxy.register(host + '/', path);
-				res.json({message : "server registered"});
-				break;
-			default:
-				res.status(403).json({message : "illegal server"});
-		};
+		if(Validity.reset){
+			proxy.unregister (host + key);
+			proxy.register (host + key, value);
+		}
+		else {
+			proxy.register(host + key , value);
+		}
+		res.sendStatus(200);
 	}
 	else{
-		res.status(403).json({message : Validity.msg});
+		res.sendStatus(Validity.httpstatus);//.json({message : Validity.msg});
 	}
 };
 
 
 proxy_api.unregister = function (req, res, next) {
-	var serverid = req.body.server_id;
-	var path = req.body.path;
+	var key = req.body.key;
+	var value = req.body.value;
 	log.info('proxy_api unregistered route');
-	log.info('Server id == '+ req.body.server_id);
-	log.info('Server path == ' + req.body.path);
-	var Validity = checkrequest(serverid, path, "ur");
+	log.info("key="+key + "::value=" + value);
+	var Validity = checkrequest(key, value, "ur");
 	if (Validity.valid){
-		switch(serverid){
-			case "landing":
-			case "auth":
-			case "code-editor":
-				proxy.unregister(host + '/' + serverid + '/', path);
-				res.status(200).json({message: "server unregistered"});
-				break;
-			case "chat":
-				proxy.unregister(host + '/', path);
-				res.status(200).json({message : "server unregistered"});
-				break;
-			default:
-				res.status(403).json({message : "request from unidentified server"});
-		};
+		proxy.unregister(host + key);
+		res.sendStatus(200);
 	}
 	else{
-		res.status(403).json({message : Validity.msg});
+		res.sendStatus(Validity.httpstatus)//.json({message : Validity.msg});
 	}
 };
 
@@ -119,68 +99,56 @@ proxy_api.listall = function (req, res, next) {
 
 module.exports = proxy_api;
 
-function checkrequest (serverid, path, type){
-	var proxy_paths = proxy.routing[host];
+
+function checkrequest (key, value, type){
 	var reply_info = {};
-	var index;
-	for (var i=0 ; i<proxy_paths.length ; i++){
-		switch (serverid){
-			case "landing":
-			case "auth":
-			case "code-editor":
-				if (proxy_paths[i].path === '/' + serverid + '/'){
-					if (type === "r"){
-						reply_info.valid = false;
-						reply_info.msg = "Already a path is registered";
-						return reply_info;
-					}
-					else if (type === "ur"){
-						if (proxy_paths[i].urls[0].href === path){
-							reply_info.valid = true;
-							return reply_info;
-						}
-						else{
-							reply_info.valid = false;
-							reply_info.msg = "Trying to unregister a wrong path";
-							return reply_info;
-						}
-					}
+	var proxy_paths = proxy.routing[host];
+	for (var i=0; i<proxy_paths.length ; i++){
+		if (proxy_paths[i].path === key){
+			if (proxy_paths[i].urls[0].href === value){
+				if (type === "r"){
+					log.info("Route already registered");
+					reply_info.valid = false;
+					reply_info.msg = "Route already registered";
+					reply_info.httpstatus = 200;
 				}
-				break;
-			case "chat":
-				if (proxy_paths[i].path === '/'){
-					if (type === "r"){
-						reply_info.valid = false;
-						reply_info.msg = "Already a path is registered";
-						return reply_info;
-					}
-					else if (type === "ur"){
-						if (proxy_paths[i].urls[0].href === path){
-							reply_info.valid = true;
-							return reply_info;
-						}
-						else{
-							reply_info.valid = false;
-							reply_info.msg = "Trying to unregister a wrong path";
-							return reply_info;
-						}
-					}
+				/*else{
+				  log.info("Unregister the route");
+				  reply_info.valid = true;
+				  }*/
+			}
+			else{
+				if (type === "r"){
+					log.info("Trying to register a different value for an existing key");
+					reply_info.valid = true;
+					reply_info.reset = true;
 				}
-				break;
-			default:
-				reply_info.valid = false;
-				reply_info.msg = "Illegal server request";
-				return reply_info;
-		}	
+				/*else{
+				  log.info("Trying to unregister wrong path");
+				  reply_info.valid = false;
+				  reply_info.msg = "Unregistering wrong path";
+				  reply_info.httpstatus = 404;
+				  }*/
+			}
+			if(type === "ur"){
+				reply_info.valid = true;
+			}
+			return reply_info;
+		}
 	}
 	if (type === "r"){
+		log.info("Registering the route");
 		reply_info.valid = true;
-		return reply_info;
 	}
-	reply_info.valid = false;
-	reply_info.msg = "No such path exists";
+	else{
+		log.info("No such proxy entry exists with this "+ key +":" + value+"pair");
+		reply_info.valid = false;
+		reply_info.msg = "No such proxy entry exists with this "+ key +":" + value+"pair";
+		reply_info.httpstatus = 404;
+	}
 	return reply_info;
 };
+
 
 
 /*
@@ -192,7 +160,6 @@ proxy.register(host + '/auth/', "http://localhost:2178/auth/");
 //proxy.register(host + '/session/test-internal', "localhost:7777/");
 ////proxy.register(host + '/session/meghadoot', "localhost:7778/");
 //
-proxy.register(host + '/code-editor/', "http://localhost:8000/channel/");
 proxy.register(host + '/', "localhost:5000/");
 proxy.register(host + '/socket.io/', "localhost:5000/socket.io/");
-//proxy.register(host + '/log', "localhost:24224/");
+proxy.register(host + '/log', "localhost:24224/");
