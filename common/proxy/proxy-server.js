@@ -10,7 +10,7 @@ var app = express();
 var router = express.Router();
 router.post ('/addRoute', proxy_api.register);
 router.post ('/deleteRoute', proxy_api.unregister);
-router.get ('/listRoutes/:host_id', proxy_api.listall);
+router.get ('/listRoutes', proxy_api.listall);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
