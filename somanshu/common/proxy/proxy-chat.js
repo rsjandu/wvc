@@ -46,6 +46,9 @@ proxy.register(host + '/auth/', "http://localhost:2178/auth/");
  * Routes for the session cluster docker for 'test-internal' */
 proxy.register(host + '/session/test-internal', "localhost:7777/");
 proxy.register(host + '/session/meghadoot', "localhost:7778/");
+proxy.register(host + '/session/test-editor', "localhost:7779/");
+
+proxy.register(host + '/code-editor/', "localhost:8000/");
 
 proxy.register(host + '/', "localhost:5000/");
 proxy.register(host + '/socket.io/', "localhost:5000/socket.io/");

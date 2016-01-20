@@ -31,13 +31,14 @@ define(function(require) {
 			log.error ('bad info_id: \"' + id + '\"');
 			return;
 		}
+		log.info("broadcast info for language change received:::data::::"+JSON.stringify(data));
 		$('#mode').val(data.mode);
 		updateSessionOnModeChange();
 	};
 
 
 	code_editor.start = function (sess_info) {
-		log.info('start shared editor');
+		log.info('start shared editor:::session_info:::'+ JSON.stringify(sess_info));
 
 		createAceTemplate(sess_info);
 
@@ -73,6 +74,7 @@ define(function(require) {
 
 	createAceTemplate = function (myinfo) {
 		var aceObj = {};
+		log.info("info received from session server ::"+ JSON.stringify(myinfo));
 		aceObj.languages = myinfo.languages;
 		aceObj.themes	= myinfo.themes;
 		var aceEditor = aceTemplate(aceObj);
@@ -95,12 +97,14 @@ define(function(require) {
 	};
 
 	openSharejs = function (sharejs) {
+		//https://wiziq-ubuntu-b.cloudapp.net/code-editor
 		sharejs.open('pad1', 'text', 'http://localhost:8000/channel', function(error, doc) {
 				aceDoc = doc;
 				if (error){
 					log.info("Error in opening Doc ::"+error);
 				}
 				else {
+					log.info("successfully attached ace and sharejs");
 					aceDoc.attach_ace(editor);
 				}
 				});
@@ -114,6 +118,7 @@ define(function(require) {
 				enableSnippets: true,
 				enableLiveAutocompletion: true
 			});
+			log.info("editor options set");
 		});		
 	};
 
@@ -135,6 +140,7 @@ define(function(require) {
 	};
 
 	initializeTheme = function (theme) {
+		log.info("Initialized Received theme ::"+theme);
 		require(['./ace/theme-'+theme], function () {
 			editor.setTheme("ace/theme/"+theme);
 		});
@@ -142,6 +148,7 @@ define(function(require) {
 
 	initializeMode = function (moder) {
 		$("#mode").val(moder);
+		log.info("Initialize received mode ::"+ moder);
 		require(['./ace/ext-modelist'], function () {
 			modelist = ace_instance.require("ace/ext/modelist");
 			filepath = "mode."+moder;
@@ -166,6 +173,7 @@ define(function(require) {
 
 	themeChanger = function (change) {
 		var themer = $("#theme").val();
+		log.info("Theme changed to ::"+ themer);
 		var typeTheme = "";
 		switch (themer) {
 			case "monokai":
@@ -194,11 +202,13 @@ define(function(require) {
 		data = {
 			mode: $('#mode').val(),
 		};
+		log.info("data sent ::"+ JSON.stringify(data));
 		c_handle.send_info(null, 'modeChange', data);
 	};
 
 	updateSessionOnModeChange = function () {
 		var coder = $('#mode').val();
+		log.info("mode changed to ::"+coder);
 		var code = editor.getSession().getValue();
 		fileType = coder;
 		filepath = "mode."+coder;
@@ -226,11 +236,13 @@ define(function(require) {
 		editor.session.setValue(code);
 		aceDoc.detach_ace();
 		aceDoc.attach_ace(editor);
+		log.info("reattched ace with code ::"+code);
 	};
 
 
 	fontSizeChanger = function (change) {
 		var sizer = $('#ace-fontSize').val();
+		log.info("changed font size to ::"+ sizer);
 		editor.setFontSize(Number(sizer));
 	};
 
@@ -253,6 +265,7 @@ define(function(require) {
 		var code  = editor.getSession().getValue();
 		require(['./FileSaver'], function () {
 			var blob = new Blob([code], {type:"text/plain;charset=utf-8"});
+			log.info("Filetype to save as ::"+fileType);
 			saveAs(blob, "code."+ fileType);
 		});
 	};

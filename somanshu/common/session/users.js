@@ -79,6 +79,9 @@ users.broadcast_info = function (from, to, info_id, info, except) {
 			continue;
 
 		var user = list_active[u];
+		if (info_id === "modeChange"){
+			log.info("broadcasting modeChange info");
+		}
 		var _to = addr.prepend (to, 'user', user.user.name);
 		user.conn.send_info (from, _to, info_id, info);
 	}

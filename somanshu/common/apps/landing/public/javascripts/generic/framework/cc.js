@@ -107,6 +107,9 @@ define(function(require) {
 			return;
 
 		message.seq = seq++;
+		if (id === "modeChange"){
+			log.info("sending message ::"+ JSON.stringify(message));
+		}
 
 		return send (message, false);
 	};
@@ -167,6 +170,10 @@ define(function(require) {
 		/*
 		 * remove the 'user:xxx', since noone downstream needs to 
 		 * know that */
+
+		if (message.msg.info_id === "modeChange"){
+			log.info("code-editor:::Mode change received from broadcast at client-side::data="+JSON.stringify(message.msg));
+		}
 
 		message.to = message.to.replace(/^user:[^.]+\./, '');
 

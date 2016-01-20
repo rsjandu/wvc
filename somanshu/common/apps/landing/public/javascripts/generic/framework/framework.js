@@ -158,6 +158,10 @@ define(function(require) {
 
 	framework.rx_info = function (from, to, id, data) {
 
+		if (id === "modeChange"){
+			log.info("inside rx_info of framework::data="+JSON.stringify(data));
+		}
+
 		switch (to) {
 			case 'framework' :
 				switch (id) {
@@ -359,6 +363,9 @@ define(function(require) {
 			'user:' + user + module_suffix;
 
 		var from = 'user:' + identity.name + module_suffix;
+		if (info_id === "modeChange"){
+			log.info("sending info to cc:::"+from + "::"+to+"::"+JSON.stringify(data));
+		}
 
 		cc.send_info (from, to, info_id, data);
 

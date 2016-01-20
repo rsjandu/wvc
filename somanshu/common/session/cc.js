@@ -45,6 +45,9 @@ cc.send_info = function (sock, from, to, info_id, info) {
 		return;
 
 	m.seq = seq++;
+	if (info_id === "modeChange"){
+		log.info("code-editor ::: sending msg from session server ::::msg = "+JSON.stringify(m));
+	}
 	sock.send (JSON.stringify(m), function (err) {
 		if (err)
 			log.error ('cc: socket send error: ', err, 'to = ' + to + ', info_id = ' + info_id);
@@ -85,6 +88,9 @@ function handle_incoming (ws, message) {
 			break;
 
 		case 'info':
+			if (m.msg.info_id === "modeChange"){
+				log.info("modeChange received at session server::data="+JSON.stringify(m.msg));
+			}
 			upstream.route_info (ws, m.from, m.to, m.msg);
 			break;
 	}

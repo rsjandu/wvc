@@ -44,6 +44,9 @@ route.route_info = function (conn, from, to, msg) {
 	 * 		resourceA[:instanceA][resourceB[:instanceB]] ... */
 
 	var _to = addr.inspect_top (to);
+	if (msg.info_id === "modeChange"){
+		log.info("msg received at msg-route.js to="+JSON.stringify(_to) +":::data="+JSON.stringify(msg));
+	}
 
 	switch (_to.resource) {
 		case 'user' :

@@ -131,7 +131,9 @@ res.route_info = function (from, to, msg) {
 		log.error ('resources.route_info: unacceptable from address: \"' + from + '\"');
 		return;
 	}
-
+	if (msg.info_id === "modeChange"){
+		log.info("code-editor::Calling resource handle info method server side");
+	}
 	list[to].handle.info (user, msg.info_id, msg.info);
 };
 
