@@ -254,19 +254,19 @@ define(function(require){
 		if (messageObj.fragment)
 			messageObj.classs += " lcb-fragment";
 
+		if( !messageObj.fragment){
+			lastMessageOwner = messageObj.owner.id;
+		}
+
 		var $message = msgTemplate( messageObj);
 
 		format_message( $message, function( html){
 						$messages.append(/*'<li>' +*/ html);
-						if( !messageObj.fragment){
-							lastMessageOwner = messageObj.owner.id;
-						}
 
 						if( scroll_lock === false || messageObj.owner.id === users.me.id ){
 							scrollTo( $messages[0] );
 						}
 		});
-
 	}
 
 	function format_message( html, cb){				/* here we get a HTML string, which is diff to manipulate */
