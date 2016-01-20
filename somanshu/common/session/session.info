@@ -30,7 +30,7 @@
 		{
 			"name"	:	"code-editor",
 			"custom"	:	{
-				"server_url"	: "https://wiziq-ubuntu-b.cloudapp.net/code-editor/",
+				"server_url"	: "https://wiziq-ubuntu-a.cloudapp.net/code-editor/",
 				"languages"	:	[
 					{	"value" : "js",			"text": "Javascript"},
 					{	"value" : "html",		"text": "HTML"},
@@ -38,10 +38,10 @@
 				],
 				"themes"	:	[
 					{	"value"	:	"monokai",		"text"	:	"Monokai"},
-					{	"value"	:	"solar_dark",	"text"	:	"Solarized_Dark"},
+					{	"value"	:	"solarized_dark",	"text"	:	"Solarized_Dark"},
 					{	"value"	:	"chrome",		"text"	:	"Chrome"},
 					{	"value"	:	"clouds",		"text"	:	"Clouds"},
-					{	"value"	:	"clouds2",		"text"	:	"Clouds Midnight"}
+					{	"value"	:	"clouds_midnight",		"text"	:	"Clouds Midnight"}
 				],
 				"current_lang"	:	"js",
 				"current_theme"	:	"monokai"

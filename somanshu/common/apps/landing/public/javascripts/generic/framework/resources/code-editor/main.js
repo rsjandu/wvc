@@ -10,9 +10,7 @@ define(function(require) {
 	var modelist	= {};
 	var filePath	= "";
 	var modeChosen	= "";
-	var sessionjs	= null;
-	var sessionhtml	= null;
-	var sessioncpp	= null;
+	var sessType	= {};
 	var ace_instance = null;
 	var aceDoc		= null;
 	var aceTemplate;
@@ -153,20 +151,16 @@ define(function(require) {
 			modelist = ace_instance.require("ace/ext/modelist");
 			filepath = "mode."+moder;
 			modeChosen = modelist.getModeForPath(filepath).mode;
-			sessionjs = ace_instance.createEditSession("", "ace/mode/javascript");
-			sessionhtml = ace_instance.createEditSession("", "ace/mode/html");
-			switch (moder){
-				case "js":
-					editor.setSession(sessionjs);
-					break;
-				case "html":
-					editor.setSession(sessionhtml);
-					break;
-				case "cpp":
-					sessioncpp = ace_instance.createEditSession("", modeChosen);
-					editor.setSession(sessioncpp);
-					break;
-			};
+			sessType["js"] = ace_instance.createEditSession("", "ace/mode/javascript");
+			sessType["html"] = ace_instance.createEditSession("", "ace/mode/html");
+			
+			if (sessType[moder]){
+				editor.setSession(sessType[moder]);
+			}
+			else{
+				sessType[moder] = ace_instance.createEditSession("", modeChosen);
+				editor.setSession(sessType[moder]);
+			}
 		});
 	};
 
@@ -174,26 +168,8 @@ define(function(require) {
 	themeChanger = function (change) {
 		var themer = $("#theme").val();
 		log.info("Theme changed to ::"+ themer);
-		var typeTheme = "";
-		switch (themer) {
-			case "monokai":
-				typeTheme = "monokai";
-				break;
-			case "solar_dark":
-				typeTheme = "solarized_dark";
-				break;
-			case "chrome":
-				typeTheme = "chrome";
-				break;
-			case "clouds":
-				typeTheme = "clouds";
-				break;
-			case "clouds2":
-				typeTheme = "clouds_midnight";
-				break;
-		}
-		require (['./ace/theme-'+typeTheme], function () {
-			editor.setTheme("ace/theme/"+ typeTheme);
+		require (['./ace/theme-'+themer], function () {
+			editor.setTheme("ace/theme/"+ themer);
 		});
 	};
 
@@ -213,26 +189,13 @@ define(function(require) {
 		fileType = coder;
 		filepath = "mode."+coder;
 		modeChosen = modelist.getModeForPath(filepath).mode;
-		switch (coder){
-			case "js":
-				/*if(sessionjs === null){
-				  sessionjs = ace_instance.createEditSession(code, modeChosen);
-				  }*/
-				editor.setSession(sessionjs);
-				break;
-			case "html":
-				/*if(sessionhtml === null){
-				  sessionhtml = ace_instance.createEditSession(code, modeChosen);
-				  }*/
-				editor.setSession(sessionhtml);
-				break;
-			case "cpp":
-				if(sessioncpp === null){
-					sessioncpp = ace_instance.createEditSession(code, modeChosen);
-				}
-				editor.setSession(sessioncpp);
-				break;
-		};
+		if(sessType[coder]){
+			editor.setSession(sessType[coder]);
+		}
+		else{
+			sessType[coder] = ace_instance.createEditSession("", modeChosen);
+			editor.setSession(sessType[coder]);
+		}
 		editor.session.setValue(code);
 		aceDoc.detach_ace();
 		aceDoc.attach_ace(editor);
