@@ -64,7 +64,7 @@ define(function(require) {
 
 						setEditorKeyBinding();
 
-						openSharejs(sharejs);
+						openSharejs(sharejs, sess_info.server_url);
 
 					});
 				});
@@ -96,9 +96,9 @@ define(function(require) {
 
 	};
 
-	openSharejs = function (sharejs) {
-		//https://wiziq-ubuntu-b.cloudapp.net/code-editor
-		sharejs.open('pad1', 'text', 'http://localhost:8000/channel', function(error, doc) {
+	openSharejs = function (sharejs, server_url) {
+		log.info("server_url received::"+ server_url);
+		sharejs.open('pad1', 'text', server_url, function(error, doc) {
 				aceDoc = doc;
 				if (error){
 					log.info("Error in opening Doc ::"+error);

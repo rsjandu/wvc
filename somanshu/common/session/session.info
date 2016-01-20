@@ -30,6 +30,7 @@
 		{
 			"name"	:	"code-editor",
 			"custom"	:	{
+				"server_url"	: "https://wiziq-ubuntu-b.cloudapp.net/code-editor/",
 				"languages"	:	[
 					{	"value" : "js",			"text": "Javascript"},
 					{	"value" : "html",		"text": "HTML"},
