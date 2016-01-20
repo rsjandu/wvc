@@ -19,7 +19,6 @@ av_tokbox.init = function (myinfo, common, handles) {
 
     log = handles.log;
 
-    log.info ('av-tokbox: init :', myinfo);
     key = myinfo.custom.apikey;
     secret = myinfo.custom.apisecret;
     chromelocalextensionid = myinfo.custom.chromelocalextensionid;
@@ -105,9 +104,6 @@ function createToken (user, cb) {
         log.error(e);
         return cb(e, null);
     }
-
-    /* Any messaging protocol for payloads ?
-    */
 
     var res = {
         sessionid : sessionid,
