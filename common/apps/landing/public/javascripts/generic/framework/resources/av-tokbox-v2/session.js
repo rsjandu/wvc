@@ -205,7 +205,7 @@ define(function(require) {
 
 		tokbox.subscribe (stream, container.div(), opts_override)
 			.then(
-				function () {
+				function (subscriber) {
 					/* The video should automatically get shown in the container
 					 * that we passed above */
 					layout.reveal_video(container);

@@ -3,6 +3,7 @@ define(function (require) {
 	var log          = require('log')('av-screenshare', 'info');
 	var layout       = require('./layout');
 	var remodal      = require('remodal');
+	var menu         = require('./menu');
 	var tokbox       = require('./tokbox');
 
 	var screenshare = {};
@@ -17,7 +18,7 @@ define(function (require) {
 		$('.remodal-confirm').click(close_modal);
 
 		/* Screenshare menu handler */
-		$('#widget-nav li#nav-screenshare a').on('click', start);
+		menu.screenshare.set_handler(start);
 
 		return null;
 	};
@@ -88,6 +89,7 @@ define(function (require) {
 		 * and pass */
 		$(my_container.div()).append('<div id="av-ot-screenshare-wrap"></div>');
 		var div = $('div#av-ot-screenshare-wrap');
+
 		tokbox.init_publisher (i_am, null, div[0], { 
 				videoSource : 'screen'
 			}).then(

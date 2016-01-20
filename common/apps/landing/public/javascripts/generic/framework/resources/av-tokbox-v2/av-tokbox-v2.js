@@ -6,6 +6,7 @@ define(function(require) {
 	var session     = require('./session');
 	var layout      = require('./layout');
 	var screenshare = require('./screenshare');
+	var menu        = require('./menu');
 	var cpool       = require('./container-pool');
 
 	var av = {};
@@ -30,7 +31,9 @@ define(function(require) {
 			return d.promise ();
 		}
 
+		menu.init (f_handle, custom);
 		cpool.init (f_handle, display_spec, custom, perms);
+
 		/*
 		 * Initialize the screenshare controller */
 		err = screenshare.init (f_handle, custom);

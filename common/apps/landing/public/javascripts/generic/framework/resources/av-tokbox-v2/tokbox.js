@@ -224,7 +224,7 @@ function (require, ot, _log, $) {
 			subscriber.on('audioLevelUpdated', function (ev) {
 			});
 
-			d.resolve();
+			d.resolve(subscriber);
 		});
 
 		return d.promise ();

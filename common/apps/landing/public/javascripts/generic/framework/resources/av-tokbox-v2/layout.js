@@ -4,6 +4,7 @@ define(function(require) {
 	var log          = require('log')('av-layout', 'info');
 	var av_container = require('./container');
 	var cpool        = require('./container-pool');
+	var menu         = require('./menu');
 
 	var layout = {};
 	var sess_info_cached;
@@ -31,12 +32,30 @@ define(function(require) {
 		/*
 		 * Type should be : 'video-primary', 'video-secondary', 'screenshare-local', 'screenshare-remote */
 		var mode = display_mode (current_layout, type);
-		return cpool.alloc_container (type, mode);
+		var cont =  cpool.alloc_container (type, mode);
+
+		/* We know that the # of containers for screenshare are limited. So if we just
+		 * allocated one for screenshare then see if we've already exhausted all containers
+		 * reserved for screenshare. If yes, disable the menu-item for screenshare */
+
+		if (type === 'screenshare-local' || type === 'screenshare-remote')
+			if (!cpool.free_count('screenshare'))
+				menu.screenshare.disable();
+
+		return cont;
 	};
 
 	layout.giveup_container = function (container, reason) {
+		var type = container.get_type();
+
 		layout_set_to_default(current_layout, null);
-		return cpool.giveup_container (container);
+		cpool.giveup_container (container);
+
+		/* See comment in 'get_container' above */
+		if (type === 'screenshare-remote' || type === 'screenshare-local')
+			menu.screenshare.enable();
+
+		return;
 	};
 
 	layout.show_error = function (container, error) {
