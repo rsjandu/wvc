@@ -96,7 +96,7 @@ define(function(require) {
 
 	openSharejs = function (sharejs, server_url) {
 		log.info("server_url received::"+ server_url);
-		sharejs.open('pad1', 'text', server_url, function(error, doc) {
+		sharejs.open('pad1', 'text', server_url+"/channel", function(error, doc) {
 				aceDoc = doc;
 				if (error){
 					log.info("Error in opening Doc ::"+error);
