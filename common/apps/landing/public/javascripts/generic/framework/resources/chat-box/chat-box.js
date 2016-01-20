@@ -286,7 +286,7 @@ define(function(require){
 		index  			: 0, 
 		get_next_color 	: function(){
 									var temp = this.index;
-									index = (++this.index) % this.colors.length;
+									this.index = (++this.index) % this.colors.length;
 									return this.colors[ temp ];	
 						  },
 		colorOf 		: {},			/* map of userid : color */
