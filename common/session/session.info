@@ -24,7 +24,7 @@
 			"name" 		: "chat-box",
 			"custom" 	: {
 				"server_url" : "https://wiziq-ubuntu-a.cloudapp.net/",
-				"req_timeout": "5000"
+				"req_timeout": "10000"
 			} 
 		}
 	]
