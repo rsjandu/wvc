@@ -96,13 +96,13 @@ chat.init_user = function (user) {
 					.then(	
 						function gotToken( token ){
 							user_token = token;
-							log.info('Chat-Box:', 'init_user resolved');
 							/*
 							 * add the user to the room so that room becomes visible to the user
 							 */
 							allow_user_to_room( m_room, uname.toLowerCase() )
 								.then(
 									function(){
+										log.info('Chat-Box:', 'init_user resolved');
 										_d.resolve({
 										'root_url' : root_url,
 										'token'    : user_token,
@@ -174,9 +174,10 @@ function generate_password( username ){
 
 function create_user(username, password, user_info) {
 	var _d = $.Deferred ();
-	var email	 = user_info.emails ? (
+	/*var email	 = user_info.emails ? (
 					user_info.emails.length > 0 ? user_info.emails[0].value : username + '-pseudo@webrtc.vc'
-					): username + '-pseudo@webrtc.vc';
+					): username + '-pseudo@webrtc.vc';*/
+	var email = username + '-pseudo@webrtc.vc';
 	var display_name = user_info.displayName;
 	var first_name = display_name.split(' ')[0];
 	var last_name = display_name.split(' ')[1] || '*';
