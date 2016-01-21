@@ -6534,6 +6534,12 @@ var Document = function(textOrLines) {
         } while(true);
     };
     this.revertDelta = function(delta) {
+		if (delta.action == "insertText"){
+			delta.action = "insert";
+		}
+		else if (delta.action == "removeText"){
+			delta.action = "remove";
+		}
         this.applyDelta({
             start: this.clonePos(delta.start),
             end: this.clonePos(delta.end),

@@ -52,6 +52,7 @@ define(function(require) {
 						var elem = document.getElementById("sce-ace_editor");
 						ace_instance = ace;
 						editor = ace_instance.edit(elem);
+						editor.on("input", checkForUndoRedo);
 						editor.$blockScrolling = Infinity;
 
 						intializeEditorOptions();
@@ -196,7 +197,7 @@ define(function(require) {
 			sessType[coder] = ace_instance.createEditSession("", modeChosen);
 			editor.setSession(sessType[coder]);
 		}
-		editor.session.setValue(code);
+		//editor.session.setValue(code);
 		aceDoc.detach_ace();
 		aceDoc.attach_ace(editor);
 		log.info("reattched ace with code ::"+code);
@@ -211,16 +212,17 @@ define(function(require) {
 
 	undoHandler = function () {
 		var um = editor.getSession().getUndoManager();
-		log.info("1::"+um);
 		um.undo();
-		log.info("2::"+um);
-		$('.ace_undo').attr('disabled', um.hasUndo() ? false : true );
 	};
 
 	redoHandler = function () {
 		um = editor.getSession().getUndoManager();
-		log.info("3::"+um);
 		um.redo();
+	};
+
+	checkForUndoRedo = function (change){
+		var um = editor.getSession().getUndoManager();
+		$('.ace_undo').attr('disabled', um.hasUndo() ? false : true );
 		$('.ace_redo').attr('disabled', um.hasRedo() ? false : true );
 	};
 
