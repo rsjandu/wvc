@@ -239,19 +239,21 @@
 	}
 }
 
-#av-menu-outer .av-menu-item {
+#av-menu-outer .av-menu-item,
+#av-menu-outer .av-menu-item:hover,
+#av-menu-outer .av-menu-item.text-danger {
 	display: inline-block;
-	fill: white;
 	overflow: hidden;
+	width : 24px;
+	height : 24px;
 	max-height: 24px;
+	svg {
+		width : 24px;
+		height : 24px;
+	}
 	padding: 2px 5px 2px 5px;
+	margin: 0 5px 0 5px;
 }
-
-#av-menu-outer .btn span {
-	text-shadow: none;
-	font-size: 1.6em;
-}
-
 
 #av-menu-outer {
 	#av-indicator {

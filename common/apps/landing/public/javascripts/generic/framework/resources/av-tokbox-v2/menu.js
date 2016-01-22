@@ -53,6 +53,7 @@ define(function (require) {
 				throw 'menu.av_controls : duplicate handler registered';
 
 			av_controls_handler = handler;
+			$('.av-menu-item').removeClass('disabled');
 		},
 
 		fire : function (ev) {

@@ -48,8 +48,6 @@ define(function(require) {
 	};
 
 	function set_handlers (d, sess_info) {
-		menu.av_controls.set_handler (menu_handler);
-
 		tokbox.set_pub_handlers ({
 			'accessAllowed'        : accessAllowed,
 			'accessDenied'         : accessDenied,
@@ -109,6 +107,8 @@ define(function(require) {
 	function streamCreated (ev) {
 		var stream = ev.stream;
 		layout.reveal_video (my_container);
+
+		menu.av_controls.set_handler (menu_handler);
 
 		conn_emitter_cached.emit('incoming-media', {
 			connection_id : null,
