@@ -1,8 +1,8 @@
 /*
  *  Used to update list of routes whenever proxy registers or unregisters   */
 
-var route_list	= {};
-var routes		= {};
+var route_list  = {};
+var routes      = {};
 
 route_list.add_route = function (key, val){
 	routes[key] = {
