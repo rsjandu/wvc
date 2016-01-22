@@ -1,7 +1,7 @@
 var bunyan = require('bunyan');
 
 var log = bunyan.createLogger ({
-	name : 'proxy-server',
+	name 	: 'proxy-server',
 	streams : [
 		{
 			stream : process.stdout,
