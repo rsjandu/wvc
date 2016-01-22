@@ -1,8 +1,8 @@
-var log            = require('./log');
-var host           = require('./args');
-var proxy 		   = require('./proxy');
-var route_list	   = require('./route-list');
-var proxy_api 	   = {};
+var log				= require('./log');
+var host			= require('./args');
+var proxy			= require('./proxy');
+var route_list		= require('./route-list');
+var proxy_api		= {};
 
 function key_exists (key) {
 	return (route_list.routes[key] !== undefined);

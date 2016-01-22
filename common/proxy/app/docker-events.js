@@ -1,6 +1,6 @@
-var docker_monitor 	= require('node-docker-monitor');
+var docker_monitor	= require('node-docker-monitor');
 var proxy			= require('./proxy');
-var log 			= require('./log');
+var log				= require('./log');
 var host			= require('./args');
 var route_list		= require('./route-list');
 
