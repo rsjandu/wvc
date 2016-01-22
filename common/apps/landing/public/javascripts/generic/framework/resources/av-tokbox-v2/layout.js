@@ -70,7 +70,6 @@ define(function(require) {
 		container.reveal_video ();
 	};
 
-
 	/*
 	 * _______Container Pool Management___________
 	 *

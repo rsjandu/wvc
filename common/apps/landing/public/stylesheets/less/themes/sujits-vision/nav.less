@@ -6,10 +6,13 @@
 svg path#Bounds {
 	fill : transparent;
 }
-svg path {
-	fill : @brand-primary;
 
-	.disabled & {
+#widget-nav {
+	svg  {
+		fill : @brand-primary;
+	}
+
+	li.disabled svg  {
 		fill : @navbar-default-link-disabled-color;
 	}
 }

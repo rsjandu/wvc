@@ -1,11 +1,12 @@
-#av-menu-outer.avpmenu
+#av-menu-outer
 		#av-indicator.flash(style="display:none;")
-		#avmic-mute.btn.btn-default.btn-sm.btn-round.btn-custom(href='#', data-toggle='tooltip', data-placement='top', data-original-title='Mute Microphone')
-			span.fa.fa-microphone.fa-lg
-		#avmic-unmute.btn.btn-default.btn-sm.btn-round.btn-custom(href='#', data-toggle='tooltip', data-placement='top', data-original-title='Unmute Microphone')
-			span.fa.fa-microphone-slash.fa-lg
-		#avcamstop.btn.btn-default.btn-sm.btn-round.btn-custom(href='#', data-toggle='tooltip', data-placement='top', data-original-title='Stop Video')
-			span.fa.fa-video-camera.fa-lg
-		#avstart.btn.btn-default.btn-sm.btn-round.btn-custom(href='#', data-toggle='tooltip', data-placement='top', data-original-title='Call')
-			span.fa.fa-phone.fa-lg
-
+		div(style="display: inline-block;")
+			#av-menu-audio-unmute.av-menu-item.text-danger(style="display: none;")
+				include images/microphone-slashed.svg
+			#av-menu-audio-mute.av-menu-item
+				include images/microphone.svg
+		div(style="display: inline-block;")
+			#av-menu-video-unmute.av-menu-item.text-danger(style="display: none;")
+				include images/camera-slash.svg
+			#av-menu-video-mute.av-menu-item
+				include images/camera.svg

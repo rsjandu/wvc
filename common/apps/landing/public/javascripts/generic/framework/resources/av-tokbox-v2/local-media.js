@@ -4,6 +4,7 @@ define(function(require) {
 	var layout       = require('./layout');
 	var tokbox       = require('./tokbox');
 	var av_container = require('./container');
+	var menu         = require('./menu');
 
 	var local = {};
 	var publisher;
@@ -19,7 +20,13 @@ define(function(require) {
 		conn_emitter_cached = conn_emitter;
 
 		tokbox.init_publisher (i_am, sess_info, div)
-			.then (set_pub_handlers.bind(d, sess_info), d.reject.bind(d));
+			.then (
+				function (__sess_info, _publisher) {
+					publisher = _publisher;
+					set_handlers(d, sess_info);
+				},
+				d.reject.bind(d)
+			);
 
 		return d.promise();
 	};
@@ -28,7 +35,10 @@ define(function(require) {
 		var d    = $.Deferred ();
 
 		tokbox.publish ()
-			.then (d.resolve.bind(d, sess_info), d.reject.bind(d));
+			.then (
+				d.resolve.bind(d, sess_info),
+				d.reject.bind(d)
+			);
 
 		return d.promise();
 	};
@@ -37,7 +47,9 @@ define(function(require) {
 		return my_container;
 	};
 
-	function set_pub_handlers (sess_info) {
+	function set_handlers (d, sess_info) {
+		menu.av_controls.set_handler (menu_handler);
+
 		tokbox.set_pub_handlers ({
 			'accessAllowed'        : accessAllowed,
 			'accessDenied'         : accessDenied,
@@ -49,13 +61,32 @@ define(function(require) {
 			'streamDestroyed'      : streamDestroyed,
 		});
 
-		this.resolve(sess_info);
+		d.resolve(sess_info);
 	}
 
 	/*
 	 * ___________ Handlers ____________
 	 *
 	 */
+	function menu_handler (element, action) {
+
+		log.info ('menu_handler called, ' + element + ', ' + action);
+
+		switch (element) {
+			case 'audio':
+				log.info ('audio ' + action + 'ing ...');
+				publisher.publishAudio (action === 'mute' ? false : true);
+				break;
+
+			case 'video':
+				log.info ('video ' + action + 'ing ...');
+				publisher.publishVideo (action === 'mute' ? false : true);
+				break;
+
+			default:
+				log.error ('invalid element type = ' + element);
+		}
+	}
 
 	function accessAllowed (ev) {
 		/* All is well - do nothing */

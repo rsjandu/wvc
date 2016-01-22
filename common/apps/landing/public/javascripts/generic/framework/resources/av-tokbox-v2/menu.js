@@ -10,6 +10,8 @@ define(function (require) {
 		f_handle_cached = f_handle;
 		custom_config_cached = custom;
 
+		$('.av-menu-item').on('click', menu.av_controls.fire);
+
 		return null;
 	};
 
@@ -39,6 +41,40 @@ define(function (require) {
 				$('#widget-nav li#nav-screenshare a').off('click');
 				$('#widget-nav li#nav-screenshare').addClass('disabled');
 			},
+	};
+
+	var av_controls_handler = null;
+	var cam_state = 'unmute';
+
+	menu.av_controls = {
+		set_handler : function (handler) {
+
+			if (av_controls_handler)
+				throw 'menu.av_controls : duplicate handler registered';
+
+			av_controls_handler = handler;
+		},
+
+		fire : function (ev) {
+			curr_target = $(ev.currentTarget).attr('id');
+
+			if (!av_controls_handler)
+				return;
+
+			/*
+			 * The ids of the menu items are of the following syntax:
+			 *     #av-menu-(audio|video)-(mute|unmute) */
+			var target = curr_target.replace(/^av-menu-([^-]+)-.*$/g, "$1");
+			var action = curr_target.replace(/^.*-([^-]*mute)$/g, "$1");
+			var inverse_action = (action === 'mute' ? 'unmute' : 'mute');
+
+			log.info ('target = ' + target + ' action = ' + action);
+			av_controls_handler (target, action);
+			$('#av-menu-' + target + '-' + action).css('display', 'none');
+			$('#av-menu-' + target + '-' + inverse_action).css('display', 'inline-block');
+
+			return;
+		},
 	};
 
 	return menu;
