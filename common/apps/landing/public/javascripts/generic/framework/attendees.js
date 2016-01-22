@@ -9,37 +9,43 @@ define( function(require){
 		_events	= require('events');
 
 	var store	= {}, 					/* vc_id : { identity : {}, meta : {}, rs_info : {} } */	
-		att 	= {};
+		att 	= {},
+		people_ev = _events.emitter('framework:attendees', 'framework');
 
-	_events.bind("framework:attendees", evt_handler, "attendees");	 	/* temporary handling */
 
 	att.fill_users = function( users){			/* to add users already present__before I joined */
-		users.forEach( function(user){
-			att.user_join( user);
-		});
+		if( users){
+			users.forEach( function(user){
+				add_to_map( user);
+			});
+		}
+		/* should we emit some event here as well */
 	};
 
-	att.user_join = function( user){
-		var id = user.vc_id;
-		store[ id] = store [ id] || get_info_struct( user);
-		store[ id].meta.isActive = true;
-
-		/* raise that event which framework is emitting for now */
+	att.user_join = function( data){
+		log.info('att.user_join called');
+		add_to_map( data[0] );
+		people_ev.emit('in', data);
 		return;
 	};
 	
 	att.user_leave = function( userId){
+		log.info('att.user_leave called');
 		if( store[ userId ] ){ 					
 			store[ userId ].meta.isActive = false;		
 		}
 		else{
-			log.warn('this needs attention: user who left was not in attendees store::' + user);		
+			log.warn('this needs attention: user who left was not in attendees store::' + user);
 		}
-		/* tell others */
+		people_ev.emit('out',userId);
 	};
 
-	att.getUserInfo = function( userId){
+	att.getIdentity = function( userId){
 		return store[userId] ? store[userId].identity : null;
+	};
+
+	att.getMeta = function( userId){
+		return store[userId] ? store[userId].meta : null;
 	};
 
 	att.getUsers = function(){
@@ -51,6 +57,16 @@ define( function(require){
 	 * private methods
 	 */
 
+	function add_to_map( user){
+		if( user){
+			var id = user.vc_id;
+			store[ id] = store [ id] || get_info_struct( user);
+			store[ id].meta.isActive = true;
+		}
+		else{
+			log.warn('Attendees::user_join::: user is null');
+		}
+	}
 	function get_info_struct( user){
 		var info 	= {};
 		info.identity 	= user;
@@ -59,31 +75,13 @@ define( function(require){
 		return info;
 	}
 
-	function evt_handler( evt, data){
-		console.log('attendees::evt received ' + evt);
-		
-		switch( evt){
-			case 'in':
-				var user = data[0];
-				att.user_join(user);
-				break;
-			case 'out':
-				var uid = data;
-				att.user_leave( uid);
-				break;
-			default:
-				console.log('attendees::unknown event');
-				break;
-		}
-	
-	}
-	
+					
 	/* 
 	 * api for other modules
 	 * */
 
 	/* need to discuss this.. what needs to be done so that it improves our system n all */
-	/* att.save_it_for_me = function( rname, userId, key, value, flag_push){	
+	att.save_it_for_me = function( rname, userId, key, value, flag_push){	
 		var is_res = store[ userId].rs_info[rname];
 
 		if( !is_res){
@@ -101,13 +99,17 @@ define( function(require){
 			else{
 				store[ userId].rs_info[rname][key].push( value);
 			}
-		}* /
+		}*/
 	};
 
-	att.getInfo = function(some_args_here){
-		/* if present * /	
-		return store[ userId].rs_info[rname][key];	
-	};*/
+	att.getInfo = function( rname, userId, key){
+		if( rname && userId && store[ userId] && store[userId].rs_info[rname]){
+			return store[ userId].rs_info[rname][key];	
+		}
+		else{
+			return null;
+		}
+	};
 
 	return att;
 });
