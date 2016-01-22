@@ -1,23 +1,21 @@
 var express          = require( 'express' );
 var app              = express();
 var server           = require( 'http' ).createServer( app ) ;
-var path            = require('path');
+var path             = require('path');
 var passport         = require( 'passport' );
 var util             = require( 'util' );
 var bodyParser       = require( 'body-parser' );
 var cookieParser     = require( 'cookie-parser' );
 var session          = require( 'express-session' );
 var RedisStore       = require( 'connect-redis' )( session );
-var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
-var FacebookStrategy = require( 'passport-facebook' ).Strategy;
-var FbAuth           = require( 'auth/socialAuth/fb' );
-var GoogleAuth       = require( 'auth/socialAuth/google' );
-var config           = require( 'auth/socialAuth/oauth' );
 
-var args             = require('common/args');
-var log              = require('auth/common/log');
-var login            = require('auth/routes/login');
+var args             = require( 'common/args' );
+var log              = require( 'auth/common/log' );
+var login            = require( 'auth/routes/login' );
+var db               = require( 'auth/common/db' );
+var authentication   = require( 'auth/socialAuth/app_soc' );
 
+var add_data_to_db   = require( 'auth/routes/dbEntry' );
 
 //configure Express
 app.set('views', __dirname + '/views');
@@ -55,19 +53,21 @@ app.get('/', function(req, res){
         res.render('index', { user: req.user });
 });
 
-app.use('/login', login);
 
-//app.use('/auth/',GoogleAuth);
-app.use('/google',GoogleAuth);
+app.use('/login',create_collection,login);
 
-//app.use('/auth/fb',FbAuth);
-app.use('/fb',FbAuth);
+/*to add data to db via RESTful API*/
+app.use('/dbEntry',add_data_to_db);
 
+app.use('/auth',authentication);
 
-/*app.get('/logout', function(req, res){
-  req.logout();
- //console.log('aaaaaaa');
-  res.redirect('/auth/');
-});*/
+function create_collection(req,res,next)
+{
+ db.createSchema()
+ .then(
+	next, function fail( err){
+     console.log("Addition of data to db failed "+err);
+} );
+}
 
 module.exports = app;

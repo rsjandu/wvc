@@ -2,6 +2,7 @@ var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth2').Strategy;
 var config = require('./oauth.js');
 var encodeGoogle     = require('./encode.js');
+var db               = require('auth/common/db');
 
 var express          = require( 'express' );
 var app              = express();
@@ -15,19 +16,26 @@ var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 var args             = require('common/args');
 var log              = require('auth/common/log');
 var login            = require('auth/routes/login');
+var  $               = require('jquery-deferred');
 
-passport.use(new GoogleStrategy({
-  clientID: config.google.clientID,
-  clientSecret: config.google.clientSecret,
-  callbackURL: config.google.callbackURL,
-  passReqToCallback   : true
-  },
-  function(request,accessToken, refreshToken, profile, done) {
-    process.nextTick(function () {
-      return done(null, profile);
-    });
-  }
-));
+function passport_use_google_strategy ()
+{
+    var _d = $.Deferred();
+	passport.use(new GoogleStrategy({
+  		clientID: config.google.clientID,
+  		clientSecret: config.google.clientSecret,
+  		callbackURL: config.google.callbackURL,
+  		passReqToCallback   : true
+  	},
+  		function(request,accessToken, refreshToken, profile, done) {
+    	process.nextTick(function () {
+      	return done(null, profile);
+    	});
+  	  }
+	));
+    _d.resolve();
+    return _d.promise();
+}
 
 
 // Passport session setup.
@@ -47,7 +55,6 @@ passport.deserializeUser(function(obj, done) {
 
 app.get('/account', ensureAuthenticated, function(req, res){
         var origin = req.cookies.wiziq_origin;
-       //var origin = '/landing/session/v1/meghadoot';
         var MAX_SIZE_COOKIE = 4096;
         /* read cookie and maybe remove this cookie as it is needed no more */
         log.info(req.user, 'google user info');
@@ -76,9 +83,8 @@ app.get('/account', ensureAuthenticated, function(req, res){
           }
           else{
                 res.send('cookie origin???: ' + origin);
-                //res.redirect('/landing/session/v1/meghadoot');  
+                 
          }
-/*  res.render('account', { user: req.user }); */
 });
 
 
@@ -89,10 +95,36 @@ app.get('/account', ensureAuthenticated, function(req, res){
 //   request.  The first step in Google authentication will involve
 //   redirecting the user to google.com.  After authorization, Google
 //   will redirect the user back to this application at /auth/google/callback
-app.get('/', passport.authenticate('google', { scope: [
+app.get('/',fetch_data_from_db,passport_init('google'), passport.authenticate('google', { scope: [
        'https://www.googleapis.com/auth/plus.login',
        'https://www.googleapis.com/auth/plus.profile.emails.read']
 }));
+
+
+function passport_init(auth_type){
+    return  function(req, res, next) {
+    if(auth_type == 'google')
+    {
+    passport_use_google_strategy()
+        .then(next,function fail( err){
+     console.log("Error in google strategy usage "+err);
+});
+    }
+
+  }
+}
+
+
+function fetch_data_from_db(req,res,next)
+{
+ db.fetch_data_from_db('google')
+ .then(
+    next, function fail( err){
+     console.log("Error in data fetching from database "+err);
+ });
+}
+
+
 
 // GET google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -101,19 +133,19 @@ app.get('/', passport.authenticate('google', { scope: [
 //   which, in this example, will redirect the user to the home page.
 app.get('/callback',
         passport.authenticate( 'google', {
-                successRedirect: '/auth/google/account',
+                successRedirect: '/auth/auth/google/account',
                 failureRedirect: '/auth/login',
                 failureFlash: 'Invalid username or password.'
 }));
 
 
 
-app.get('/logout', function(req, res){
+/*app.get('/logout', function(req, res){
   req.logout();
   //console.log('aaaaaaa');
   res.redirect('/auth/');
  //console.log('bbbbb ');
-});
+});*/
 
 //server.listen( 3000 );
 
