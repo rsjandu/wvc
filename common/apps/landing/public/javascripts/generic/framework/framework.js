@@ -5,13 +5,14 @@ define(function(require) {
 	var identity  = require('identity');
 	var events    = require('events');
 	var notify    = require('notify');
+	var attendees = require('attendees');
 	var log       = require('log')('framework', 'info');
 
 	var framework     = {};
 	var modules       = {};
 	var menu_handle   = {};
 	var progress_ev   = events.emitter ('framework-progress', 'framework');
-	var people_ev     = events.emitter ('framework:attendees', 'framework');
+//	var people_ev     = events.emitter ('framework:attendees', 'framework');
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -164,15 +165,18 @@ define(function(require) {
 				switch (id) {
 
 					case 'session-info': 
+						attendees.fill_users(data.attendees);
 						started (data); 
 						break;
 
 					case 'new-johnny':
-						people_ev.emit('in', data);
+//						people_ev.emit('in', data);
+						attendees.user_join( data);
 						break;
 
 					case 'johnny-go-went-gone':
-						people_ev.emit('out', data);
+//						people_ev.emit('out', data);
+						attendees.user_leave( data);
 						break;
 
 					default :
