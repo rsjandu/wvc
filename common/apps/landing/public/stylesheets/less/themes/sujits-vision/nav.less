@@ -8,11 +8,13 @@ svg path#Bounds {
 }
 
 #widget-nav {
-	svg  {
+	svg,
+	svg path.shape  {
 		fill : @brand-primary;
 	}
 
-	li.disabled svg  {
+	li.disabled svg, 
+	li.disabled svg path.shape {
 		fill : @navbar-default-link-disabled-color;
 	}
 }

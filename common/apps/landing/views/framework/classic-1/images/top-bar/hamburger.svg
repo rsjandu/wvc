@@ -6,8 +6,8 @@
     <defs></defs>
     <g id="Assets" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
         <g id="Hamburger-Menu" sketch:type="MSLayerGroup" transform="translate(-3.000000, -6.000000)">
-            <path d="M0,0 L24,0 L24,24 L0,24 L0,0 Z" id="Bounds" sketch:type="MSShapeGroup"></path>
-            <path d="M3,18 L21,18 L21,16 L3,16 L3,18 L3,18 Z M3,13 L21,13 L21,11 L3,11 L3,13 L3,13 Z M3,6 L3,8 L21,8 L21,6 L3,6 L3,6 Z" id="Shape" fill="#607D8B" sketch:type="MSShapeGroup"></path>
+            <path d="M0,0 L24,0 L24,24 L0,24 L0,0 Z" class="bounds" sketch:type="MSShapeGroup"></path>
+            <path d="M3,18 L21,18 L21,16 L3,16 L3,18 L3,18 Z M3,13 L21,13 L21,11 L3,11 L3,13 L3,13 Z M3,6 L3,8 L21,8 L21,6 L3,6 L3,6 Z" class="shape" fill="#607D8B" sketch:type="MSShapeGroup"></path>
         </g>
     </g>
 </svg>
