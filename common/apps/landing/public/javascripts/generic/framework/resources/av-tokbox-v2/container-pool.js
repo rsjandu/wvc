@@ -13,7 +13,7 @@ define(function(require) {
 		return true;
 	};
 
-	pool.alloc_container = function (type, mode) {
+	pool.alloc_container = function (type, mode, meta_info) {
 		var __pool = free_video;
 
 		if (type === 'screenshare-local' || type === 'screenshare-remote')
@@ -31,6 +31,7 @@ define(function(require) {
 
 		container.set_type (type);
 		container.set_mode (mode);
+		container.set_meta (meta_info);
 		container.change_state ('connected');
 
 		used[c[0]] = container;

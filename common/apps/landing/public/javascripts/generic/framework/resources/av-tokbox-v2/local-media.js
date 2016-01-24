@@ -10,16 +10,22 @@ define(function(require) {
 	var publisher;
 	var my_container;
 	var conn_emitter_cached;
+	var f_handle_cached;
 
 	local.init = function (f_handle, container, conn_emitter, sess_info) {
 		var d    = $.Deferred ();
 		var i_am = f_handle.identity.vc_id;
-		var div  = container.div();
 
+		f_handle_cached = f_handle;
 		my_container = container;
 		conn_emitter_cached = conn_emitter;
 
-		tokbox.init_publisher (i_am, sess_info, div)
+		/* OT destroys the div upon mediastream destruction, so create a child under it,
+		 * and pass */
+		$(my_container.div()).append('<div id="av-ot-localmedia-wrap"></div>');
+		var div = $('div#av-ot-localmedia-wrap');
+
+		tokbox.init_publisher (i_am, sess_info, div[0])
 			.then (
 				function (__sess_info, _publisher) {
 					publisher = _publisher;
@@ -36,7 +42,14 @@ define(function(require) {
 
 		tokbox.publish ()
 			.then (
-				d.resolve.bind(d, sess_info),
+				function () {
+					my_container.set_meta ({
+						identity  : f_handle_cached.identity,
+						has_video : true,
+						has_audio : true
+					});
+					return d.resolve(sess_info);
+				},
 				d.reject.bind(d)
 			);
 
@@ -74,11 +87,13 @@ define(function(require) {
 			case 'audio':
 				log.info ('audio ' + action + 'ing ...');
 				publisher.publishAudio (action === 'mute' ? false : true);
+				my_container.set_meta ({ has_audio : (action === 'mute' ? false : true)});
 				break;
 
 			case 'video':
 				log.info ('video ' + action + 'ing ...');
 				publisher.publishVideo (action === 'mute' ? false : true);
+				my_container.set_meta ({ has_video : (action === 'mute' ? false : true)});
 				break;
 
 			default:

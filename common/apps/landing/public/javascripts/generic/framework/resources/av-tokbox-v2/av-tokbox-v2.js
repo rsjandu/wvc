@@ -19,16 +19,16 @@ define(function(require) {
 		 * Initialize the layout */
 		var err = layout.init (f_handle, display_spec, custom, perms);
 		if (err) {
-			d.reject (err);
-			return d.promise ();
+			_d.reject (err);
+			return _d.promise ();
 		}
 
 		/*
 		 * Initialize the session controller */
 		err = session.init ();
 		if (err) {
-			d.reject (err);
-			return d.promise ();
+			_d.reject (err);
+			return _d.promise ();
 		}
 
 		menu.init (f_handle, custom);
@@ -38,8 +38,8 @@ define(function(require) {
 		 * Initialize the screenshare controller */
 		err = screenshare.init (f_handle, custom);
 		if (err) {
-			d.reject (err);
-			return d.promise ();
+			_d.reject (err);
+			return _d.promise ();
 		}
 
 		_d.resolve();

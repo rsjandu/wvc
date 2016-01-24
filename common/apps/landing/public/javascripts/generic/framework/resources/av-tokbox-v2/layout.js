@@ -28,11 +28,11 @@ define(function(require) {
 		return null;
 	};
 
-	layout.get_container = function (type) {
+	layout.get_container = function (type, meta_info) {
 		/*
 		 * Type should be : 'video-primary', 'video-secondary', 'screenshare-local', 'screenshare-remote */
 		var mode = display_mode (current_layout, type);
-		var cont =  cpool.alloc_container (type, mode);
+		var cont =  cpool.alloc_container (type, mode, meta_info);
 
 		/* We know that the # of containers for screenshare are limited. So if we just
 		 * allocated one for screenshare then see if we've already exhausted all containers

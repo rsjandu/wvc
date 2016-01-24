@@ -97,9 +97,7 @@ function (require, ot, _log, $) {
 				var _new = ev.newValue;
 				var id = ev.stream.streamId;
 
-				log.info ('stream property changed: ' + id + ', property: ' + property + ', changed from (' + _old + ') --> (' + _new + ')');
-				if (handlers.streamPropertyChanged)
-					handlers.streamPropertyChanged (id, property, _old, _new);
+				handlers.streamPropertyChanged (id, property, _old, _new);
 			},
 
 		});

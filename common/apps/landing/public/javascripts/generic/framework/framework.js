@@ -193,6 +193,7 @@ define(function(require) {
 
 		var handle = {
 			identity       : identity,
+			attendees      : attendees.api,
 			module_name    : module_name,
 			send_command   : send_command,
 			send_info      : send_info,
@@ -200,9 +201,9 @@ define(function(require) {
 			notify         : notify,
 			menu           : {
 				module_name : module_name,
-				add : menu_add,
-				remove : menu_remove,
-				handler : menu_handler,
+				add         : menu_add,
+				remove      : menu_remove,
+				handler     : menu_handler,
 			}
 		};
 

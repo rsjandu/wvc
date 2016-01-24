@@ -20,7 +20,10 @@ define(function(require) {
 		'connectionCreated'      : connectionCreated,
 		'connectionDestroyed'    : connectionDestroyed,
 		'streamCreated'          : streamCreated,
-		'streamDestroyed'        : streamDestroyed
+		'streamDestroyed'        : streamDestroyed,
+
+		/* Connection related */
+		'streamPropertyChanged'  : streamPropertyChanged,
 	};
 	var conn_emitter = events.emitter('av:connection', 'av:session.js');
 
@@ -177,7 +180,16 @@ define(function(require) {
 				break;
 		}
 
-		var container = layout.get_container (type);
+		/*
+		 * Generally used by the 'container' module to create a tooltip */
+		var meta_info = {
+			identity : f_handle_cached.attendees.get_identity(conn_map[connection_id].vc_id),
+			stream_id : stream_id,
+			has_video : stream.hasVideo,
+			has_audio : stream.hasAudio,
+		};
+
+		var container = layout.get_container (type, meta_info);
 		if (!container) {
 			/* We cannot show this video as we ran out of containers. Here
 			 * we should switch to pure audio. TODO: implement this */
@@ -200,7 +212,8 @@ define(function(require) {
 
 		conn_map[connection_id].streams[stream_id] = {
 			stream : stream,
-			container : container
+			container : container,
+			timer : null
 		};
 
 		tokbox.subscribe (stream, container.div(), opts_override)
@@ -215,6 +228,9 @@ define(function(require) {
 						stream_id     : stream_id,
 						stream        : stream
 					});
+
+					/* Start a periodic timer to collect stats for this subscriber */
+					stream_map[stream_id].timer = setInterval (get_subscriber_stats.bind(null, subscriber, container), 1000);
 				},
 				function (err) {
 					layout.show_error (container, err);
@@ -237,10 +253,36 @@ define(function(require) {
 		var container = conn_map[connection_id].streams[stream_id].container;
 
 		log.info ('stream destroyed: stream_id: ' + stream_id + ', reason = ' + reason);
+
 		layout.giveup_container (container, reason);
+		clearInterval(stream_map[stream_id].timer);
 
 		delete conn_map[connection_id].streams[stream_id];
 		delete stream_map[stream_id];
+	}
+
+	function streamPropertyChanged (stream_id, property, _old, _new) {
+		var conn_id = stream_map[stream_id].connection_id;
+		var cont = conn_map[conn_id].streams[stream_id].container;
+		var meta = {};
+
+		log.info ('stream property changed: ' + stream_id + ', property: ' + property + ', changed from (' + _old + ') --> (' + _new + ')');
+
+		if (property === 'hasAudio')
+			meta.has_audio = _new;
+		if (property === 'hasVideo')
+			meta.has_video = _new;
+
+		cont.set_meta (meta);
+	}
+
+	function get_subscriber_stats (subscriber, container) {
+		subscriber.getStats (function (err, stats) {
+			container.set_meta ({
+				subscriber_err : err,
+				subscriber_stats : stats
+			});
+		});
 	}
 
 	return session;

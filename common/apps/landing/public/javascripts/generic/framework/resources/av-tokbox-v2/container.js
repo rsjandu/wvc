@@ -102,8 +102,14 @@ define(function(require) {
 		var div = $(this.div());
 		var list = div.attr('class').split(/\s+/);
 
-		/* Remove all classes */
+		/* Remove all classes except ...*/
 		$.each(list, function(index, _class) {
+
+			if (_class === 'av-container')
+				return;
+			if (_class === 'tooltip')
+				return;
+
 			div.removeClass(_class);
 		});
 
@@ -207,6 +213,116 @@ define(function(require) {
 		change_state.call(this, 'streaming');
 	}
 
+	var q_size = 5;
+
+	function percentage_rx (q, val) {
+		var audio_loss, audio_rx;
+		var video_loss, video_rx;
+		var audio, video;
+
+		q.push(val);
+		if (q.length > q_size)
+			q.splice(0, 1);
+
+		if (!q.length)
+			return {
+				audio : '0%',
+				audio_bw : '0%',
+				video : '0%',
+				video_bw : '0%',
+			};
+
+		var max_index = q.length - 1;
+
+		var interval = q[max_index].timestamp - q[0].timestamp;
+
+		if (q[0].audio && q[max_index].audio) {
+			audio_loss = q[max_index].audio.packetsLost - q[0].audio.packetsLost;
+			audio_rx   = q[max_index].audio.packetsReceived - q[0].audio.packetsReceived;
+			if (audio_rx + audio_loss === 0)
+				audio = 0;
+			else
+				audio = (audio_rx * 100/(audio_rx + audio_loss)).toFixed(1);
+
+			audio_bw = (q[max_index].audio.bytesReceived - q[0].audio.bytesReceived) * 8 / interval;
+		}
+		else
+			audio = '-';
+
+		if (q[0].video && q[max_index].video) {
+			video_loss = q[0].video.packetsLost - q[max_index].video.packetsLost;
+			video_rx   = q[0].video.packetsReceived - q[max_index].video.packetsReceived;
+			if (video_rx + video_loss === 0)
+				video = 0;
+			else
+				video = (video_rx * 100/(video_rx + video_loss)).toFixed(1);
+
+			video_bw = (q[max_index].video.bytesReceived - q[0].video.bytesReceived) * 8 / interval;
+		}
+		else
+			video = '-';
+
+		return {
+			audio : audio,
+			audio_bw : (interval ? audio_bw.toFixed(0) : '-'),
+			video : video,
+			video_bw : (interval ? video_bw.toFixed(0) : '-'),
+		};
+	}
+
+	/*
+	 * Sets information in the tooltip */
+	function set_meta (meta_info) {
+		if (!meta_info)
+			return;
+
+		var div = this.div_;
+		var q   = this.q;
+		var tooltip = $(div).find('.tooltip-content');
+
+		if (meta_info.identity)
+			$(tooltip).find('span.name').html(meta_info.identity.displayName);
+
+		if ('has_video' in meta_info) {
+			if (meta_info.has_video) {
+				$(tooltip).find('svg#camera').css('display', 'inline-block');
+				$(tooltip).find('svg#camera-slash').css('display', 'none');
+			}
+			else {
+				$(tooltip).find('svg#camera').css('display', 'none');
+				$(tooltip).find('svg#camera-slash').css('display', 'inline-block');
+			}
+		}
+
+		if ('has_audio' in meta_info) {
+			if (meta_info.has_audio) {
+				$(tooltip).find('svg#microphone').css('display', 'inline-block');
+				$(tooltip).find('svg#microphone-slash').css('display', 'none');
+				$(div).find('.mic-indicator').removeClass('show-mute');
+			}
+			else {
+				$(tooltip).find('svg#microphone').css('display', 'none');
+				$(tooltip).find('svg#microphone-slash').css('display', 'inline-block');
+				$(div).find('.mic-indicator').addClass('show-mute');
+			}
+		}
+
+		if (meta_info.subscriber_stats) {
+			var stats = meta_info.subscriber_stats;
+			var delta_rx = percentage_rx (q, stats);
+
+			/* Audio */
+			$(tooltip).find('span.audio-loss').html(stats.audio ? stats.audio.packetsLost : '-');
+			$(tooltip).find('span.audio-rx').html(stats.audio ? stats.audio.packetsReceived : '-');
+			$(tooltip).find('span.audio-bw').html(delta_rx.audio_bw + ' Kbps');
+
+			/* Video */
+			$(tooltip).find('span.video-loss').html(stats.video ? stats.video.packetsLost : '-');
+			$(tooltip).find('span.video-rx').html(stats.video ? stats.video.packetsReceived : '-');
+			$(tooltip).find('span.video-bw').html(delta_rx.video_bw + ' Kbps');
+		}
+	}
+
 	return function (div) {
 		this.id_          = $(div).attr('id');
 		this.div_         = div;
@@ -215,6 +331,7 @@ define(function(require) {
 		this.state        = 'initial';
 		this.conn_id      = null;
 		this.stream       = null;
+		this.q            = [];
 
 		this.div               = function () { return this.div_; };
 		this.id                = function () { return this.id_; };
@@ -230,5 +347,6 @@ define(function(require) {
 		this.change_state      = change_state;
 		this.in_mode_primary   = in_mode_primary;
 		this.reveal_video      = reveal_actual_video;
+		this.set_meta          = set_meta;
 	};
 });

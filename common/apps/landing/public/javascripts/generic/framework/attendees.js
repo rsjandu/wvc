@@ -5,7 +5,7 @@ define( function(require){
 	 * Skin will use these resources
 	 * */
 
-	var log 	= require('log')('framework', 'info'),
+	var log 	= require('log')('attendees', 'info'),
 		_events	= require('events');
 
 	var store	= {}, 					/* vc_id : { identity : {}, meta : {}, rs_info : {} } */	
@@ -14,6 +14,7 @@ define( function(require){
 
 
 	att.fill_users = function( users){			/* to add users already present__before I joined */
+		log.info ('fill_users:', users);
 		if( users){
 			users.forEach( function(user){
 				add_to_map( user);
@@ -40,19 +41,22 @@ define( function(require){
 		people_ev.emit('out',userId);
 	};
 
-	att.getIdentity = function( userId){
-		return store[userId] ? store[userId].identity : null;
+	att.api = {
+
+		get_identity : function( userId){
+			return store[userId] ? store[userId].identity : null;
+		},
+
+		get_meta : function( userId){
+			return store[userId] ? store[userId].meta : null;
+		},
+
+		get_users : function(){
+			/* loop through store and return all the identities */
+		},
+
 	};
 
-	att.getMeta = function( userId){
-		return store[userId] ? store[userId].meta : null;
-	};
-
-	att.getUsers = function(){
-		/* loop through store and return all the identities */
-	};
-	
-	
 	/* 
 	 * private methods
 	 */
@@ -64,7 +68,7 @@ define( function(require){
 			store[ id].meta.isActive = true;
 		}
 		else{
-			log.warn('Attendees::user_join::: user is null');
+			log.warn('user_join::: user is null');
 		}
 	}
 	function get_info_struct( user){
@@ -102,7 +106,7 @@ define( function(require){
 		}*/
 	};
 
-	att.getInfo = function( rname, userId, key){
+	att.get_info = function( rname, userId, key){
 		if( rname && userId && store[ userId] && store[userId].rs_info[rname]){
 			return store[ userId].rs_info[rname][key];	
 		}
