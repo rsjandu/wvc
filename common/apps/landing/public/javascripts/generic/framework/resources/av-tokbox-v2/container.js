@@ -218,6 +218,7 @@ define(function(require) {
 	function percentage_rx (q, val) {
 		var audio_loss, audio_rx;
 		var video_loss, video_rx;
+		var audio_bw = 0, video_bw = 0;
 		var audio, video;
 
 		q.push(val);
@@ -227,9 +228,9 @@ define(function(require) {
 		if (!q.length)
 			return {
 				audio : '0%',
-				audio_bw : '0%',
+				audio_bw : '-',
 				video : '0%',
-				video_bw : '0%',
+				video_bw : '-',
 			};
 
 		var max_index = q.length - 1;
@@ -280,8 +281,11 @@ define(function(require) {
 		var q   = this.q;
 		var tooltip = $(div).find('.tooltip-content');
 
-		if (meta_info.identity)
+		if (meta_info.identity) {
 			$(tooltip).find('span.name').html(meta_info.identity.displayName);
+			$(tooltip).find('span.nickname').html(meta_info.identity.nickname);
+			$(tooltip).find('span.vc_id').html(meta_info.identity.vc_id);
+		}
 
 		if ('has_video' in meta_info) {
 			if (meta_info.has_video) {

@@ -76,7 +76,7 @@
 		top: -60px;     
 		left: 0px;     
 		min-width: 75px;
-		max-width: 400px;
+		//max-width: 400px;
 		background-color: fadeout(#000, 80%); 
 		color: white;
 		height: auto;
@@ -132,6 +132,17 @@
 			}
 		}
 
+		.debug {
+			margin-bottom : 4px;
+		}
+		span.nickname {
+			color : @brand-warning;
+			padding-right : 2px;
+		}
+		span.vc_id {
+			color : white;
+		}
+
 		table {
 			width : 100%;
 
@@ -140,6 +151,17 @@
 				padding-right : 5px;
 			}
 		}
+	}
+}
+
+.av-container.av-shunya,
+.av-container.av-full,
+.av-container.av-screenshare,
+.av-container.av-pip {
+	.mic-indicator,
+	.mic-indicator.show-mute,
+	&.tooltip div.tooltip-content {
+		display : none;
 	}
 }
 

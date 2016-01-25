@@ -85,6 +85,12 @@ define(function (require) {
 			return;
 		}
 
+		my_container.set_meta ({
+			identity  : f_handle_cached.identity,
+			has_video : true,
+			has_audio : false
+		});
+
 		/* OT destroys the div upon mediastream destruction, so create a child under it,
 		 * and pass */
 		$(my_container.div()).append('<div id="av-ot-screenshare-wrap"></div>');
