@@ -1,12 +1,17 @@
 define( function(require){
+//	var search 		= require('./search');
+
 	var user_tpt 	= {};
 	var widget_att 	= {};
+	var $anchor 	= {};
 
 	widget_att.init = function( anchor, templates, perms){
 		var _d = $.Deferred();
+//		search.init();
 		
+		$anchor = $(anchor);			/* just search once */
 		var wrapper_tpt = templates[0];
-		$(anchor).append( wrapper_tpt() );
+		$anchor.append( wrapper_tpt() );
 		
 		user_tpt = templates[1];
 		bootstrap_it_all();
@@ -18,7 +23,7 @@ define( function(require){
 		var _d = $.Deferred();
 
 		/* make fit for template */
-		user.name = user.name || user.displayName || "गुमनाम";
+		user.name = user.name || user.displayName || "Guest";
         user.avatar = user.avatar || "http://www.gravatar.com/avatar/?d=mm&s=40";
         user.options = user.options || ["some controls"];
 		if( !user.vc_id){
@@ -33,7 +38,7 @@ define( function(require){
 			/* log */
 			console.log( 'template creation failed');
 		}
-		$('#atl-list').append( $ele);
+		$('#atl-list').append( $ele);		/* why is it hardcoded */
 		_d.resolve();
 		return _d.promise();
 	};
@@ -46,6 +51,10 @@ define( function(require){
 		
 		$('#atl-list').addClass('list-group');
 	}
+
+	widget_att.toggle_visible = function(){
+		$anchor.toggle();	/* but where's the sliding wala effect */
+	};
 
 	widget_att.remove_user = function(data){
 		console.log('remove: '+ data );

@@ -21,10 +21,14 @@ define(function(require){
 
 		var f_handle = framework.handle('att-list');
 
-		var anchor = display_spec.anchor;
+		var anchor = display_spec.anchor,
+			trigger= $('#nav-attendees'); 	//i should be getting it from the framework instead
 		templates.push( f_handle.template(display_spec.templates[0]) );
 		templates.push( f_handle.template(display_spec.templates[1]) );
+
+		trigger.on('click', toggle_visibility);
 	
+		$(anchor).hide();						/* should be visible on selection only */
 		widget.init( anchor, templates, perms)
 /*			.then( buttons.init , _d.reject( msg))	/* but control buttons doesn't exist yet, but jquery has a way i think to handle this */
 			.then( _d.resolve(), _d.reject());
@@ -35,18 +39,29 @@ define(function(require){
 	};
 
 	att.start = function( info, class_info){
-		var users = class_info.attendees; /* an array of users already present */
+		var users = class_info.attendees; /* now we should get it from attendees api instead */
 		console.log('received class info: ' + users.toString());
 		
 		users.forEach( function(user){
 			widget.add_user( user);
 		});
-		/* 
-		 *	fetch attendee list maybe
-		 *		if new user doesn't get it by default
-		 */
-//		new_user_simulator();
+
+//		new_user_simulator();					/* can be used when testing while dev */
 	};
+
+	/*
+	 *	private methods
+	 */
+
+	function toggle_visibility( evt){
+		widget.toggle_visible();
+		/* what else? */	
+	}
+
+	return att;
+});
+
+/*	code used to simulate users
 	
 	function new_user_simulator(){
 		var user = {};
@@ -70,10 +85,8 @@ define(function(require){
 		 * handle new user
 		 * paste a new leaf as allowed by
 		 * own permission set and the info about user( have writing controls or not)
-		 */
+		 * /
 
 		return _d.promise();
 	}
-
-	return att;
-});
+*/
