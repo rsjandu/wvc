@@ -32,9 +32,9 @@ define(function(require){
 			return;
 		}
 		var now = time_now();
-		for ( var i=0, flag=false; i<len; i++){
+		for ( var i=len-1, flag=false; i >=0; i--){
 			if( (now - users[i].time) > exp){
-				users.splice(i,1);
+				users.splice(i,1);					/* The array is being reIndexed here.. that's why reverse iteration */
 				flag = true;	
 			}
 		}	

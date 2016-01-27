@@ -226,10 +226,13 @@ define(function(require){
 
 
 		var $textarea = $('.lcb-entry-input');
-		if(!$textarea.val())
+		var m = $textarea.val();
+		if( !m )
 			return;
 
-		send_message( $textarea.val() );
+		if( $.trim( m)){
+			send_message( m);
+		}
 		tell_typing.clear();
 		$textarea.val('');
 	}
