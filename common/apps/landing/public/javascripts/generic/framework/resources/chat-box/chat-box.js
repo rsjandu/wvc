@@ -336,10 +336,9 @@ define(function(require){
 	function scrollHandler(){
 		var msg_container = $('.lcb-messages-container')[0];
 		var scrHeight  	= msg_container.scrollHeight;
-		console.log( scrHeight );
 		var scrTop 		= msg_container.scrollTop;
-		var clientHeight= msg_container.clientHeight;
-		if( scrTop === scrHeight - clientHeight ){
+		var cltHeight= msg_container.clientHeight;
+		if( scrHeight - scrTop < cltHeight + 10){
 			scroll_lock = false;
 		}
 		else{
