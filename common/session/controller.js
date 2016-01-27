@@ -84,11 +84,12 @@ function handle_auth (_d, conn, from, msg) {
 
 function actually_join_user (user) {
 
-	users.mark_joined (user.vc_id);
+//	users.mark_joined (user.vc_id);
 
 	resources.init_user (user)
 		.then (
 			function (info) {
+				users.mark_joined( user.vc_id);
 				info.attendees = users.get_publishable_info (null, user.vc_id);
 				users.send_info (user.vc_id, 'controller', 'framework', 'session-info', info);
 				users.broadcast_info ('controller', 'framework', 'new-johnny', users.get_publishable_info(user.vc_id), user.vc_id);

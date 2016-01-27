@@ -102,7 +102,7 @@ users.get_publishable_info = function (vc_id, exclude) {
 
 	var info = [];
 	for (var id in list_active)
-		if (id != exclude)
+		if (id != exclude && joined( list_active[id]) )				/* -changed by pawan */
 			info.push (publishable_info (list_active[id].user));
 
 	return info;
