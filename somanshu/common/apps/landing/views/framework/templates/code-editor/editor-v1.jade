@@ -2,7 +2,7 @@
 	#sce-header
 		h1 Shared Code Editor
 		br
-		select#ace-fontSize
+		select#ace-font_size
 			option(value="12") 12px
 			option(value="14") 14px
 			option(value="16") 16px
@@ -18,6 +18,6 @@
 				option(value="#{themes[x].value}") #{themes[x].text}
 		button.ace_undo.btn.btn-default.btn-sm(disabled) Undo
 		button.ace_redo.btn.btn-default.btn-sm(disabled) Redo
-		button#saveFile.btn.btn-default.btn-sm Save
-		input#loadFile(type = "file")
+		button#save_file.btn.btn-default.btn-sm Save
+		input#load_file(type = "file")
 	#sce-ace_editor

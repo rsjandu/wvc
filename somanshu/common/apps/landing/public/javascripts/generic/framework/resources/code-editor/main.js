@@ -1,46 +1,44 @@
 define(function(require) {
-	var $ 			= require('jquery');
-	var framework 	= require('framework');
-	var log 		= require('log')('code-editor', 'info');
-	var editor 		= {};
-	var code_editor = {};
-	var c_handle	= framework.handle ('code-editor');
-	var fileName	= "";
-	var fileType	= "js";
-	var modelist	= {};
-	var filePath	= "";
-	var modeChosen	= "";
-	var sessType	= {};
+	var $            = require('jquery');
+	var framework    = require('framework');
+	var log          = require('log')('code-editor', 'info');
+	var editor       = {};
+	var code_editor  = {};
+	var c_handle     = framework.handle ('code-editor');
+	var file_type    = "";
+	var modelist     = {};
+	var mode_chosen  = "";
+	var session_type = {};
 	var ace_instance = null;
-	var aceDoc		= null;
-	var aceTemplate;
+	var ace_doc      = null;
+	var ace_template;
 	var anchor;
 
 	code_editor.init = function(display_spec, custom, perms){
 		var _d = $.Deferred();
 		anchor = display_spec.anchor;
-		aceTemplate = c_handle.template ( display_spec.templates[0] );
+		ace_template = c_handle.template ( display_spec.templates[0] );
 		_d.resolve();
 		return _d.promise();
 	};
 
 	code_editor.info = function (from, id, data) {
-		if (id !== 'modeChange') {
+		if (id !== 'mode_change') {
 			log.error ('bad info_id: \"' + id + '\"');
 			return;
 		}
 		log.info("broadcast info for language change received:::data::::"+JSON.stringify(data));
 		$('#mode').val(data.mode);
-		updateSessionOnModeChange();
+		update_session_mode_change();
 	};
 
 
 	code_editor.start = function (sess_info) {
 		log.info('start shared editor:::session_info:::'+ JSON.stringify(sess_info));
 
-		createAceTemplate(sess_info);
+		create_ace_template(sess_info);                                    //Will create drop menu
 
-		applyEventListeners();
+		apply_event_listeners();
 
 		require(['./ace/ace'], function () {
 
@@ -49,21 +47,22 @@ define(function(require) {
 				require(['share_uncompressed'], function () {
 
 					require(['ace_share'], function () {
+						
 						var elem = document.getElementById("sce-ace_editor");
 						ace_instance = ace;
 						editor = ace_instance.edit(elem);
-						editor.on("input", checkForUndoRedo);
+						editor.on("input", check_for_undo_redo);             //checks whether undo-redo stack are empty or not to set button disability
 						editor.$blockScrolling = Infinity;
 
-						intializeEditorOptions();
+						initialize_editor_options();
 
-						initializeMode(sess_info.current_lang);
+						initialize_mode (sess_info.current_lang);
 
-						initializeTheme(sess_info.current_theme);
+						initialize_theme(sess_info.current_theme);
 
-						setEditorKeyBinding();
+						set_editor_key_binding();                            //set Ctrl-S for save and Ctrl-O for open
 
-						openSharejs(sharejs, sess_info.server_url);
+						open_sharejs(sharejs, sess_info.server_url);       //attach ace to sharejs document
 
 					});
 				});
@@ -71,45 +70,48 @@ define(function(require) {
 		});
 	};
 
-	createAceTemplate = function (myinfo) {
-		var aceObj = {};
+	/*
+	 * Local functions */
+
+	function create_ace_template (myinfo) {
+		var aceobj = {};
 		log.info("info received from session server ::"+ JSON.stringify(myinfo));
-		aceObj.languages = myinfo.languages;
-		aceObj.themes	= myinfo.themes;
-		var aceEditor = aceTemplate(aceObj);
-		$(anchor).append(aceEditor);
-	};
+		aceobj.languages = myinfo.languages;
+		aceobj.themes	= myinfo.themes;
+		var ace_editor = ace_template(aceobj);
+		$(anchor).append(ace_editor);
+	}
 
-	applyEventListeners = function () {
-		$('#mode').on('change', modeChanger);
-		$('#theme').on('change', themeChanger);
-		$('#ace-fontSize').on('change', fontSizeChanger);
-		$('.ace_undo').on('click', undoHandler);
-		$('.ace_redo').on('click', redoHandler);
+	function apply_event_listeners () {
+		$('#mode').on('change', mode_changer);
+		$('#theme').on('change', theme_changer);
+		$('#ace-font_size').on('change', font_size_changer);
+		$('.ace_undo').on('click', undo_handler);
+		$('.ace_redo').on('click', redo_handler);
 		$('#sce-ace_editor').append('<h1> Loading... </h1>');
-		$('#loadFile').on('change', handleFileSelect);
-		$('#saveFile').on('click', saveFileOnSystem);
+		$('#load_file').on('change', handle_file_select);
+		$('#save_file').on('click', save_file_on_system);
 		$.event.props.push( "dataTransfer" );
-		$('#sce-ace_editor').on('dragover', handleDragOver);
-		$('#sce-ace_editor').on('drop', handleDrop);
+		$('#sce-ace_editor').on('dragover', handle_drag_over);
+		$('#sce-ace_editor').on('drop', handle_drop);
 
-	};
+	}
 
-	openSharejs = function (sharejs, server_url) {
+	function open_sharejs (sharejs, server_url) {
 		log.info("server_url received::"+ server_url);
 		sharejs.open('pad1', 'text', server_url+"/channel", function(error, doc) {
-				aceDoc = doc;
+				ace_doc = doc;
 				if (error){
 					log.info("Error in opening Doc ::"+error);
 				}
 				else {
 					log.info("successfully attached ace and sharejs");
-					aceDoc.attach_ace(editor);
+					ace_doc.attach_ace(editor);
 				}
-				});
-	};
+			});
+	}
 
-	intializeEditorOptions = function () {	
+	function initialize_editor_options () {	
 		require(['./ace/ext-language_tools'], function () {
 			ace_instance.require("ace/ext/language_tools");
 			editor.setOptions({
@@ -119,123 +121,125 @@ define(function(require) {
 			});
 			log.info("editor options set");
 		});		
-	};
+	}
 
-	setEditorKeyBinding = function () {
+	function set_editor_key_binding () {
 		editor.commands.addCommand({
 			name: "save",
 			bindKey: {win: "Ctrl-S", mac: "Command-S"},
 			exec: function () {
-				saveFileOnSystem();
+				save_file_on_system();
 			}
 		});
 		editor.commands.addCommand({
 			name: "open",
 			bindKey: {win: "Ctrl-O", mac: "Command-O"},
 			exec: function () {
-				document.getElementById("loadFile").click();
+				document.getElementById("load_file").click();
 			}
 		});
-	};
+	}
 
-	initializeTheme = function (theme) {
+	function initialize_theme (theme) {
 		log.info("Initialized Received theme ::"+theme);
 		require(['./ace/theme-'+theme], function () {
 			editor.setTheme("ace/theme/"+theme);
 		});
-	};
+	}
 
-	initializeMode = function (moder) {
-		$("#mode").val(moder);
-		log.info("Initialize received mode ::"+ moder);
+	function initialize_mode (mode_type) {
+		$("#mode").val(mode_type);
+		log.info("Initialize received mode ::"+ mode_type);
 		require(['./ace/ext-modelist'], function () {
 			modelist = ace_instance.require("ace/ext/modelist");
-			filepath = "mode."+moder;
-			modeChosen = modelist.getModeForPath(filepath).mode;
-			sessType["js"] = ace_instance.createEditSession("", "ace/mode/javascript");
-			sessType["html"] = ace_instance.createEditSession("", "ace/mode/html");
+			file_type = mode_type;
+			filepath = "mode."+mode_type;
+			mode_chosen = modelist.getModeForPath(filepath).mode;
+
+			/*
+			 * Created session for the language that has syntax checker beforehand in order to load checker otherwise checker throws error  */
+			session_type["js"] = ace_instance.createEditSession("", "ace/mode/javascript");
+			session_type["html"] = ace_instance.createEditSession("", "ace/mode/html");
 			
-			if (sessType[moder]){
-				editor.setSession(sessType[moder]);
+			if (session_type[mode_type]){
+				editor.setSession(session_type[mode_type]);
 			}
 			else{
-				sessType[moder] = ace_instance.createEditSession("", modeChosen);
-				editor.setSession(sessType[moder]);
+				session_type[mode_type] = ace_instance.createEditSession("", mode_chosen);
+				editor.setSession(session_type[mode_type]);
 			}
 		});
-	};
+	}
 
 
-	themeChanger = function (change) {
-		var themer = $("#theme").val();
-		log.info("Theme changed to ::"+ themer);
-		require (['./ace/theme-'+themer], function () {
-			editor.setTheme("ace/theme/"+ themer);
+	function theme_changer (change) {
+		var theme_type = $("#theme").val();
+		log.info("Theme changed to ::"+ theme_type);
+		require (['./ace/theme-'+theme_type], function () {
+			editor.setTheme("ace/theme/"+ theme_type);
 		});
-	};
+	}
 
-	modeChanger = function (change) {
-		updateSessionOnModeChange();
+	function mode_changer (change) {
+		update_session_mode_change();
 		data = {
 			mode: $('#mode').val(),
 		};
 		log.info("data sent ::"+ JSON.stringify(data));
-		c_handle.send_info(null, 'modeChange', data);
-	};
+		c_handle.send_info(null, 'mode_change', data);
+	}
 
-	updateSessionOnModeChange = function () {
-		var coder = $('#mode').val();
-		log.info("mode changed to ::"+coder);
+	function update_session_mode_change () {
+		var mode_type = $('#mode').val();
+		log.info("mode changed to ::"+mode_type);
 		var code = editor.getSession().getValue();
-		fileType = coder;
-		filepath = "mode."+coder;
-		modeChosen = modelist.getModeForPath(filepath).mode;
-		if(sessType[coder]){
-			editor.setSession(sessType[coder]);
+		file_type = mode_type;
+		filepath = "mode."+mode_type;
+		mode_chosen = modelist.getModeForPath(filepath).mode;
+		if(session_type[mode_type]){
+			editor.setSession(session_type[mode_type]);
 		}
 		else{
-			sessType[coder] = ace_instance.createEditSession("", modeChosen);
-			editor.setSession(sessType[coder]);
+			session_type[mode_type] = ace_instance.createEditSession("", mode_chosen);
+			editor.setSession(session_type[mode_type]);
 		}
-		//editor.session.setValue(code);
-		aceDoc.detach_ace();
-		aceDoc.attach_ace(editor);
-		log.info("reattched ace with code ::"+code);
-	};
+		ace_doc.detach_ace();
+		ace_doc.attach_ace(editor);
+	}
 
 
-	fontSizeChanger = function (change) {
-		var sizer = $('#ace-fontSize').val();
-		log.info("changed font size to ::"+ sizer);
-		editor.setFontSize(Number(sizer));
-	};
+	function font_size_changer (change) {
+		var size = $('#ace-font_size').val();
+		log.info("changed font size to ::"+ size);
+		editor.setFontSize(Number(size));
+	}
 
-	undoHandler = function () {
+	function undo_handler () {
 		var um = editor.getSession().getUndoManager();
 		um.undo();
-	};
+	}
 
-	redoHandler = function () {
+	function redo_handler () {
 		um = editor.getSession().getUndoManager();
 		um.redo();
-	};
+	}
 
-	checkForUndoRedo = function (change){
+	function check_for_undo_redo (change){
 		var um = editor.getSession().getUndoManager();
 		$('.ace_undo').attr('disabled', um.hasUndo() ? false : true );
 		$('.ace_redo').attr('disabled', um.hasRedo() ? false : true );
-	};
+	}
 
-	saveFileOnSystem = function () {
+	function save_file_on_system () {
 		var code  = editor.getSession().getValue();
 		require(['./FileSaver'], function () {
 			var blob = new Blob([code], {type:"text/plain;charset=utf-8"});
-			log.info("Filetype to save as ::"+fileType);
-			saveAs(blob, "code."+ fileType);
+			log.info("Filetype to save as ::"+file_type);
+			saveAs(blob, "code."+ file_type);
 		});
-	};
+	}
 
-	handleFileSelect = function (evt) {
+	function handle_file_select (evt) {
 		var file = evt.target.files[0];
 		var reader = new FileReader();
 		reader.onload = function (f) {
@@ -243,17 +247,17 @@ define(function(require) {
 			editor.getSession().setValue(code);
 		};
 		reader.readAsText(file);
-	};
+	}
 
-	handleDragOver = function (evt) {
+	function handle_drag_over (evt) {
 		evt.stopPropagation();
-		evt.preventDefault();
+		evt.preventDefault ();
 		evt.dataTransfer.dropEffect = "copy";
-	};	
+	}	
 
-	handleDrop = function (evt) {
+	function handle_drop (evt) {
 		evt.stopPropagation();
-		evt.preventDefault();
+		evt.preventDefault ();
 		var files = evt.dataTransfer.files[0];
 		var reader = new FileReader();
 		reader.onload = function (f) {
@@ -261,7 +265,7 @@ define(function(require) {
 			editor.getSession().setValue(code);
 		};
 		reader.readAsText(files);
-	};
+	}
 
 	return code_editor;
 });
