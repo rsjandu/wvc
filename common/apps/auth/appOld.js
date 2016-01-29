@@ -27,12 +27,12 @@ var GOOGLE_CLIENT_SECRET  = "t4xiO3YLbpDUEIz1PI8AA2wJ";
 //   have a database of user records, the complete Google profile is
 //   serialized and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user);
-});
+		done(null, user);
+		});
 
 passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
+		done(null, obj);
+		});
 
 
 // Use the GoogleStrategy within Passport.
@@ -40,28 +40,28 @@ passport.deserializeUser(function(obj, done) {
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
 passport.use(new GoogleStrategy({
-    clientID:     GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    //NOTE :
-    //Carefull ! and avoid usage of Private IP, otherwise you will get the device_id device_name issue for Private IP during authentication
-    //The workaround is to set up thru the google cloud console a fully qualified domain name such as http://mydomain:3000/ 
-    //then edit your /etc/hosts local file to point on your private IP. 
-    //Also both sign-in button + callbackURL has to be share the same url, otherwise two cookies will be created and lead to lost your session
-    //if you use it.
-    callbackURL: "http://127.0.0.1:2178/auth/google/callback",
-    passReqToCallback   : true
-  },
-  function(request, accessToken, refreshToken, profile, done){{
-    // asynchronous verification, for effect...
-    process.nextTick(function () {
-      
-      // To keep the example simple, the user's Google profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the Google account with a user record in your database,
-      // and return that user instead.
-      return done(null, profile);
-    });
-  }
+clientID:     GOOGLE_CLIENT_ID,
+clientSecret: GOOGLE_CLIENT_SECRET,
+//NOTE :
+//Carefull ! and avoid usage of Private IP, otherwise you will get the device_id device_name issue for Private IP during authentication
+//The workaround is to set up thru the google cloud console a fully qualified domain name such as http://mydomain:3000/ 
+//then edit your /etc/hosts local file to point on your private IP. 
+//Also both sign-in button + callbackURL has to be share the same url, otherwise two cookies will be created and lead to lost your session
+//if you use it.
+callbackURL: "http://127.0.0.1:2178/auth/google/callback",
+passReqToCallback   : true
+},
+function(request, accessToken, refreshToken, profile, done){{
+// asynchronous verification, for effect...
+process.nextTick(function () {
+
+	// To keep the example simple, the user's Google profile is returned to
+	// represent the logged-in user.  In a typical application, you would want
+	// to associate the Google account with a user record in your database,
+	// and return that user instead.
+	return done(null, profile);
+	});
+}
 ));
 
 // configure Express
@@ -71,56 +71,56 @@ app.set('view engine', 'jade');
 app.use( cookieParser()); 
 app.use( bodyParser.json());
 app.use( bodyParser.urlencoded({
-	extended: true
+extended: true
 }));
 app.use( session({ 
-	secret: 'cookie_secret',
-	name:   'kaas',
-	store:  new RedisStore({
-		host: '127.0.0.1',
-		port: 6379
-	}),
-	proxy:  true,
-    resave: true,
-    saveUninitialized: true
+secret: 'cookie_secret',
+name:   'kaas',
+store:  new RedisStore({
+host: '127.0.0.1',
+port: 6379
+}),
+proxy:  true,
+resave: true,
+saveUninitialized: true
 }));
 app.use( passport.initialize());
 app.use( passport.session());
 
 app.get('/', function(req, res){
 
-	/* if user has auth cookie and origin_cookie    <========= shouldn't happen but is a possible scenario
-	 * 		maybe delete the cookie and send login page or smth
-	 */
+		/* if user has auth cookie and origin_cookie    <========= shouldn't happen but is a possible scenario
+		 * 		maybe delete the cookie and send login page or smth
+		 */
 
-	/* user doesn't hv auth cookie 					<========= mostly the case
-	 * return a login page
-	 */
-        console.log('get / called ');
-	res.render('index', { user: req.user });
-});
+		/* user doesn't hv auth cookie 					<========= mostly the case
+		 * return a login page
+		 */
+		console.log('get / called ');
+		res.render('index', { user: req.user });
+		});
 
 app.get('/account', ensureAuthenticated, function(req, res){
-	var origin = req.cookies.wiziq_origin;
-	var MAX_SIZE_COOKIE = 4096;
-	/* read cookie and maybe remove this cookie as it is needed no more */
-	log.info(req.user, 'google user info');
-	if( origin){
+		var origin = req.cookies.wiziq_origin;
+		var MAX_SIZE_COOKIE = 4096;
+		/* read cookie and maybe remove this cookie as it is needed no more */
+		log.info(req.user, 'google user info');
+		if( origin){
 		var info = {
-			/* all the required fields goes here.. for now just sending the whole payload */
-			user : req.user
-		};
-		var auth_string = JSON.stringify(info);
-		if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
-			auth_string = "error: size_limit_exceeded";
-		}
-		auth_string = new Buffer( JSON.stringify( auth_string)).toString('base64');
-		res.cookie('wiziq_auth' , auth_string );
-		res.redirect( origin);
-	}
-	else{
-		res.send('cookie origin???: ' + origin);
-	}
+		/* all the required fields goes here.. for now just sending the whole payload */
+user : req.user
+};
+var auth_string = JSON.stringify(info);
+if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
+auth_string = "error: size_limit_exceeded";
+}
+auth_string = new Buffer( JSON.stringify( auth_string)).toString('base64');
+res.cookie('wiziq_auth' , auth_string );
+res.redirect( origin);
+}
+else{
+res.send('cookie origin???: ' + origin);
+}
 /*  res.render('account', { user: req.user }); */
 });
 
@@ -132,9 +132,9 @@ app.use('/login', login);
 //   redirecting the user to google.com.  After authorization, Google
 //   will redirect the user back to this application at /auth/google/callback
 app.get('/auth/google', passport.authenticate('google', { scope: [
-       'https://www.googleapis.com/auth/plus.login',
-       'https://www.googleapis.com/auth/plus.profile.emails.read'] 
-}));
+			'https://www.googleapis.com/auth/plus.login',
+			'https://www.googleapis.com/auth/plus.profile.emails.read'] 
+			}));
 
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -142,18 +142,18 @@ app.get('/auth/google', passport.authenticate('google', { scope: [
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 app.get('/google/callback', 
-    	passport.authenticate( 'google', { 
-    		successRedirect: '/auth/account',
-    		failureRedirect: '/auth/login',
-                failureFlash: 'Invalid username or password.'
+		passport.authenticate( 'google', { 
+successRedirect: '/auth/account',
+failureRedirect: '/auth/login',
+failureFlash: 'Invalid username or password.'
 }));
 
 app.get('/logout', function(req, res){
-  req.logout();
- //console.log('aaaaaaa');
-  res.redirect('/auth/');
- //console.log('bbbbb ');
-});
+		req.logout();
+		//console.log('aaaaaaa');
+		res.redirect('/auth/');
+		//console.log('bbbbb ');
+		});
 
 //server.listen( 3000 );
 
@@ -164,9 +164,9 @@ app.get('/logout', function(req, res){
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
 function ensureAuthenticated(req, res, next) {
-  console.log('ensureAuth '+req.isAuthenticated());
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('login');
+	console.log('ensureAuth '+req.isAuthenticated());
+	if (req.isAuthenticated()) { return next(); }
+	res.redirect('login');
 }
 
 module.exports = app;

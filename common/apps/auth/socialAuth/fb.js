@@ -19,20 +19,20 @@ var login            = require('auth/routes/login');
 
 function passport_use_facebook_strategy ()
 {
-    var _d = $.Deferred();
+	var _d = $.Deferred();
 	passport.use(new FacebookStrategy({
-  	clientID: config.facebook.clientID,
-  	clientSecret: config.facebook.clientSecret,
-  	callbackURL: config.facebook.callbackURL
-  	},
-  	function(accessToken, refreshToken, profile, done) {
-    	process.nextTick(function () {
-      	return done(null, profile);
-    	});
-  	  }
+			clientID: config.facebook.clientID,
+			clientSecret: config.facebook.clientSecret,
+			callbackURL: config.facebook.callbackURL
+		},
+		function(accessToken, refreshToken, profile, done) {
+			process.nextTick(function () {
+			return done(null, profile);
+			});
+		}	
 	));
-    _d.resolve();
-    return _d.promise();
+	_d.resolve();
+	return _d.promise();
 }
 
 
@@ -44,45 +44,45 @@ function passport_use_facebook_strategy ()
 //   have a database of user records, the complete Google profile is
 //   serialized and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user);
-});
+		done(null, user);
+		});
 
 passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
+		done(null, obj);
+		});
 
 
 app.get('/account', ensureAuthenticated, function(req, res){
-        var origin = req.cookies.wiziq_origin;
-        var MAX_SIZE_COOKIE = 4096;
-        /* read cookie and maybe remove this cookie as it is needed no more */
-        log.info(req.user, 'facebook user info');
-        console.log('wiziq origin cookie '+origin+' '+req.cookies.wiziq_origin);
-        if( origin){
-                var info = {
-                        /* all the required fields goes here.. for now just sending the whole payload */
-                        user : req.user
-                };
-                 //***************************************
-                //fetch all the necessary info from user/info
-                var user_identity =  encodeFb.getUserDetails(req.user);
-                //***************************************
-                //var auth_string = JSON.stringify(info);
-                var auth_string = JSON.stringify(user_identity);
-                console.log('buffer length  '+Buffer.byteLength( auth_string ));
-                if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
-                        auth_string = "error: size_limit_exceeded";
-                }
-                // auth_string = new Buffer( JSON.stringify( auth_string)).toString('base64');
-                auth_string = encodeURIComponent(auth_string);
-                console.log('auth string facebook --------------------- '+auth_string);
-                res.cookie('wiziq_auth' , auth_string );
-                res.redirect( origin);
-        }
-        else{
-                res.send('cookie origin???: ' + origin);
-        }
-/*  res.render('account', { user: req.user }); */
+		var origin = req.cookies.wiziq_origin;
+		var MAX_SIZE_COOKIE = 4096;
+		/* read cookie and maybe remove this cookie as it is needed no more */
+		log.info(req.user, 'facebook user info');
+		console.log('wiziq origin cookie '+origin+' '+req.cookies.wiziq_origin);
+		if( origin){
+			var info = {
+				/* all the required fields goes here.. for now just sending the whole payload */
+				user : req.user
+			};
+			//***************************************
+			//fetch all the necessary info from user/info
+			var user_identity =  encodeFb.getUserDetails(req.user);
+			//***************************************
+			//var auth_string = JSON.stringify(info);
+			var auth_string = JSON.stringify(user_identity);
+			console.log('buffer length  '+Buffer.byteLength( auth_string ));
+			if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
+				auth_string = "error: size_limit_exceeded";
+			}	
+			// auth_string = new Buffer( JSON.stringify( auth_string)).toString('base64');
+			auth_string = encodeURIComponent(auth_string);
+			console.log('auth string facebook --------------------- '+auth_string);
+			res.cookie('wiziq_auth' , auth_string );
+			res.redirect( origin);
+		}
+		else{
+			res.send('cookie origin???: ' + origin);
+		}	
+		/*  res.render('account', { user: req.user }); */
 });
 
 
@@ -95,30 +95,30 @@ app.get('/account', ensureAuthenticated, function(req, res){
 //   redirecting the user to google.com.  After authorization, Google
 //   will redirect the user back to this application at /auth/google/callback
 app.get('/',fetch_data_from_db,passport_init('facebook'), passport.authenticate('facebook', 
-           function(req, res){} ));
+			function(req, res){} ));
 
 
 function passport_init(auth_type){
-    return  function(req, res, next) {
-    if(auth_type == 'facebook')
-    {
-    passport_use_facebook_strategy()
-        .then(next,function fail( err){
-     console.log("Error in facebook strategy usage "+err);
-});
-    }
+	return  function(req, res, next) {
+		if(auth_type == 'facebook')
+		{
+			passport_use_facebook_strategy()
+				.then(next,function fail( err){
+						console.log("Error in facebook strategy usage "+err);
+						});
+		}
 
-  }
+	}
 }
 
 
 function fetch_data_from_db(req,res,next)
 {
- db.fetch_data_from_db('facebook')
- .then(
-    next, function fail( err){
-     console.log("Error in data fetching from database "+err);
- });
+	db.fetch_data_from_db('facebook',req,res)
+		.then(
+				next, function fail( err){
+				console.log("Error in data fetching from database "+err);
+				});
 }
 
 
@@ -130,19 +130,19 @@ function fetch_data_from_db(req,res,next)
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 app.get('/callback',
-        passport.authenticate( 'facebook', {
-                successRedirect: '/auth/auth/fb/account',
-                failureRedirect: '/auth/login',
-                failureFlash: 'Invalid username or password.'
+		passport.authenticate( 'facebook', {
+			successRedirect: '/auth/auth/fb/account',
+			failureRedirect: '/auth/login',
+			failureFlash: 'Invalid username or password.'
 }));
 
 
 
 /*app.get('/logout', function(req, res){
   req.logout();
-  //console.log('aaaaaaa');
-  res.redirect('/auth/');
- //console.log('bbbbb ');
+//console.log('aaaaaaa');
+res.redirect('/auth/');
+//console.log('bbbbb ');
 });*/
 
 
@@ -155,9 +155,9 @@ app.get('/callback',
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
 function ensureAuthenticated(req, res, next) {
-  console.log('ensureAuth '+req.isAuthenticated());
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('login');
+	console.log('ensureAuth '+req.isAuthenticated());
+	if (req.isAuthenticated()) { return next(); }
+	res.redirect('login');
 }
 
 

@@ -5,7 +5,7 @@ var path      = require('path');
 controller = {};
 
 controller.show = function (req, res, next) {
-	res.render('dbEntry.jade', { user: req.user });
+	res.render('wiziq_auth.jade', { user: req.user });
 };
 
 module.exports = controller;

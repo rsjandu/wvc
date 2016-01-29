@@ -1,14 +1,17 @@
 var express          = require( 'express' );
-var app              = express();
-var FbAuth           = require( 'auth/socialAuth/fb' );
-var GoogleAuth       = require( 'auth/socialAuth/google' );
+var router           = express.Router();
+var fb_auth          = require( 'auth/socialAuth/fb' );
+var google_auth      = require( 'auth/socialAuth/google' );
+var wiziq_auth       = require( 'auth/routes/wiziq_auth' );
 
 
-app.use('/google',GoogleAuth);
+router.use('/google',google_auth);
 
-app.use('/fb',FbAuth);
+router.use('/fb',fb_auth);
 
-module.exports = app;
+router.use('/wiziq',wiziq_auth);
+
+module.exports = router;
 
 
 
