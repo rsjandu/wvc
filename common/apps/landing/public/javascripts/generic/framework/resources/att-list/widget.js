@@ -1,20 +1,18 @@
 define( function(require){
-//	var search 		= require('./search');
-
+	
 	var user_tpt 	= {};
 	var widget_att 	= {};
 	var $anchor 	= {};
 
 	widget_att.init = function( anchor, templates, perms){
 		var _d = $.Deferred();
-//		search.init();
 		
 		$anchor = $(anchor);			/* just search once */
 		var wrapper_tpt = templates[0];
 		$anchor.append( wrapper_tpt() );
 		
 		user_tpt = templates[1];
-		bootstrap_it_all();
+		
 		_d.resolve();
 		return _d.promise();
 	};
@@ -23,34 +21,28 @@ define( function(require){
 		var _d = $.Deferred();
 
 		/* make fit for template */
-		user.name = user.name || user.displayName || "Guest";
-        user.avatar = user.avatar || "http://www.gravatar.com/avatar/?d=mm&s=40";
-        user.options = user.options || ["some controls"];
-		if( !user.vc_id){
-			/* some error 
-			 * as this id is used as elements id and 
-			 * hence is required while removing li
-			 */
-		}
+		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40";
+		user.avatar = user.photos ? user.photos[0].value : avatar_def;
+		user.time	= user.vc_auth_ts || "0";
+		user.email 	= user.emails ? user.emails[0].value  : "default@wvc.dev" ;
+		user.authvia= user.authvia || "Auth";
+		user.options = ['/landing/images/vu-meter.png', '/landing/images/vu-meter.png'];
 
+		/*  
+		 * user.vc_id is must for every user, 
+		 * as this id is used as element id in our ul 
+		 * and hence is required while removing li
+		 */
 		var $ele = user_tpt(user);
 		if( !$ele){
 			/* log */
 			console.log( 'template creation failed');
 		}
 		$('#atl-list').append( $ele);		/* why is it hardcoded */
+
 		_d.resolve();
 		return _d.promise();
 	};
-
-	function bootstrap_it_all(){
-		$('.atl-wrapper').addClass('panel panel-primary');
-		$('.atl-header').addClass('panel-heading');
-		$('.atl-search').addClass('panel-heading');
-		$('.atl-list-wrap').addClass('panel-body');
-		
-		$('#atl-list').addClass('list-group');
-	}
 
 	widget_att.toggle_visible = function(){
 		$anchor.toggle();	/* but where's the sliding wala effect */

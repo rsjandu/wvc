@@ -1,7 +1,10 @@
 li.atl-list-item.list-group-item(id="#{vc_id}")
 	img.atl-avatar(src= "#{avatar}")
-	label.atl-username #{name} @#{id}
-	//select.atl-usermenu
-		for val in options 
-			option(value=val)
-	
+	.atl-user-meta(style="display:inline")
+		.atl-user-meta-header
+			span.atl-username #{displayName} 
+			time.atl-join-time #{time}
+		.atl-user-meta-others
+			span.atl-useremail #{email}
+			span.atl-authvia   via: #{authvia}
+	include controlbar
