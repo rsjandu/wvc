@@ -133,7 +133,7 @@ function get_config_meghadoot (sess_id, callback) {
 			},
 			{
 				name: 'att-list',
-				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main'] },
+				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main.min'] },
 				custom: {
 				},
 			}

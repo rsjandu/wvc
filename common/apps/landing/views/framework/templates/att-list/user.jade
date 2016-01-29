@@ -1,10 +1,11 @@
 li.atl-list-item.list-group-item.vc_id(id="#{vc_id}")
-	img.atl-avatar.avatar(src= "#{avatar}")
-	.atl-user-meta(style="display:inline")
-		.atl-user-meta-header
-			span.atl-username.displayName #{displayName} 
-			time.atl-join-time.time #{time}
+	.atl-avatar-wrap
+		img.atl-avatar.avatar(src= "#{avatar}", style="display: inline-block;")
+	.atl-user-meta(style="display:inline-block")
+		.atl-user-meta-header.border-bottom
+			span.atl-username.displayName.text-warning #{displayName} 
+			time.atl-join-time.time.text-info #{time}
 		.atl-user-meta-others
-			span.atl-useremail.email #{email}
-			span.atl-authvia.authvia   via: #{authvia}
-	include controlbar
+			span.atl-useremail.email.text-warning #{email}
+			span.atl-authvia.authvia.text-info   via: #{authvia}
+		include controlbar
