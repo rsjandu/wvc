@@ -1,10 +1,10 @@
-li.atl-list-item.list-group-item(id="#{vc_id}")
-	img.atl-avatar(src= "#{avatar}")
+li.atl-list-item.list-group-item.vc_id(id="#{vc_id}")
+	img.atl-avatar.avatar(src= "#{avatar}")
 	.atl-user-meta(style="display:inline")
 		.atl-user-meta-header
-			span.atl-username #{displayName} 
-			time.atl-join-time #{time}
+			span.atl-username.displayName #{displayName} 
+			time.atl-join-time.time #{time}
 		.atl-user-meta-others
-			span.atl-useremail #{email}
-			span.atl-authvia   via: #{authvia}
+			span.atl-useremail.email #{email}
+			span.atl-authvia.authvia   via: #{authvia}
 	include controlbar

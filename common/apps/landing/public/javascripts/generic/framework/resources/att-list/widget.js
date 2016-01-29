@@ -1,5 +1,6 @@
 define( function(require){
-	
+	var search 		= require('./search');
+
 	var user_tpt 	= {};
 	var widget_att 	= {};
 	var $anchor 	= {};
@@ -17,6 +18,7 @@ define( function(require){
 		return _d.promise();
 	};
 
+	var first_user = true;
 	widget_att.add_user = function(user){
 		var _d = $.Deferred();
 
@@ -33,13 +35,20 @@ define( function(require){
 		 * as this id is used as element id in our ul 
 		 * and hence is required while removing li
 		 */
-		var $ele = user_tpt(user);
-		if( !$ele){
-			/* log */
-			console.log( 'template creation failed');
-		}
-		$('#atl-list').append( $ele);		/* why is it hardcoded */
+		if( first_user){
+			var $ele = user_tpt(user);
+			if( !$ele){
+				/* log */
+				console.log( 'template creation failed');
+			}
 
+			$('#atl-list').append( $ele);		/* why is it hardcoded */
+			search.init(); first_user = false; 
+		} 
+		else { 
+			search.add( user);
+		}
+		
 		_d.resolve();
 		return _d.promise();
 	};
@@ -50,7 +59,8 @@ define( function(require){
 
 	widget_att.remove_user = function(data){
 		console.log('remove: '+ data );
-		$('#' + data).remove();
+		search.remove( data);
+//		$('#' + data).remove();
 
 	};
 
