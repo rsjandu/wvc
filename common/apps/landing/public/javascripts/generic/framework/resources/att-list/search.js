@@ -12,7 +12,7 @@ define( function(require){
 		$('#atl-list').addClass('list');
 
 		var options = {
-			valueNames : ['displayName','email']
+			valueNames : ['displayName','email','att_id']
 		};
 		userlist = new Listjs('atl-wrapper', options);
 
@@ -22,8 +22,8 @@ define( function(require){
 		userlist.add(user);
 	};
 
-	search.remove = function( vc_id){
-		userlist.remove('vc_id', vc_id);
+	search.remove = function( att_id){
+		userlist.remove('att_id', att_id);
 	};
 	return search;
 });

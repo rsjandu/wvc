@@ -1,6 +1,8 @@
 define( function(require){
 	var search 		= require('./search');
 
+	var my_namespace= '@att_skin';	/* because we don't want an element with id=vc_id *
+									 * what if some other resource has such an element and it does $('#vc_id').remove() */
 	var user_tpt 	= {};
 	var widget_att 	= {};
 	var $anchor 	= {};
@@ -29,6 +31,8 @@ define( function(require){
 		user.email 	= user.emails ? user.emails[0].value  : "default@wvc.dev" ;
 		user.authvia= user.authvia || "Auth";
 		user.options = ['/landing/images/vu-meter.png', '/landing/images/vu-meter.png'];
+		
+		user.att_id = user.vc_id + my_namespace;
 
 		/*  
 		 * user.vc_id is must for every user, 
@@ -43,7 +47,8 @@ define( function(require){
 			}
 
 			$('#atl-list').append( $ele);		/* why is it hardcoded */
-			search.init(); first_user = false; 
+			search.init(); 
+			first_user = false; 
 		} 
 		else { 
 			search.add( user);
@@ -59,9 +64,7 @@ define( function(require){
 
 	widget_att.remove_user = function(data){
 		console.log('remove: '+ data );
-		search.remove( data);
-//		$('#' + data).remove();
-
+		search.remove( data + my_namespace);
 	};
 
 	return widget_att;
