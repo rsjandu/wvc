@@ -3,13 +3,16 @@ define( function(require){
 
 	var my_namespace= '@att_skin';	/* because we don't want an element with id=vc_id *
 									 * what if some other resource has such an element and it does $('#vc_id').remove() */
-	var user_tpt 	= {};
-	var widget_att 	= {};
-	var $anchor 	= {};
+	var user_tpt 	= {},
+		widget_att 	= {},
+		$anchor 	= {},
+		log 		= {},
+		is_first_user = true;
 
-	widget_att.init = function( anchor, templates, perms){
+	widget_att.init = function( anchor, templates, perms, logger){
 		var _d = $.Deferred();
-		
+	
+		log = logger;	
 		$anchor = $(anchor);			/* just search once */
 		var wrapper_tpt = templates[0];
 		$anchor.append( wrapper_tpt() );
@@ -20,17 +23,15 @@ define( function(require){
 		return _d.promise();
 	};
 
-	var first_user = true;
 	widget_att.add_user = function(user){
 		var _d = $.Deferred();
 
 		/* make fit for template */
 		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40";
 		user.avatar = user.photos ? user.photos[0].value : avatar_def;
-		user.time	= user.vc_auth_ts || "0";
+		user.time	= user.vc_auth_ts || "---";
 		user.email 	= user.emails ? user.emails[0].value  : "default@wvc.dev" ;
-		user.authvia= user.authvia || "Auth";
-		user.options = ['/landing/images/vu-meter.png', '/landing/images/vu-meter.png'];
+		user.authvia= user.authvia || "---";
 		
 		user.att_id = user.vc_id + my_namespace;
 
@@ -39,16 +40,15 @@ define( function(require){
 		 * as this id is used as element id in our ul 
 		 * and hence is required while removing li
 		 */
-		if( first_user){
+		if( is_first_user){
 			var $ele = user_tpt(user);
 			if( !$ele){
-				/* log */
-				console.log( 'template creation failed');
+				log.warn('template creation failed');
 			}
 
 			$('#atl-list').append( $ele);		/* why is it hardcoded */
 			search.init(); 
-			first_user = false; 
+			is_first_user = false; 
 		} 
 		else { 
 			search.add( user);
@@ -59,7 +59,7 @@ define( function(require){
 	};
 
 	widget_att.toggle_visible = function(){
-		$anchor.toggle();	/* but where's the sliding wala effect */
+		$anchor.toggle();
 	};
 
 	widget_att.remove_user = function(data){

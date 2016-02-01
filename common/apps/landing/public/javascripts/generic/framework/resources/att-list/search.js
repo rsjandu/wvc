@@ -1,21 +1,15 @@
 define( function(require){
-	var $		= require('jquery');
-	var Listjs	= require('https://rawgit.com/javve/list.js/v1.1.1/dist/list.js');
+	var $		= require('jquery'),
+		Listjs	= require('./list');
 
-	var search 	= {};
-	var userlist = {};
+	var search 	 = {},
+		userlist = {};
 
 	search.init = function(){
-
-		/* pre-requisites for listjs to work */
-		$('#atl-search input').addClass('search');
-		$('#atl-list').addClass('list');
-
 		var options = {
 			valueNames : ['displayName','email','att_id']
 		};
 		userlist = new Listjs('atl-wrapper', options);
-
 	};
 
 	search.add = function( user){
