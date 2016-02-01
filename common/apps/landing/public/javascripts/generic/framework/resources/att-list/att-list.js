@@ -54,6 +54,7 @@ define(function(require){
 	 */
 
 	function toggle_visibility( evt){
+		$('#widget-attendees').toggle();
 		widget.toggle_visible();
 		/* what else? */	
 	}
