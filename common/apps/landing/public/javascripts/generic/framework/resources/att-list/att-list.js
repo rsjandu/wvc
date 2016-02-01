@@ -8,6 +8,7 @@ define(function(require){
 		framework	= require('framework'),
 		log 		= require('log')('att-list','info'),
 		widget 		= require('./widget'),
+		controls 	= require('./controls');
 		listener 	= require('./listener');
 
 	var att = {};
@@ -35,7 +36,8 @@ define(function(require){
 			//.then( control_bar.init , _d.reject())
 			.then( _d.resolve(), _d.reject());
 
-		listener.init();
+		listener.init(log);
+		controls.init(log);			/* adds listener to buttons */
 		
 		return _d.promise();
 	};

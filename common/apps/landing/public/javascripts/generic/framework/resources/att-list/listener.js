@@ -6,16 +6,17 @@
 
 define(function(require){
 
-	var _events = require('events');
-	var widget 	= require('./widget');
+	var _events = require('events'),
+		widget 	= require('./widget');
 
-	var evt_namespace = "framework:attendees";
-	var binder  = "att-list";
-	var listener = {};
+	var evt_namespace = "framework:attendees",
+		binder  	  = "att-list",
+		listener 	  = {},
+		log 		  = {};
 
-	listener.init = function(){
+	listener.init = function(logger){
+		log = logger;
 		_events.bind( evt_namespace, evt_handler, binder);
-	
 	};
 
 	function evt_handler( evt, data){
@@ -32,7 +33,7 @@ define(function(require){
 				break;
 
 			default:
-//				log.warn('unhandled event: ' + evt +' @atl');
+				log.info('unhandled event: ' + evt +' @atl');
 		}	
 	
 	}

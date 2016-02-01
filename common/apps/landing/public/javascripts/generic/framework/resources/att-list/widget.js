@@ -43,7 +43,7 @@ define( function(require){
 		if( is_first_user){
 			var $ele = user_tpt(user);
 			if( !$ele){
-				log.warn('template creation failed');
+				log.info('template creation failed');
 			}
 
 			$('#atl-list').append( $ele);		/* why is it hardcoded */

@@ -10,6 +10,7 @@ define( function(require){
 			valueNames : ['displayName','email','att_id']
 		};
 		userlist = new Listjs('atl-wrapper', options);
+		$('#atl-search input').attr("placeholder",'Search a name or an email');
 	};
 
 	search.add = function( user){
