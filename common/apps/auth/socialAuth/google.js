@@ -2,11 +2,11 @@ var passport         = require( 'passport');
 var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 var config           = require('./oauth.js' );
 var encodeGoogle     = require('./encode.js' );
-var db               = require(' auth/models/db' );
+var db               = require('auth/models/db' );
 var express          = require( 'express' );
 var app              = express( );
 var server           = require( 'http' ).createServer( app ) ;
-var path             = require(' path' );
+var path             = require( 'path' );
 var passport         = require( 'passport' );
 var util             = require( 'util' );
 var bodyParser       = require( 'body-parser' );
@@ -31,7 +31,7 @@ function passport_use_google_strategy () {
 			process.nextTick(function () {
 				return done(null, profile);
 			});
-		}	
+		}
 	));
 
 	_d.resolve();
@@ -78,7 +78,7 @@ app.get('/account', ensureAuthenticated, function(req, res) {
 		else{
 			res.send('cookie origin???: ' + origin);
 
-		}		
+		}
 	}
 );
 
@@ -113,7 +113,7 @@ function fetch_data_from_db (req,res,next) {
 
 	db.get ('google', req, res)
 		.then (
-				next, 
+				next,
 				function fail (err) {
 					log.error (err, 'db get error');
 					return res.redirect('/auth/login');
@@ -142,7 +142,7 @@ app.get('/callback',
 //   login page.
 function ensureAuthenticated (req, res, next) {
 
-	if (req.isAuthenticated ()) { 
+	if (req.isAuthenticated ()) {
 		return next();
 	}
 
