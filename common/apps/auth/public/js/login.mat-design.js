@@ -41,25 +41,26 @@ if (!redirect_to) {
 }
 
 $('button').on('click', function () {
+
 	var id = $('input#user_id').val();
 	var display_name = $('input#display_name').val();
-	if(id == "" || display_name == "")
-		{
-			alert("Kindly enter both the fields");         
-			return false;
-		}
 
-		var identity = {
-			id : id,
-			displayName : display_name
-		};
-
-		var id_string = JSON.stringify(identity);
-		var id_uriencoded = encodeURIComponent(id_string);
-
-		document.cookie = "wiziq_auth=" + id_uriencoded + "; max-age=7200; path=/";
-
-		window.location = decodeURIComponent(redirect_to);
-
+	if(id === "" || display_name === "") {
+		alert("Enter both the fields");         
 		return false;
+	}
+
+	var identity = {
+		id : id,
+		displayName : display_name
+	};
+
+	var id_string = JSON.stringify(identity);
+	var id_uriencoded = encodeURIComponent(id_string);
+
+	document.cookie = "wiziq_auth=" + id_uriencoded + "; max-age=7200; path=/";
+
+	window.location = decodeURIComponent(redirect_to);
+
+	return false;
 });

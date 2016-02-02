@@ -1,3 +1,4 @@
+var $ = require('jquery-deferred');
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('./oauth.js');
@@ -15,6 +16,7 @@ var FacebookStrategy = require( 'passport-facebook' ).Strategy;
 var args             = require('common/args');
 var log              = require('auth/common/log');
 var login            = require('auth/routes/login');
+var db               = require('auth/models/db');
 
 
 function passport_use_facebook_strategy ()
@@ -109,13 +111,13 @@ function passport_init(auth_type){
 						});
 		}
 
-	}
+	};
 }
 
 
 function fetch_data_from_db(req,res,next)
 {
-	db.fetch_data_from_db('facebook',req,res)
+	db.get('facebook',req,res)
 		.then(
 				next, function fail( err){
 				return res.redirect('/auth/login');
