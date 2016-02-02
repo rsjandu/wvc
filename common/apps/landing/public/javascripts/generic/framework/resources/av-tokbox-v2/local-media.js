@@ -126,8 +126,8 @@ define(function(require) {
 		menu.av_controls.set_handler (menu_handler);
 
 		conn_emitter_cached.emit('incoming-media', {
-			connection_id : null,
-			stream_id     : stream.stream_id,
+			connection_id : 'local-media',
+			stream_id     : stream.streamId,
 			stream        : stream
 		});
 	}

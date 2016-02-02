@@ -97,7 +97,7 @@ function (require, ot, _log, $) {
 				var _new = ev.newValue;
 				var id = ev.stream.streamId;
 
-				handlers.streamPropertyChanged (id, property, _old, _new);
+				handlers.streamPropertyChanged (id, ev.stream, property, _old, _new);
 			},
 
 		});
