@@ -8,17 +8,14 @@ var bodyParser          = require( 'body-parser' );
 var cookieParser        = require( 'cookie-parser' );
 var session             = require( 'express-session' );
 var RedisStore          = require( 'connect-redis' )( session );
-
 var args                = require( 'common/args' );
 var log                 = require( 'auth/common/log' );
 var login               = require( 'auth/routes/login' );
 var db                  = require( 'auth/common/db' );
 var authentication      = require( 'auth/socialAuth/app_soc' );
-
 var add_data_to_db      = require( 'auth/routes/dbEntry' );
 var delete_data_from_db = require( 'auth/routes/dbDelete' );
-
-var flash = require('connect-flash');
+var flash               = require('connect-flash');
 
 //configure Express
 app.set('views', __dirname + '/views');
@@ -45,24 +42,24 @@ app.use( session({
 		saveUninitialized: true
 	})
 );
+
 app.use( passport.initialize());
 app.use( passport.session());
 
 app.get('/', function(req, res){
 
-		/* if user has auth cookie and origin_cookie    <========= shouldn't happen but is a possible scenario
-		 *              maybe delete the cookie and send login page or smth
-		 */
+	/* if user has auth cookie and origin_cookie    <========= shouldn't happen but is a possible scenario
+	 *              maybe delete the cookie and send login page or smth
+	 */
 
-		/* user doesn't hv auth cookie                                  <========= mostly the case
-		 * return a login page
-		 */
-		// console.log('get / called ');
-		res.render('index', { user: req.user });
-		});
+	/* user doesn't hv auth cookie                                  <========= mostly the case
+	 * return a login page
+	 */
+	res.render('index', { user: req.user });
+});
 
 
-app.use('/login',create_collection,login);
+app.use('/login'/*,create_collection*/,login);
 
 /*to add data to db via RESTful API*/
 app.use('/dbEntry',add_data_to_db);
@@ -74,11 +71,12 @@ app.use('/auth',authentication);
 
 function create_collection(req,res,next)
 {
+	req.flash('message', 'create collection');
 	db.createSchema()
-		.then(
-				next, function fail( err){
-				log.info({Error : "Addition of data to db failed "+err});
-				} );
+	.then(
+		next, function fail( err){
+			log.info({Error : "Addition of data to db failed "+err});
+		} );
 }
 
 module.exports = app;

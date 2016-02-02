@@ -41,12 +41,12 @@ if (!redirect_to) {
 }
 
 $('button').on('click', function () {
-		var id = $('input#user_id').val();
-		var display_name = $('input#display_name').val();
-		if(id == "" || display_name == "")
+	var id = $('input#user_id').val();
+	var display_name = $('input#display_name').val();
+	if(id == "" || display_name == "")
 		{
-		alert("Kindly enter both the fields");         
-		return false;
+			alert("Kindly enter both the fields");         
+			return false;
 		}
 
 		var identity = {
@@ -61,5 +61,5 @@ $('button').on('click', function () {
 
 		window.location = decodeURIComponent(redirect_to);
 
-	return false;
+		return false;
 });
