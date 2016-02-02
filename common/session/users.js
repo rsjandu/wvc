@@ -25,8 +25,9 @@ users.remove_user = function (vc_id) {
 	if (!list_active[vc_id])
 		return false;
 
-	list_removed[vc_id] = {};
-	list_removed[vc_id].user = list_active[vc_id].user;
+	list_removed[vc_id] = {
+		user : list_active[vc_id].user
+	};
 
 	delete list_active[vc_id];
 
@@ -36,6 +37,11 @@ users.remove_user = function (vc_id) {
 };
 
 users.mark_joined = function (vc_id) {
+	if (!list_active[vc_id]) {
+		log.error ('users:mark_joined: vc_id "' + vc_id + '" not in active list');
+		return;
+	}
+
 	list_active[vc_id].state = 'in-session';
 };
 
