@@ -84,6 +84,23 @@ define( function(require){
 	 * api for other modules
 	 * */
 
+	att.set_meta = function ( vc_id, known_key, value) {	
+		/*
+		 * Known values for "known_key":
+		 *     - 'audio-volume'
+		 *     - 'microphone'
+		 *     - 'speaker' (local speaker)
+		 *     - 'camera'
+		 *     - 'video'
+		 *     - 'write-control'
+		 * Any other value should return error.
+		 * Possible values for all are:
+		 *     - null or unknown (initial default state)
+		 *     - true/false
+		 *     - a number between 0 & 1 for 'audio-volume'
+		 */
+	};
+
 	/* need to discuss this.. what needs to be done so that it improves our system n all */
 	att.save_it_for_me = function( rname, userId, key, value, flag_push){	
 		var is_res = store[ userId].rs_info[rname];
