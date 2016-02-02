@@ -1,6 +1,6 @@
 var events   = require('events');
 var bunyan   = require('bunyan');
-var config   = require('common/config');
+var config   = require('./config');
 var fluent   = require('fluent-wiziq');
 
 var log = {};
