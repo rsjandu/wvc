@@ -1,5 +1,5 @@
 var docker_monitor  = require('node-docker-monitor');
-var log             = require('./log').child ({'sub-module' : 'proxy-docker-monitor'});
+var log             = require('./common/log').child ({'sub-module' : 'proxy-docker-monitor'});
 var route_cache     = require('./route-cache');
 
 var key;
@@ -13,12 +13,19 @@ function dockermonitor () {
 			key = '/session/' + container.Name;
 			value = 'localhost:' + container.Ports[0].PublicPort + '/';
 
-			if (route_cache.exists (key))
+			if (route_cache.exists (key)) {
+				if (route_cache.matches) {
+					log.info({ key : key, value : value }, "Route already exists");
+					return;
+				}
+
+				log.warn({ key : key, oldvalue : route_cache.get(key), newvalue : value }, "Updating existing route");
 				route_cache.remove_route (key);
+			}
 
 			route_cache.add_route (key, value);
 
-			log.info ({ key:key, value:value }, 'route added');
+			log.info ({ key : key, value : value }, 'route added');
 		},
 
 		onContainerDown: function (container) {
@@ -26,12 +33,12 @@ function dockermonitor () {
 			key = '/session/' + container.Name;
 
 			if (!route_cache.exists(key)) {
-				log.error({err : "Docker route not exists" },"onContainerDown");
+				log.warn({ key : key },"route not found");
 				return;
 			}
 
 			route_cache.remove_route (key);
-			log.info ({ key:key }, 'route removed');
+			log.info ({ key : key }, 'route removed');
 		}
 
 	});

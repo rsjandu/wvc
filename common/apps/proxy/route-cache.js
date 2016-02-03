@@ -1,4 +1,4 @@
-var log             = require('./log').child ({ 'sub-module' : 'routes-cache'});
+var log             = require('./common/log').child ({ 'sub-module' : 'routes-cache'});
 var host            = require('./args');
 var proxy           = require('./proxy');
 
@@ -24,6 +24,10 @@ m.get_all = function () {
 	return cache;
 };
 
+m.get = function (key) {
+	return cache[key].val;
+};
+
 m.exists = function (key) {
 	return cache[key] ? true : false;
 };
@@ -32,7 +36,7 @@ m.matches = function (key, value) {
 	if (!cache[key])
 		return false;
 
-	return cache[key] == value ? true : false;
+	return cache[key].val == value ? true : false;
 };
 
 module.exports = m;
