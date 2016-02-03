@@ -53,65 +53,64 @@ cache.init = function (namespace, expire) {
 
 			mylog.debug ({key:key}, 'cache set');
 			redis.set (key, value);
-			redis.expire (key, expire);
+			if (expire)
+				redis.expire (key, expire);
 		},
 
-			get : function (key) {
-				var _p      = $.Deferred ();
-				var reject  = _p.reject.bind(_p);
-				var resolve = _p.resolve.bind(_p);
+		get : function (key) {
+			var _p      = $.Deferred ();
 
-				key = namespace + '::' + key;
+			key = namespace + '::' + key;
 
-				if (!cache.connected) {
-					mylog.warn ({key:key}, 'get key failed. Not connected.');
-					_p.reject ('not connected');
-					return _p.promise();
-				}
-
-				redis.get(key, function (err, val) {
-
-					if (err || !val) {
-						mylog.debug ({key:key}, 'cache miss');
-						reject (err);
-						return _p.promise();
-					}
-					mylog.debug ({key:key}, 'cache hit');
-					resolve (val);
-				});
-
-				return _p.promise();
-			},
-
-			invalidate : function (key) {
-				key = namespace + '::' + key;
-				mylog.warn ('cache:invalidating key: ' + key);
-				redis.del (key);
-			},
-
-			getall: function (namespace) {
-				var _p      = $.Deferred();
-				var reject  = _p.reject.bind(_p);
-				var resolve = _p.resolve.bind(_p);
-
-				if (!cache.connected) {
-					mylog.warn ('get all keys failed. Not connected.');
-					_p.reject ('not connected');
-					return _p.promise();
-				}
-
-				redis.keys(namespace+"::*", function (err, val){
-					if (err || val.length === 0) {
-						mylog.debug ({namespace:namespace}, 'cache miss');
-						reject (err);
-						return _p.promise();
-					}
-					mylog.debug ({namespace:namespace}, 'cache hit');
-					resolve (val);
-				});
-
+			if (!cache.connected) {
+				mylog.warn ({key:key}, 'get key failed. Not connected.');
+				_p.reject ('not connected');
 				return _p.promise();
 			}
+
+			redis.get(key, function (err, val) {
+
+				if (err || !val) {
+					mylog.debug ({key:key}, 'cache miss');
+					_p.reject (err);
+					return _p.promise();
+				}
+				mylog.debug ({key:key}, 'cache hit');
+				_p.resolve (val);
+			});
+
+			return _p.promise();
+		},
+
+		invalidate : function (key) {
+			key = namespace + '::' + key;
+			mylog.warn ('cache:invalidating key: ' + key);
+			redis.del (key);
+		},
+
+		getall: function (namespace) {
+			var _p      = $.Deferred();
+
+			if (!cache.connected) {
+				mylog.warn ({ namespace : namespace }, 'getall keys failed. Not connected.');
+				_p.reject ('not connected');
+				return _p.promise();
+			}
+
+			redis.keys (namespace + "::*", function (err, val) {
+
+				if (err) {
+					mylog.error ({ namespace : namespace }, 'getall error - command "keys" failed.');
+					_p.reject (err);
+					return _p.promise();
+				}
+
+				mylog.debug ({ namespace : namespace }, 'getall ok');
+				return _p.resolve (val);
+			});
+
+			return _p.promise();
+		}
 	};
 };
 

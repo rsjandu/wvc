@@ -11,8 +11,6 @@ var ext_port      = 443;
 var server_port   = 3141;
 
 
-cache.emitter.on('redis-status', route_cache);
-
 /*
  * If connected to redis then initialze_proxy otherwise show error */
 function route_cache (connected) {
@@ -20,13 +18,15 @@ function route_cache (connected) {
 		cached_routes.get('proxy-routes')
 			.then(initialize_proxy, initialize_proxy);
 	}
-	else{
-		redis_error();
+	else {
+		log.error ('redis connection failed. Exiting ...');
+		process.exit (-1);
 	}
 }
 
 function initialize_proxy (_d) {
 //	proxy_api.register_default_routes();
+	
 	require('./docker-events');
 
 	app.use(body_parser.urlencoded({ extended: false }));
@@ -40,12 +40,6 @@ function initialize_proxy (_d) {
 		host : host,
 		port : ext_port
 	}, 'Starting proxy');
-}
-
-function redis_error (){
-	app.use('/api/route', function (req, res){
-		res.status(500).send("Proxy internal error");
-	});
 }
 
 app.listen(server_port);
