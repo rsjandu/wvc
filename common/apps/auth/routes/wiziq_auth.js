@@ -3,7 +3,6 @@ var path         = require('path');
 var log          = require('auth/common/log');
 var wiziq_auth   = require('auth/controllers/wiziq_auth');
 var router       = express.Router();
-var db           = require('auth/common/db');
 
 router.get('/', wiziq_auth.show);
 

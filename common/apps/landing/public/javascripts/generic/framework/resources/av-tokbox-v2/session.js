@@ -261,10 +261,21 @@ define(function(require) {
 		delete stream_map[stream_id];
 	}
 
-	function streamPropertyChanged (stream_id, property, _old, _new) {
-		var conn_id = stream_map[stream_id].connection_id;
-		var cont = conn_map[conn_id].streams[stream_id].container;
+	function streamPropertyChanged (stream_id, stream, property, _old, _new) {
+		/*
+		 * This gets called for local media as well as remote media. For local media,
+		 * we dont' handle the streamCreated event here (it is handled within local-media.js),
+		 * so our stream_map does not contain it's information. However, the connectionCreated
+		 * handler is still called, so we do have its information in our conn_map. */
+		var cont;
 		var meta = {};
+		var conn_id = stream.connection.connectionId;
+		var _local = conn_map[conn_id].local;
+
+		if (_local)
+			cont = local.container();
+		else
+			cont = conn_map[conn_id].streams[stream_id].container;
 
 		log.info ('stream property changed: ' + stream_id + ', property: ' + property + ', changed from (' + _old + ') --> (' + _new + ')');
 
