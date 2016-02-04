@@ -23,7 +23,7 @@ function dockermonitor () {
 				route_cache.remove_route (key);
 			}
 
-			route_cache.add_route (key, value);
+			route_cache.add_route (key, value, Date.now());
 
 			log.info ({ key : key, value : value }, 'route added');
 		},

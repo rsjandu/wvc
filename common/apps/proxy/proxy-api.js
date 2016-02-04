@@ -20,7 +20,7 @@ proxy_api.register = function (req, res, next) {
 		routes_cache.remove_route (key);
 	}
 
-	routes_cache.add_route (key, value);
+	routes_cache.add_route (key, value, Date.now());
 	res.status(200).send('route registered');
 	log.info ( { key: key, value : value }, 'registered route');
 

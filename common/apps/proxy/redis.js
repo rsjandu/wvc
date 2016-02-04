@@ -52,7 +52,7 @@ function add_preset_routes () {
 	.then(
 		function () { /* Do nothing */ },
 		function () {
-			routes_cache.add_route ('/', "localhost:5000/");
+			routes_cache.add_route ('/', "localhost:5000/", Date.now());
 		}
 	);
 
@@ -60,7 +60,7 @@ function add_preset_routes () {
 	.then(
 		function () { /* Do nothing */ },
 		function () {
-			routes_cache.add_route ('/socket.io', "localhost:5000/socket.io/");
+			routes_cache.add_route ('/socket.io', "localhost:5000/socket.io/", Date.now());
 		}
 	);
 
@@ -68,7 +68,7 @@ function add_preset_routes () {
 	.then(
 		function () { /* Do nothing */ },
 		function () {
-			routes_cache.add_route ('/log', "localhost:24224/");
+			routes_cache.add_route ('/log', "localhost:24224/", Date.now());
 		}
 	);
 }

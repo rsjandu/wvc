@@ -14,30 +14,30 @@ emitter.on('proxy:cached-routes-added', commit_routes_to_redis);
 
 m.add_route = function (key, val, ts) {
 
-	var now = (ts ? ts : Date.now());
-
 	/*
 	 * If the key already exists, we prefer to keep whichever
 	 * is more recent */
 	if (cache[key]) {
 
-		if (cache[key].now > now)
+		if (cache[key].ts > ts)
 			return;
 
 		/* Apparently we have an older entry in our cache. Delete it */
 		log.info ({
-			key: key,
-			old_value :cache[key].val,
-			old_ts :cache[key].ts,
-			new_value: val,
-			now: now}, 'overwriting older route');
+				key       : key,
+				old_value : cache[key].val,
+				old_ts    : cache[key].ts,
+				new_value : val,
+				ts        : ts
+			}, 'overwriting older route'
+		);
 
 		proxy.unregister (host + key);
 	}
 
 	cache[key] = { 
 		val : val,
-		ts  : now,
+		ts  : ts,
 		persist : false
 	};
 
