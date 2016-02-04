@@ -4,6 +4,7 @@ var body_parser   = require('body-parser');
 var log           = require('./common/log');
 var api           = require('./api');
 var host          = require('./common/args').host;
+var redis_cache   = require('./redis');
 var ext_port      = 443;
 var server_port   = 3141;
 

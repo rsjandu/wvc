@@ -10,22 +10,16 @@ var redis = new ioredis({
 	}
 });
 
-/*
- * Created emitter to emit redis-satus event on connect or error */
-var emitter = new events.EventEmitter();
 var cache   = {};
-
 cache.connected = false;
 
 redis.on('connect', function () {
 	cache.connected = true;
 	mylog.info('Connection to Redis Cache ok');
-	emitter.emit('redis-status', true);
 });
 
 redis.on('error', function (err) {
 	mylog.error('Connection to Redis Cache reported error: ' + err);
-	emitter.emit('redis-status', false);
 });
 
 redis.on('close', function () {
@@ -42,19 +36,23 @@ redis.on('reconnecting', function () {
 cache.init = function (namespace, expire) {
 	return {
 
+		redis : redis,
+
 		set : function (key, value) {
 
 			key = namespace + '::' + key;
 
 			if (!cache.connected) {
 				mylog.warn ({ key:key }, 'set key failed. Not connected.');
-				return;
+				return false;
 			}
 
 			mylog.debug ({key:key}, 'cache set');
 			redis.set (key, value);
 			if (expire)
 				redis.expire (key, expire);
+
+			return true;
 		},
 
 		get : function (key) {
@@ -75,8 +73,8 @@ cache.init = function (namespace, expire) {
 					_p.reject (err);
 					return _p.promise();
 				}
-				mylog.debug ({key:key}, 'cache hit');
-				_p.resolve (val);
+				mylog.debug ({key: key}, 'cache hit');
+				return _p.resolve (val);
 			});
 
 			return _p.promise();
@@ -88,7 +86,7 @@ cache.init = function (namespace, expire) {
 			redis.del (key);
 		},
 
-		getall: function (namespace) {
+		keys: function () {
 			var _p      = $.Deferred();
 
 			if (!cache.connected) {
@@ -105,8 +103,12 @@ cache.init = function (namespace, expire) {
 					return _p.promise();
 				}
 
-				mylog.debug ({ namespace : namespace }, 'getall ok');
-				return _p.resolve (val);
+				var _keys = [];
+				val.forEach(function (curr, index, arr) {
+					_keys.push(curr.replace(/^.*::/g, ''));
+				});
+
+				return _p.resolve (_keys);
 			});
 
 			return _p.promise();
@@ -118,7 +120,5 @@ cache.invalidate = function () {
 	mylog.warn ('cache.invalidate: flush all');
 	redis.flushall();
 };
-
-cache.emitter = emitter;
 
 module.exports = cache;

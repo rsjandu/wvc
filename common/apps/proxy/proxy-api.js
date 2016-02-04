@@ -54,10 +54,4 @@ proxy_api.list = function (req, res, next) {
 	res.status(200).send( routes_cache.get_all() );
 };
 
-/*
- * Routes for the chat and log server */
-routes_cache.add_route ('/', "localhost:5000/");
-routes_cache.add_route ('/socket.io', "localhost:5000/socket.io/");
-routes_cache.add_route ('/log', "localhost:24224/");
-
 module.exports = proxy_api;
