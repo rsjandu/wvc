@@ -117,7 +117,7 @@ define(function(require){
 				
 				socket.on('messages:new', function(msg){ 
 					log.info('received message:', msg);  
-					emitter.emit('chat:new-message', data = { 'from': msg.owner.vc_id });
+					emitter.emit('chat:new-message', data = { 'from': msg.owner.id });
 					append_message(msg); 
 				});
 

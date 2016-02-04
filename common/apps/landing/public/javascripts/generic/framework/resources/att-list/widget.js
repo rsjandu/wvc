@@ -1,7 +1,7 @@
 define( function(require){
 	var search 		= require('./search');
 
-	var my_namespace= '@att_skin';	/* because we don't want an element with id=vc_id *
+	var my_namespace= '_att_skin';	/* because we don't want an element with id=vc_id *
 									 * what if some other resource has such an element and it does $('#vc_id').remove() */
 	var user_tpt 	= {},
 		widget_att 	= {},
@@ -9,13 +9,14 @@ define( function(require){
 		log 		= {},
 		is_first_user = true;
 
-	widget_att.init = function( anchor, templates, perms, logger){
+	widget_att.init = function( anchor, templates, identity, logger){
 		var _d = $.Deferred();
 	
 		log = logger;	
 		$anchor = $(anchor);			/* just search once */
 		var wrapper_tpt = templates[0];
-		$anchor.append( wrapper_tpt() );
+		format(identity);				/* make fit for template */
+		$anchor.append( wrapper_tpt( identity) );
 		
 		user_tpt = templates[1];
 		
@@ -27,14 +28,8 @@ define( function(require){
 		var _d = $.Deferred();
 
 		/* make fit for template */
-		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40";
-		user.avatar = user.photos ? user.photos[0].value : avatar_def;
-		user.time	= user.vc_auth_ts || "---";
-		user.email 	= user.emails ? user.emails[0].value  : "default@wvc.dev" ;
-		user.authvia= user.authvia || "---";
+		format( user);
 		
-		user.att_id = user.vc_id + my_namespace;
-
 		/*  
 		 * user.vc_id is must for every user, 
 		 * as this id is used as element id in our ul 
@@ -66,6 +61,15 @@ define( function(require){
 		console.log('remove: '+ data );
 		search.remove( data + my_namespace);
 	};
+
+	function format( user){
+		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40";
+		user.avatar = user.photos ? user.photos[0].value : avatar_def;
+		user.time	= user.vc_auth_ts || "---";
+		user.email 	= user.emails ? user.emails[0].value  : "-----" ;
+		user.authvia= user.authvia || "---";
+		user.att_id = user.vc_id + my_namespace;
+	}
 
 	return widget_att;
 });

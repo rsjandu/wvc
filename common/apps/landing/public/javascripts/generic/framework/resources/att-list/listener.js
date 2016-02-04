@@ -7,6 +7,7 @@
 define(function(require){
 
 	var _events = require('events'),
+		controls= require('./controls'),
 		widget 	= require('./widget');
 
 	var evt_namespace = "framework:attendees",
@@ -20,7 +21,6 @@ define(function(require){
 	};
 
 	function evt_handler( evt, data){
-		console.log('event received is :::::: ' + evt);	
 		
 		switch( evt){
 			case 'in':
@@ -32,8 +32,11 @@ define(function(require){
 				widget.remove_user(data);
 				break;
 
+			case 'control_changed':
+				controls.change( data.vc_id, data.known_key, data.value);
+
 			default:
-				log.info('unhandled event: ' + evt +' @atl');
+				log.info('some event: ' + evt +' @atl_skin, not my problem');
 		}	
 	
 	}

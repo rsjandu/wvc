@@ -32,12 +32,11 @@ define(function(require){
 		trigger.on('click', toggle_visibility);
 	
 		$(anchor).hide();						/* should be visible on selection only */
-		widget.init( anchor, templates, perms, log)
-			//.then( control_bar.init , _d.reject())
-			.then( _d.resolve(), _d.reject());
+		widget.init( anchor, templates, f_handle.identity, log)
+			.then( 	controls.init.bind(undefined,f_handle.attendees,log) , 	_d.reject )
+			.then( 	_d.resolve,				 								_d.reject );
 
-		listener.init(log);
-		controls.init(log);			/* adds listener to buttons */
+		listener.init(log);			/* listen for attendees events. (For now) */
 		
 		return _d.promise();
 	};
