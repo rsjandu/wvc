@@ -1,6 +1,11 @@
-var events = require('events');
-var bunyan = require('bunyan');
-var log = require ('../../common/log').sub_app('proxy');
+var events     = require('events');
+var bunyan     = require('bunyan');
+var log_stdout = require('./args').logs;
+var log        = require('../../common/log').sub_app('proxy');
+
+if (!log_stdout){
+	log.level('error');
+}
 
 function serializer (req, res) {
 	if (!req || !req.connection)

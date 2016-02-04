@@ -1,5 +1,5 @@
 var log             = require('./common/log').child ({ 'sub-module' : 'routes-cache'});
-var host            = require('./args');
+var host            = require('./common/args').host;
 var proxy           = require('./proxy');
 
 /*

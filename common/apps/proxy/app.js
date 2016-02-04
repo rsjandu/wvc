@@ -3,7 +3,7 @@ var app           = express();
 var body_parser   = require('body-parser');
 var log           = require('./common/log');
 var api           = require('./api');
-var host          = require('./args');
+var host          = require('./common/args').host;
 var ext_port      = 443;
 var server_port   = 3141;
 
