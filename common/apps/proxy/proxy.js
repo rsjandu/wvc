@@ -13,7 +13,11 @@ var proxy = new require('redbird') ({
 		key     : 'certificates/dev-key.pem',
 		cert    : 'certificates/dev-cert.pem',
 	},
-	bunyan : {name : "redbird", stream : process.stdout, level : level}
+	bunyan : {
+		name    : "redbird",
+	    stream  : process.stdout,
+	    level   : level
+	}
 });
 
 module.exports = proxy;
