@@ -55,11 +55,6 @@ proxy_api.list = function (req, res, next) {
 };
 
 /*
- * Routes for the landing page */
-routes_cache.add_route ('/landing', "localhost:2178/landing/");
-routes_cache.add_route ('/auth', "localhost:2178/auth/");
-
-/*
  * Routes for the chat and log server */
 routes_cache.add_route ('/', "localhost:5000/");
 routes_cache.add_route ('/socket.io', "localhost:5000/socket.io/");
