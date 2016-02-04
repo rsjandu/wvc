@@ -15,8 +15,8 @@ var proxy = new require('redbird') ({
 	},
 	bunyan : {
 		name    : "redbird",
-	    stream  : process.stdout,
-	    level   : level
+		stream  : process.stdout,
+		level   : level
 	}
 });
 
