@@ -29,12 +29,12 @@ function add_route (key, value, proxy_port) {
 	});
 
 	d.on('error', function (err, response) {
-		log.error ({ data: data, err: err, response: response }, 'route add failed');
+		log.error ({ err: err, response: response }, 'route add failed');
 		return _d.reject(err);
 	});
 
 	d.on('timeout', function (ms) {
-		log.error ({ data: data, err: err, response: response }, 'route add failed (timeout)');
+		log.error ('route add failed (timeout)');
 		return _d.reject('timeout');
 	});
 
