@@ -182,12 +182,18 @@ define(function(require) {
 
 		/*
 		 * Generally used by the 'container' module to create a tooltip */
+		var vc_id  = conn_map[connection_id].vc_id;
+		var _identity  = f_handle_cached.attendees.get_identity(vc_id);
 		var meta_info = {
-			identity : f_handle_cached.attendees.get_identity(conn_map[connection_id].vc_id),
+			identity : _identity,
 			stream_id : stream_id,
 			has_video : stream.hasVideo,
 			has_audio : stream.hasAudio,
 		};
+
+		/* Also inform the framework */
+		f_handle_cached.attendees.set_meta ( vc_id, 'microphone', stream.hasAudio);
+		f_handle_cached.attendees.set_meta ( vc_id, 'camera', stream.hasVideo);
 
 		var container = layout.get_container (type, meta_info);
 		if (!container) {
@@ -271,6 +277,7 @@ define(function(require) {
 		var meta = {};
 		var conn_id = stream.connection.connectionId;
 		var _local = conn_map[conn_id].local;
+		var vc_id  = conn_map[conn_id].vc_id;
 
 		if (_local)
 			cont = local.container();
@@ -279,10 +286,15 @@ define(function(require) {
 
 		log.info ('stream property changed: ' + stream_id + ', property: ' + property + ', changed from (' + _old + ') --> (' + _new + ')');
 
-		if (property === 'hasAudio')
+		if (property === 'hasAudio') {
+			f_handle_cached.attendees.set_meta ( vc_id, 'microphone', _new);
 			meta.has_audio = _new;
-		if (property === 'hasVideo')
+		}
+
+		if (property === 'hasVideo') {
+			f_handle_cached.attendees.set_meta ( vc_id, 'camera', _new);
 			meta.has_video = _new;
+		}
 
 		cont.set_meta (meta);
 	}
