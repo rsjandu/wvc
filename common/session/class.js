@@ -1,5 +1,5 @@
 var $               = require('jquery-deferred');
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('class');
 var config          = require("./config");
 var events          = require('./events')('class');
 var resources       = require("./resources");
@@ -12,7 +12,7 @@ class_.events = events;
 class_.init = function (sess_info) {
 	var _d = $.Deferred ();
 
-	log.info ('class: transition ->  PROVISIONING');
+	log.info ({state : 'PROVISIONING'}, '+-- transition -->');
 	state = 'provisioning';
 	provision (sess_info)
 		.then (
@@ -23,12 +23,11 @@ class_.init = function (sess_info) {
 				 * Start a timer for now. Will change this later */
 
 				setTimeout (start, 2000);
-				log.info ('class: transition ->  PROVISIONED');
+				log.info ({state : 'PROVISIONED'}, '+-- transition -->');
 				_d.resolve ('provisioned');
 			},
 			function (err) {
-				log.error ('class: transition ->  PROVISIONING-FAILED');
-				log.error ('    reason : ' + err);
+				log.error ({state : 'PROVISIONING-FAILED', err : err}, '+-- transition --> error');
 				state = 'provisioning-failed';
 				_d.reject.bind(_d);
 			}
@@ -51,7 +50,7 @@ function provision (sess_info) {
 
 function start () {
 	state = 'active';
-	log.info ('class: transition ->  ACTIVE');
+	log.info ({state : 'ACTIVE'}, '+-- transition -->');
 	events.emit ('active');
 }
 

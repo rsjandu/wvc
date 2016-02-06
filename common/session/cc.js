@@ -1,6 +1,6 @@
 var WebSocketServer = require('ws').Server;
 var $               = require("jquery-deferred");
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module(cc);
 var config          = require("./config");
 var protocol        = require("./protocol");
 
@@ -22,7 +22,7 @@ cc.init = function (server, route, sess_config) {
 
 	wss.on('connection', function (ws) {
 
-		//log.info ('incoming ws = ', ws.upgradeReq.headers);
+		log.debug ({ headers : ws.upgradeReq.headers }, 'incoming connection');
 
 		/* Add connection to list */
 		upstream.new_connection (ws);
@@ -32,7 +32,7 @@ cc.init = function (server, route, sess_config) {
 		});
 
 		ws.on ('error', function (err) {
-			log.error ('error : %s', err);
+			log.error ({ err : err }, 'connection error');
 		});
 
 		ws.on ('close', function (err) {
@@ -49,7 +49,7 @@ cc.send_info = function (sock, from, to, info_id, info) {
 	m.seq = seq++;
 	sock.send (JSON.stringify(m), function (err) {
 		if (err)
-			log.error ('cc: socket send error: ', err, 'to = ' + to + ', info_id = ' + info_id);
+			log.error ({ err:err, to:to, info_id:info_id }, 'socket send error');
 	});
 	protocol.print(m);
 };
@@ -63,9 +63,7 @@ function handle_incoming (ws, message) {
 		m = protocol.parse (message);
 	}
 	catch (e) {
-		log.error ('protocol parse error : ' + e.message);
-		log.error ('    message = ' + JSON.stringify(message, null, 2));
-		log.error ('    message = ', message);
+		log.error ( { msg:message, err: e.message }, 'protocol parse error');
 		return;
 	}
 

@@ -10,8 +10,6 @@ w.init = function (myinfo, common, handles) {
 	log = handles.log;
 	coms = handles.coms;
 
-	log.info ('white-board basic : init :', myinfo);
-
 	_d.resolve ();
 	return _d.promise ();
 };

@@ -1,6 +1,6 @@
 var WebSocketServer = require('ws').Server;
 var $               = require("jquery-deferred");
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('msg-route');
 var config          = require("./config");
 var addr            = require("./addr");
 var controller      = require("./controller");

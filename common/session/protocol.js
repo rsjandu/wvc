@@ -1,4 +1,4 @@
-var log = require("./common/log");
+var log = require("./common/log").sub_module('protocol');
 var config = require("./config");
 
 var prot = {};
@@ -20,7 +20,11 @@ prot.command_pdu = function (to_user, module, from_user, target, op) {
 	var m = {};
 
 	if (!to_user || !from_user || !target || !op) {
-		log.error ('command_pdu: null argument(s): to_user - ' + to_user + ', from_user - ' + from_user + ', target - ' + target + ', op -' + op);
+		log.error ({
+			to: (to_user ? to_user : 'null'),
+			from: (from_user ? from_user : 'null'),
+			target: (target ? target : 'null'),
+			op: (op ? op : 'null')}, 'command_pdu: null argument(s)');
 		return null;
 	}
 
@@ -70,12 +74,12 @@ prot.info_pdu = function (from, to, info_id, info) {
 	var m = {};
 
 	if (!to || !from || !info_id || !info) {
-		log.error ('protocol.info_pdu: null arguments(s):' +
-				   'to - ' + to +
-				   ', from - ' + from +
-				   ', info_id - ' + info_id +
-				   ', info - ' + info
-				  );
+		log.error ({
+			to: (to ? to : 'null'),
+			from: (from ? from : 'null'),
+			info_id: (info_id ? info_id : 'null'),
+			info: (info ? info : 'null'),
+		},'protocol.info_pdu: null arguments(s)');
 		return null;
 	}
 

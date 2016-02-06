@@ -1,16 +1,16 @@
 var EventEmitter    = require('events').EventEmitter;
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('event');
 var emitter = new EventEmitter();
 
 var events = {};
 function emit (prefix, e, data) {
-	log.debug ('event - EMIT - ' + prefix + '.' + e);
+	log.debug ({ e : prefix + '.' + e}, 'emit');
 	emitter.emit (prefix + '.' + e, data);
 }
 
 function on (prefix, e, callback) {
 	emitter.on (prefix + '.' + e, function (data) {
-		log.debug ('event - TRIG - ' + prefix + '.' + e + ', data = ', (data ? data : 'none'));
+		log.debug ({ e : prefix + '.' + e, data : (data ? data : 'none')}, 'trigger');
 		callback (data);
 	});
 }

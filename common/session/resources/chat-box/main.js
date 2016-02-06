@@ -15,7 +15,7 @@ chat.init = function (myinfo, common, handles) {
 	var _d = $.Deferred ();
 	log = handles.log;
 
-	log.info ('chat-box: init :', JSON.stringify(myinfo));
+	log.info ({ myinfo : myinfo }, 'init');
 	
 	root_url 	= myinfo.custom.server_url;
 	req_timeout = myinfo.custom.req_timeout;
@@ -38,24 +38,25 @@ chat.init = function (myinfo, common, handles) {
 
 	_d_login.then(	
 			function done( cookie ){
-				log.debug ('lets-chat: cookie-admin = ' + cookie);
+				log.debug ({ cookie: cookie }, 'cookie-admin');
 				cookie_admin = cookie;
 				_d_room = create_room( m_room.name, m_room.slug, m_room.desc );
 				_d_room.then( 
 						function room_done( rid ){
-							log.info('roomid',rid);
+							log.info ({ room_id : rid }, 'Room ID');
 							m_room.id = rid;			//store room id for session
 							_d.resolve(); 
 
 					  	},
 						function room_failed( message ){
+							log.error ({ err: message }, 'room creation failed');
 							_d.reject(message);	
 						}
 					);	
 			},
 			//fail callback
 			function fail( message ){
-				log.warn('Fail:', message );
+				log.warn({ err: message }, 'login failed');
 				_d.reject(message);
 			}
 	);
@@ -67,7 +68,7 @@ chat.init = function (myinfo, common, handles) {
 chat.init_user = function (user) { 
 	var _d = $.Deferred ();
 	if( !m_room.id){
-		log.error('no room found');
+		log.error({ user : user }, 'no room found');
 		_d.reject('no room created');
 		return _d.promise();
 	}
@@ -82,12 +83,12 @@ chat.init_user = function (user) {
 	 */
 	uname 	= user.vc_id + get_random_string();					/* add some 5chars random string here, just avoiding removeUser */
 	passwd 	= generate_password( uname );
-	log.info( uname, passwd);
-	var _d_create = create_user( uname, passwd, user );
+	log.info ({ username : uname, password: passwd, user : user }, 'generated username/password');
 
+	var _d_create = create_user( uname, passwd, user );
 	_d_create.then(
-		function done(message){
-			log.info('username', uname );
+		function done (message) {
+			log.info({ username : uname }, 'user creation ok');
 			var _d_login = login_to_letsChat( uname, passwd);
 			_d_login.then( 
 				function done(cookie){					//is it ok creating methods with the same name
@@ -102,7 +103,7 @@ chat.init_user = function (user) {
 							allow_user_to_room( m_room, uname.toLowerCase() )
 								.then(
 									function(){
-										log.info('Chat-Box:', 'init_user resolved');
+										log.info({ username : uname }, 'user allow room ok');
 										_d.resolve({
 										'root_url' : root_url,
 										'token'    : user_token,
@@ -111,7 +112,7 @@ chat.init_user = function (user) {
 										});		
 									},
 									function (err) {
-										log.error ('allow_user_to_room: err = ' + err);
+										log.info({ username : uname, err: err }, 'user allow room error');
 										_d.reject(err);
 									}
 								);
@@ -157,7 +158,7 @@ function allow_user_to_room( room, uname){
 					}
 			 }
 			).on('complete', function(data,res){
-				log.info('update_request got: ' + JSON.stringify(data) );
+				log.info({ data:data }, 'update request');
 				_d.resolve();			
 			}).on('timeout', function(){
 				_d.reject(' req timed out');
@@ -191,18 +192,16 @@ function create_user(username, password, user_info) {
 		'password-confirm' : password 
 	};
 
-	log.debug ('chat_data sent = ', JSON.stringify(chat_data, '-', 2));
-
 	rest.post( root_url + '/account/register',{ 
 		timeout : req_timeout,
 		data : chat_data
 	}).on('complete', function( data){
 		if(data.status === 'success'){
-			log.info ('createUser: ', data);
+			log.info ({ data: data }, 'create user ok');
 			return _d.resolve( data.message );
 		}
 
-		log.error ('createUser: error:', data.message);
+		log.error ({ err: data.message }, 'create user error');
 		_d.reject( data.message );
 
 	}).on('timeout', function(){
@@ -246,7 +245,7 @@ function get_token( cookie ){
 		headers : { 'cookie' : cookie },
 		timeout : req_timeout
 	}).on('success',function( response ){	
-		log.info( response );
+		log.debug ( { response : response }, 'get token ok' );
 		_d.resolve( response.token );
 	}).on('complete',function( data ){
 		if(_d.state() === 'pending'){
@@ -278,7 +277,7 @@ function create_room( name, short_name, desc ){
 				_d.resolve( room.id );
 			}
 		}).on('complete',function(data){
-			log.info ('lets-chat : data = ' + JSON.stringify(data, null, 2));
+			log.info ({ data:data }, 'create room post request ok');
 			if( _d.state() == 'pending'){
 				_d.reject('room creation failed');
 			}
@@ -295,12 +294,11 @@ function delete_room( id ){
 		root_url + '/rooms' + '/' +  id, 
 		{ headers : { cookie : cookie_admin  }  }
 	).on('success',function(data){
-		console.log( data );
+		log.info ({ data:data }, 'delete room ok');
 		_d.resolve();
 	}).on('complete', function( data ){
-		console.log('called complete');
 		if( _d.state() == 'pending'){
-			console.log( data);
+			log.error ({ data:data }, 'delete room failed');
 			_d.reject('room delete failed');
 		}		
 	});

@@ -1,5 +1,5 @@
 var $               = require("jquery-deferred");
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('resources');
 var config          = require("./config");
 var users           = require("./users");
 var addr            = require("./addr");
@@ -16,14 +16,14 @@ res.load = function (sess_info) {
 
 	function mod_ok () {
 		counter--;
-		log.info ('resources:module.init: \"' + this + '\" ok');
+		log.info ({ res: this }, 'module.init ok');
 		if (!counter)
 			finish();
 	}
 
 	function mod_err (err) {
 		counter--;
-		log.error ('resources:module.init: \"' + this + '\" err = ' + err);
+		log.error ({ res: this, err: err }, 'module.init error');
 		if (!counter)
 			finish();
 	}
@@ -33,7 +33,7 @@ res.load = function (sess_info) {
 	}
 
 	if (!resources) {
-		log.error ('resources: resources not defined in sess_info');
+		log.error ({ sess_info : sess_info }, 'no resources defined');
 		return;
 	}
 
@@ -44,7 +44,7 @@ res.load = function (sess_info) {
 
 		/* Add additional utility handles */
 		sess_info.handles = {};
-		sess_info.handles.log = log;
+		sess_info.handles.log = log.child({ res : r.name });
 		sess_info.handles.coms = {};
 		sess_info.handles.coms.broadcast_info = users.broadcast_info.bind (users, r.name, r.name);
 
@@ -77,7 +77,7 @@ res.init_user = function (user) {
 	}
 
 	function mod_err (m, err) {
-		log.warn ('resoruces.init_user: error - module(' + m + ') = ' + err);
+		log.warn ({ res: m, err: err }, 'init_user error');
 		info_err[m] = err;
 		counter--;
 		if (!counter)
@@ -99,7 +99,7 @@ res.init_user = function (user) {
 				d_mod = list[m].handle.init_user (user);
 			}
 			catch (e) {
-				log.error ('resources:init_user: \"' + m + '\" err = ' + e);
+				log.error ({ res: m, err: e }, 'init_user exception');
 				counter--;
 			}
 
@@ -117,19 +117,19 @@ res.init_user = function (user) {
 
 res.route_info = function (from, to, msg) {
 	if (!list[to]) {
-		log.error ('resources.route_info: info for non-existent module \"' + to + '\"');
+		log.error ({ from: from, to: to, msg: msg }, 'route_info: to non-existent module');
 		return;
 	}
 
 	if (!list[to].handle.info) {
-		log.error ('resources.route_info: info method undefined for module \"' + to + '\"');
+		log.error ({ from: from, to: to, msg: msg }, 'route_info: undefined info method');
 		return;
 	}
 
 	var user = addr.user(from);
 
 	if (!user) {
-		log.error ('resources.route_info: unacceptable from address: \"' + from + '\"');
+		log.error ({ from: from, to: to, msg: msg }, 'route_info: unacceptable from address');
 		return;
 	}
 

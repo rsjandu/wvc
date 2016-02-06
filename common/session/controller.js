@@ -1,5 +1,5 @@
 var $               = require("jquery-deferred");
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('controller');
 var auth            = require("./auth");
 var resources       = require("./resources");
 var class_          = require("./class");
@@ -40,7 +40,7 @@ controller.process = function (conn, from, to, msg) {
 			break;
 
 		default :
-			log.error ('illegal to.resource = ' + to.resource);
+			log.error ({ to:to.resource }, 'illegal to.resource');
 			_d.reject ('illegal to.reource', 'controller');
 			return _d.promise ();
 	}
@@ -96,7 +96,7 @@ function actually_join_user (user) {
 			},
 			/* resources.init should _not_ return an error */
 			function (err) {
-				log.error ('resources.init_user: error = ' + err + '. This is not supposed to happen - indicates a bug in the code');
+				log.error ({ err: err }, 'resources.init_user: error. This is not supposed to happen - indicates a bug in the code');
 			}
 		);
 }

@@ -1,4 +1,4 @@
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('cipher');
 
 cipher = {};
 

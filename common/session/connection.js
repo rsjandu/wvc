@@ -1,5 +1,5 @@
 var url             = require('url');
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('connection');
 var events          = require('./events')('connection');
 var cc              = require('./cc');
 
@@ -10,7 +10,7 @@ function set_user (vc_id) {
 	var conn_id = this.c.id;
 
 	if (!list[conn_id]) {
-		log.error ('connection:set_user: unknown conn_id = ' + conn_id);
+		log.error ({conn_id : conn_id}, 'unknown');
 		return false;
 	}
 
@@ -19,7 +19,7 @@ function set_user (vc_id) {
 }
 
 function close () {
-	log.debug ('connection: closed: removing connection # ' + this.c.id);
+	log.error ({conn_id : this.c.id}, 'connection: closed: removing connection');
 	events.emit ('closed', this.c.vc_id);
 	delete list[this.c.id];
 }
@@ -31,7 +31,7 @@ function show_conn (c, comment) {
 	if (comment)
 		comment = ' (' + comment +') ';
 
-	log.debug ('connection' + comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.vc_id ? c.vc_id : '-') + ')');
+	log.debug (comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.vc_id ? c.vc_id : '-') + ')');
 }
 
 function send_info (from, to, info_id, info) {
@@ -80,7 +80,7 @@ connection.new_connection = function (sock) {
 	show_conn(c, 'new');
 
 	if (list[c.id])
-		log.error ('connection:new: possibly over-writing connection info: id = ' + c.id);
+		log.error ({conn_id : c.id}, 'new: possibly over-writing connection info');
 
 	list[c.id] = c;
 

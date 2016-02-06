@@ -36,6 +36,7 @@ server.listen(port, function () {
 	log.info ('*    Env  = ', process.env.NODE_ENV);
 	log.info ('*    Addr : ' + server.address().port);
 	log.info ('*    Port : ' + port);
+	log.info ('*-----------------------------------------------------*');
 
 });
 

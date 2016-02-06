@@ -1,4 +1,4 @@
-var log             = require("./common/log");
+var log             = require("./common/log").sub_module('users');
 var config          = require("./config");
 var addr            = require("./addr");
 
@@ -17,7 +17,7 @@ users.add_user = function (user_info, conn) {
 	list_active[vc_id].conn = conn;
 	list_active[vc_id].state = 'waiting';
 
-	log.info ('user \"' + vc_id + '\" added');
+	log.info ({ vc_id : vc_id, info : user_info }, 'user added');
 	return true;
 };
 
@@ -31,14 +31,14 @@ users.remove_user = function (vc_id) {
 
 	delete list_active[vc_id];
 
-	log.info ('user \"' + vc_id + '\" removed');
+	log.info ({ vc_id: vc_id }, 'user removed');
 
 	return true;
 };
 
 users.mark_joined = function (vc_id) {
 	if (!list_active[vc_id]) {
-		log.error ('users:mark_joined: vc_id "' + vc_id + '" not in active list');
+		log.error ({ vc_id: vc_id }, 'mark_joined: user not in active list');
 		return;
 	}
 
@@ -60,12 +60,12 @@ users.send_info = function (vc_id, from, to, info_id, info) {
 	var _u = list_active[vc_id];
 
 	if (!_u) {
-		log.error ('users:send_info: user \"' + vc_id + '\" not in the active list');
+		log.error ({ vc_id: vc_id, from:from, to:to, info_id:info_id, info:info }, 'send_info: user not in active list');
 		return;
 	}
 
 	if (!joined(_u)) {
-		log.warn ('users:send_info: \"' + info_id + '\" not sent to user.' + vc_id + ' : reason - not active');
+		log.warn ({ vc_id: vc_id, from:from, to:to, info_id:info_id, info:info }, 'send_info: not sent. Reason : not active');
 		return;
 	}
 

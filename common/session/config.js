@@ -1,6 +1,6 @@
 var fs  = require('fs');
 var path= require('path');
-var log = require('./common/log');
+var log = require('./common/log').sub_module('config');
 var config = {};
 
 config.port = '2178';
