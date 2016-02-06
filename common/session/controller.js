@@ -20,6 +20,7 @@ class_.events.on ('active', function () {
 
 controller = {};
 controller.init = function (sess_info) {
+	users.init (sess_info);
 	class_.init (sess_info);
 };
 
@@ -36,7 +37,7 @@ controller.process = function (conn, from, to, msg) {
 
 		case 'auth' :
 
-			handle_auth (_d, conn, from, msg);
+			handle_new_user (_d, conn, from, msg);
 			break;
 
 		default :
@@ -48,12 +49,15 @@ controller.process = function (conn, from, to, msg) {
 	return _d.promise ();
 };
 
-function handle_auth (_d, conn, from, msg) {
+function handle_new_user (_d, conn, from, msg) {
 
 	var user_info = null;
 	/*
 	 * 'auth' is the first PDU we get when a new user 
 	 *  connects. */
+
+	if (!users.can_admit ())
+		return _d.reject ('class already packed to full quorum');
 
 	if (!class_.ready ())
 		return _d.reject ('not started', 'auth');
@@ -62,7 +66,7 @@ function handle_auth (_d, conn, from, msg) {
 		user_info = auth.process (msg);
 	}
 	catch (err) {
-		return _d.reject ('auth failed: reason: ' + err, 'auth');
+		return _d.reject ({ code : 'auth-failed', msg : err });
 	}
 
 	if (!users.add_user (user_info, conn))

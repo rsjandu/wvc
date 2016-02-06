@@ -75,8 +75,6 @@ define(function(require) {
 	var authenticated = false;
 	cc.auth = function (sess_config) {
 		
-		log.info ('Auth to ws://' + host + ':' + port);
-
 		var from = 'user:-not-yet-authenticated-';
 		var message = protocol.auth_pdu ('controller.auth', from, identity.secret);
 
@@ -164,7 +162,7 @@ define(function(require) {
 		if (!authenticated) {
 			/* If we are not yet authenticated then we expect the first incoming
 			 * message to be an ACK to our auth request */
-			var ret = handle_auth_ack (message);
+			var ret = handle_auth_response (message);
 			if (ret) {
 				message.msg.status = 'error';
 				message.msg.data = ret + '.(original-data = ' + message.msg.data + ')';
@@ -210,7 +208,7 @@ define(function(require) {
 		return;
 	}
 
-	function handle_auth_ack (message) {
+	function handle_auth_response (message) {
 		if (message.from !== 'controller.auth')
 			return 'expected ack for auth: unexpected PDU "from" = ' + message.from;
 

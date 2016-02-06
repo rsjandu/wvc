@@ -40,6 +40,8 @@ define(function(require) {
 			.then ( auth,                           _d.reject.bind(_d) )
 			.then ( framework.post_init,            _d.reject.bind(_d) )
 			.then ( mark_complete.bind('STAGE II'), _d.reject.bind(_d) )
+		/*
+		 * Here await the start of the class */
 
 		/*
 		 * STAGE III (wait for session cluster to start us) */
@@ -143,8 +145,7 @@ define(function(require) {
 					_d.resolve (sess_config);
 				},
 				function (err) {
-					core_ev.emit ('auth failed (err = ' + err + ')');
-					_d.reject (err);
+					_d.reject ('auth : ' + err);
 				}
 			);
 

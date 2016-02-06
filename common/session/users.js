@@ -5,6 +5,23 @@ var addr            = require("./addr");
 var list_active = {};
 var list_removed = {};
 var users = {};
+/*
+ * If max_attendees is zero, this value is treated as impliying potentially 
+ * unlimited number of attendees. We set this as the default */
+var max_attendees = 0;
+var curr_attendees = 0;
+
+users.init = function (sess_info) {
+	if (sess_info.max_attendees)
+		max_attendees = sess_info.max_attendees;
+};
+
+users.can_admit = function () {
+	if (!max_attendees)
+		return true;
+
+	return curr_attendees < max_attendees;
+};
 
 users.add_user = function (user_info, conn) {
 	var vc_id = user_info.vc_id;
@@ -16,8 +33,9 @@ users.add_user = function (user_info, conn) {
 	list_active[vc_id].user = user_info;
 	list_active[vc_id].conn = conn;
 	list_active[vc_id].state = 'waiting';
+	curr_attendees++;
 
-	log.info ({ vc_id : vc_id, info : user_info }, 'user added');
+	log.info ({ vc_id : vc_id, info : user_info, attendees : curr_attendees }, 'user added');
 	return true;
 };
 
@@ -30,8 +48,9 @@ users.remove_user = function (vc_id) {
 	};
 
 	delete list_active[vc_id];
+	curr_attendees--;
 
-	log.info ({ vc_id: vc_id }, 'user removed');
+	log.info ({ vc_id: vc_id, attendees : curr_attendees }, 'user removed');
 
 	return true;
 };

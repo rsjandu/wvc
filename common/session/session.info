@@ -2,6 +2,7 @@
 	"common" : {
 	},
 
+	"max_attendees" : 20,
 	"resources" : [
 		{
 			"name" : "av-tokbox-v2",

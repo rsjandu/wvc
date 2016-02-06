@@ -77,8 +77,8 @@ function handle_incoming (ws, message) {
 					function (data) {
 						ack (ws, m, data);
 					},
-					function (data, from) {
-						nack (ws, m, data, from);
+					function (data) {
+						nack (ws, m, data);
 					}
 				);
 
@@ -91,11 +91,11 @@ function handle_incoming (ws, message) {
 }
 
 function ack (sock, _m, data) {
-	return __ack (sock, _m, 'ok', data);
+	return __ack (sock, _m, 'ok', data /* 'from' implicit from the original message */);
 }
 
-function nack (sock, _m, data, from) {
-	return __ack (sock, _m, 'not-ok', data, from);
+function nack (sock, _m, data) {
+	return __ack (sock, _m, 'not-ok', data /* 'from' implicit from the original message */);
 }
 
 function __ack (sock, _m, status, data, from) {
