@@ -12,7 +12,6 @@ define(function(require) {
 	var modules       = {};
 	var menu_handle   = {};
 	var progress_ev   = events.emitter ('framework-progress', 'framework');
-//	var people_ev     = events.emitter ('framework:attendees', 'framework');
 
 	framework.init = function (sess_config) {
 		var _d = $.Deferred();
@@ -170,12 +169,10 @@ define(function(require) {
 						break;
 
 					case 'new-johnny':
-//						people_ev.emit('in', data);
 						attendees.user_join( data);
 						break;
 
 					case 'johnny-go-went-gone':
-//						people_ev.emit('out', data);
 						attendees.user_leave( data);
 						break;
 

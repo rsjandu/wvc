@@ -19,7 +19,7 @@ function set_user (vc_id) {
 }
 
 function close () {
-	log.error ({conn_id : this.c.id}, 'connection: closed: removing connection');
+	log.info ({conn_id : this.c.id}, 'connection: closed: removing connection');
 	events.emit ('closed', this.c.vc_id);
 	delete list[this.c.id];
 }

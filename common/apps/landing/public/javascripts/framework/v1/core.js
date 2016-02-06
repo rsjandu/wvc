@@ -178,7 +178,7 @@ define(function(require) {
 		/*
 		 * Push into 'modules' only those which have been succesfully loaded
 		 */
-		log.info ('Attempting to loading ' + (optimized ? 'optimzied': 'unoptimized') + ' ' + resource.name);
+		log.info ('Attempting to load ' + (optimized ? 'optimzied': 'unoptimized') + ' ' + resource.name);
 		require([ 'resources/' + resource.name + '/' + resource.name + (optimized ? '.min' : '') ],
 			function (mod) {
 				/*
