@@ -8,10 +8,11 @@ define(function(require){
 		framework	= require('framework'),
 		log 		= require('log')('att-list','info'),
 		widget 		= require('./widget'),
-		controls 	= require('./controls');
+		controls 	= require('./controls'),
 		listener 	= require('./listener');
 
-	var att = {};
+	var att = {},
+		f_handle = framework.handle('att-list');
 	
 	att.init = function( display_spec, custom, perms){
 		var _d = $.Deferred();
@@ -22,7 +23,6 @@ define(function(require){
 		}
 
 		var templates = [],
-			f_handle = framework.handle('att-list'),
 			anchor = display_spec.anchor,
 			trigger= $('#nav-attendees'); 	//i should be getting it from the framework instead
 		
@@ -41,11 +41,11 @@ define(function(require){
 		return _d.promise();
 	};
 
-	att.start = function(info, sess_info){
-		var users = sess_info.attendees; /* now we should get it from attendees api instead */
-		
-		users.forEach( function(user){
-			widget.add_user( user);
+	att.start = function(){
+		var users = f_handle.attendees.get_users(); 
+		log.info('attendee info:: '+ Object.toString( users));
+		Object.keys(users).forEach( function(key){
+			widget.add_user( users[key].identity);
 		});
 	};
 
