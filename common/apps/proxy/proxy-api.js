@@ -12,11 +12,7 @@ proxy_api.register = function (req, res, next) {
 	}
 
 	if (routes_cache.exists (key)){
-		if (routes_cache.matches(key, value)){
-			log.info ({ key : key, value : value }, "Route already exists");
-			return res.status(200).send('route already registered');
-		}
-		log.warn ({ key : key, oldvalue : routes_cache.get(key), newvalue : value }, "Updating existing route");
+		log.warn ({ key : key, oldvalue : routes_cache.get(key), newvalue : value }, "register : route exists. going to overwrite.");
 		routes_cache.remove_route (key);
 	}
 

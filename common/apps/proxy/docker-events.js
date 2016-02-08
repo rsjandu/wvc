@@ -14,12 +14,7 @@ function dockermonitor () {
 			value = 'localhost:' + container.Ports[0].PublicPort + '/';
 
 			if (route_cache.exists (key)) {
-				if (route_cache.matches) {
-					log.info({ key : key, value : value }, "Route already exists");
-					return;
-				}
-
-				log.warn({ key : key, oldvalue : route_cache.get(key), newvalue : value }, "Updating existing route");
+				log.warn({ key : key, oldvalue : route_cache.get(key), newvalue : value }, "register : route exists. going to overwrite.");
 				route_cache.remove_route (key);
 			}
 
