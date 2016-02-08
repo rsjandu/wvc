@@ -20,6 +20,8 @@ redis.on('connect', function () {
 
 redis.on('error', function (err) {
 	mylog.error('Connection to Redis Cache reported error: ' + err);
+	/* exit as redis is necessary for authentication */
+	process.exit (1);
 });
 
 redis.on('close', function () {

@@ -1,9 +1,8 @@
-var $         = require('jquery-deferred');
-var cache     = require('common/cache').init('auth-gw', 4*60*60*1000);
-var path      = require('path');
-
 controller = {};
 
+/* show page for wiziq authentication.
+ * this code has to be thought about yet
+ */ 
 controller.show = function (req, res, next) {
 	res.render('wiziq_auth.jade', { user: req.user });
 };

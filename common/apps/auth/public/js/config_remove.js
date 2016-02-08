@@ -1,22 +1,26 @@
 $('#submit').click(function() {
-	// alert('clicked')
+	
 	var formData = {
 		"hostName"     : $('#hostName').val(),
 		"authType"     : $('#authType').val()
 	};
+	
+    if( formData.hostName === "" || formData.authType === "" ) {
 
-	//console.log($('#hostName').val()+" "+formData.hostName);
-	//console.log($('#authType').val()+" "+formData.authType);
+		alert("It is necessary to input both values");
+		return false;
+
+	}
 
 	$.ajax({
-		url: "/auth/dbDelete",
+		url: "/auth/config/remove",
 		type: "POST",
 		dataType: "json",
 		data: JSON.stringify(formData),
 		contentType: "application/json",
 		cache: false,
 		complete: function() {
-			//called when complete
+			/* called when complete */
 			console.log('process complete');
 		},
 
@@ -26,7 +30,7 @@ $('#submit').click(function() {
 		},
 
 		error: function() {
-			console.log('process error');
+			alert('Error while deletion');
 		},
 	});
 })

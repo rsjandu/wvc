@@ -1,31 +1,40 @@
-var $        = require('jquery-deferred');
-var mongodb  = require('mongodb');
-var mongoose = require('mongoose');
-var config   = require('auth/socialAuth/oauth.js');
-var args     = require('common/args');
-var log      = require('auth/common/log').child ({ 'sub-module' : 'auth-db' });
+var $        = require( 'jquery-deferred' );
+var mongodb  = require( 'mongodb' );
+var mongoose = require( 'mongoose' );
+var args     = require( 'common/args' );
+var log      = require( 'auth/common/log' ).child ({ 'sub-module' : 'auth-db' });
+var cache    = require( 'auth/social_auth/cache' );
 
-var db_url ="mongodb://localhost/wiziq-auth"; 
+var db_url = "mongodb://localhost/wiziq-auth"; 
 var Credential;
 var Schema;
 var userSchema;
 var connection = mongoose.createConnection (db_url);
 
-connection.on('error', function (err) {
-	log.error ({ error : err }, 'Connection error');
+connection.on ( 'error', function (err) {
+	log.error ({ error : err }, 'Connection error to mongodb');
+	process.exit (1);
 });
 
-connection.on('disconnected', function () {
+connection.on ( 'disconnected', function () {
 	log.warn ('disconnected');
 });
 
-connection.on('connected', function () {
+connection.on ( 'connected', function () {
 	log.info ('connected');
 });
 
-connection.once('open', function (callback) {
+connection.once ( 'open', function (callback) {
 	log.info ({ db_url : db_url }, 'connection OK');
-	create_schema_model ();
+	create_schema_model ()
+		.then( 
+			  function done () {
+				  fill_cache_from_db ();
+			  },
+			  function fail( err ) {
+				  log.error({ err: err},'Error while creating schema model');
+			  }
+        );
 });
 
 
@@ -33,6 +42,8 @@ connection.once('open', function (callback) {
  * this was done just to check addition of entries to db via code.*/
 
 function create_schema_model () {
+	
+	var _d = $.Deferred();
 
 	if( !Schema ){
 		Schema = mongoose.Schema;
@@ -60,32 +71,75 @@ function create_schema_model () {
 		clientID     : '794373405384-6u7bipelrp33kh8samdgsks0migb561d.apps.googleusercontent.com',                                            
 		clientSecret : 't4xiO3YLbpDUEIz1PI8AA2wJ',
 		callbackURL  : 'https://akshit.me/auth/auth/google/callback'
-
 	});
 
 	/* This is done to search for any entry with same combination of hostname
 	   and authtype add only if not present. this avoids duplicacy */
 
 	Credential.findOne({ 'hostName' : cred.hostName , 'authType' : cred.authType }, function (err, olduser) {
-		if (!err) {
-			if (olduser) {
-				log.warn ({ cred: cred}, 'initial entry already exists');
-			}
-			else if (!olduser) {
-				cred.save (function (err, done) {
-					if (!err) {
-						log.error ({err: err, cred : cred }, 'save error (initial)');
-					}
-					else {
-						log.info({Error:"Error while saving data to db "+cred});
-					}						
-				});
-			}
-		}			
-		else {
-			log.error ({ err: err, cred: cred }, 'save error (initial)');
+
+	    if (err) {
+			log.error ({ err : err, cred : cred }, 'add error');
+			_d.reject(err);
+			return;	
+		}		       
+	   
+		if (olduser) {
+			log.warn ({ cred : cred }, 'duplicate entry');
+			_d.resolve();
+			return;
 		}
+		/*
+		 * All ij well. Add the entry */
+		cred.save(function (err, done) {	
+  			if (err) {
+				log.error ({ err: err, cred : cred }, 'save error');
+				_d.reject(err);
+				return;
+			}
+			
+			log.info({Info : cred},'Credentials saved successfully to db');
+			_d.resolve();
+		});
 	});
+
+	return _d.promise();	
+}
+
+/*
+ * get all credentials from wiziq_auth db
+ */
+function get_all () {
+
+	var _d = $.Deferred();
+	Credential.find({}, function(err, users) {
+		if (err) {
+			log.error ({ err: err }, 'find error in db (get_all)');
+			return _d.reject(err);
+		}
+		_d.resolve(users);
+	});
+	return _d.promise();
+
+}
+
+/*
+ * get all credentials from wiziq_auth db and 
+ * store them locally in cache
+ */ 
+function fill_cache_from_db () {
+
+	Credential.find({}, function(err, users) {
+		if (err) {
+			log.error ({ err: err }, 'find error in db (get_all)');
+			return;
+		}
+		users.forEach(function(user) {
+		        cache.add(user);
+		});
+
+	});
+
 }
 
 /*if data present in local identity structure
@@ -124,8 +178,9 @@ function get (authType,req,res)
 	return _d.promise();  
 }
 
-/* This is done to search for any entry with same combination of hostname
-   and authtype add only if not present. this avoids duplicacy*/
+/* Search for any entry with same combination of hostname
+ * and authtype add only if not present. this avoids duplicacy
+ */
 
 function add (credential_obj)
 {
@@ -146,7 +201,7 @@ function add (credential_obj)
 
 
 	var cred = new Credential(_cred);
-
+	
 	Credential.findOne({ 'hostName' : credential_obj.hostName, 'authType' : credential_obj.authType }, function (err, olduser) {
 
 		if (err) {
@@ -172,9 +227,13 @@ function add (credential_obj)
 		});
 	});
 
-	return _d.promise();
+   return _d.promise();
 }
 
+/*
+ * Remove entry from db corresponding to some specific host_name 
+ * and auth_type 
+ */ 
 function remove (credential_obj) {
 	var _d = $.Deferred();
 
@@ -212,10 +271,9 @@ function remove (credential_obj) {
 }
 
 var db = {};
-db.conn = connection;
-db.createSchema = create_schema_model;
 db.get = get;
 db.add  = add;
 db.remove  = remove;
+db.get_all = get_all;
 module.exports = db;
 

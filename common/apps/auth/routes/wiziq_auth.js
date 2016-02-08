@@ -4,7 +4,7 @@ var log          = require('auth/common/log');
 var wiziq_auth   = require('auth/controllers/wiziq_auth');
 var router       = express.Router();
 
-router.get('/', wiziq_auth.show);
+router.get( '/', wiziq_auth.show );
 
 /*router.post('/', function(req, res) {
   console.log(req.body.hostName);
