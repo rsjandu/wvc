@@ -1,41 +1,37 @@
 var docker_monitor  = require('node-docker-monitor');
-var proxy           = require('./proxy');
-var log             = require('./log');
-var host            = require('./args');
-var route_list      = require('./route-list');
+var log             = require('./log').child ({'sub-module' : 'proxy-docker-monitor'});
+var route_cache     = require('./route-cache');
 
 var key;
 var value;
 
 function dockermonitor () {
 
-	docker_monitor({
+	docker_monitor ({
 
-		onContainerUp: function(container) {
-			log.info(container, "docker-start-info");
+		onContainerUp: function (container) {
 			key = '/session/' + container.Name;
 			value = 'localhost:' + container.Ports[0].PublicPort + '/';
-			if (route_list.routes[key]){
-				if (route_list.routes[key] === value){
-					console.log("Route already exists");
-					return;
-				}
-				proxy.unregister(host + key);
-				route_list.remove_route(key);
-			}
-			proxy.register(host + key, value);
-			route_list.add_route(key, value);
+
+			if (route_cache.exists (key))
+				route_cache.remove_route (key);
+
+			route_cache.add_route (key, value);
+
+			log.info ({ key:key, value:value }, 'route added');
 		},
 
 		onContainerDown: function (container) {
 			log.info(container, "docker-stop-info");
 			key = '/session/' + container.Name;
-			if (!route_list.routes[key]){
-				log.error({err:"Docker route not exists"},"error log");
+
+			if (!route_cache.exists(key)) {
+				log.error({err : "Docker route not exists" },"onContainerDown");
 				return;
 			}
-			proxy.unregister(host + key);
-			route_list.remove_route(key);
+
+			route_cache.remove_route (key);
+			log.info ({ key:key }, 'route removed');
 		}
 
 	});

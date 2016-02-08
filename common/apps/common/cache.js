@@ -10,22 +10,16 @@ var redis = new ioredis({
 	}
 });
 
-/*
- * Created emitter to emit redis-satus event on connect or error */
-var emitter = new events.EventEmitter();
 var cache   = {};
-
 cache.connected = false;
 
 redis.on('connect', function () {
 	cache.connected = true;
 	mylog.info('Connection to Redis Cache ok');
-	emitter.emit('redis-status', true);
 });
 
 redis.on('error', function (err) {
 	mylog.error('Connection to Redis Cache reported error: ' + err);
-	emitter.emit('redis-status', false);
 });
 
 redis.on('close', function () {
@@ -42,76 +36,83 @@ redis.on('reconnecting', function () {
 cache.init = function (namespace, expire) {
 	return {
 
+		redis : redis,
+
 		set : function (key, value) {
 
 			key = namespace + '::' + key;
 
 			if (!cache.connected) {
 				mylog.warn ({ key:key }, 'set key failed. Not connected.');
-				return;
+				return false;
 			}
 
 			mylog.debug ({key:key}, 'cache set');
 			redis.set (key, value);
-			redis.expire (key, expire);
+			if (expire)
+				redis.expire (key, expire);
+
+			return true;
 		},
 
-			get : function (key) {
-				var _p      = $.Deferred ();
-				var reject  = _p.reject.bind(_p);
-				var resolve = _p.resolve.bind(_p);
+		get : function (key) {
+			var _p      = $.Deferred ();
 
-				key = namespace + '::' + key;
+			key = namespace + '::' + key;
 
-				if (!cache.connected) {
-					mylog.warn ({key:key}, 'get key failed. Not connected.');
-					_p.reject ('not connected');
-					return _p.promise();
-				}
-
-				redis.get(key, function (err, val) {
-
-					if (err || !val) {
-						mylog.debug ({key:key}, 'cache miss');
-						reject (err);
-						return _p.promise();
-					}
-					mylog.debug ({key:key}, 'cache hit');
-					resolve (val);
-				});
-
-				return _p.promise();
-			},
-
-			invalidate : function (key) {
-				key = namespace + '::' + key;
-				mylog.warn ('cache:invalidating key: ' + key);
-				redis.del (key);
-			},
-
-			getall: function (namespace) {
-				var _p      = $.Deferred();
-				var reject  = _p.reject.bind(_p);
-				var resolve = _p.resolve.bind(_p);
-
-				if (!cache.connected) {
-					mylog.warn ('get all keys failed. Not connected.');
-					_p.reject ('not connected');
-					return _p.promise();
-				}
-
-				redis.keys(namespace+"::*", function (err, val){
-					if (err || val.length === 0) {
-						mylog.debug ({namespace:namespace}, 'cache miss');
-						reject (err);
-						return _p.promise();
-					}
-					mylog.debug ({namespace:namespace}, 'cache hit');
-					resolve (val);
-				});
-
+			if (!cache.connected) {
+				mylog.warn ({key:key}, 'get key failed. Not connected.');
+				_p.reject ('not connected');
 				return _p.promise();
 			}
+
+			redis.get(key, function (err, val) {
+
+				if (err || !val) {
+					mylog.debug ({key:key}, 'cache miss');
+					_p.reject (err);
+					return _p.promise();
+				}
+				mylog.debug ({key: key}, 'cache hit');
+				return _p.resolve (val);
+			});
+
+			return _p.promise();
+		},
+
+		invalidate : function (key) {
+			key = namespace + '::' + key;
+			mylog.warn ('cache:invalidating key: ' + key);
+			redis.del (key);
+		},
+
+		keys: function () {
+			var _p      = $.Deferred();
+
+			if (!cache.connected) {
+				mylog.warn ({ namespace : namespace }, 'getall keys failed. Not connected.');
+				_p.reject ('not connected');
+				return _p.promise();
+			}
+
+			redis.keys (namespace + "::*", function (err, val) {
+
+				if (err) {
+					mylog.error ({ namespace : namespace }, 'getall error - command "keys" failed.');
+					_p.reject (err);
+					return _p.promise();
+				}
+
+				var _keys = [];
+				val.forEach(function (curr, index, arr) {
+					_keys.push(curr.replace(/^.*::/g, ''));
+				});
+
+				return _p.resolve (_keys);
+			});
+
+			return _p.promise();
+		}
 	};
 };
 
@@ -119,7 +120,5 @@ cache.invalidate = function () {
 	mylog.warn ('cache.invalidate: flush all');
 	redis.flushall();
 };
-
-cache.emitter = emitter;
 
 module.exports = cache;

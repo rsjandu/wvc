@@ -9,6 +9,7 @@ var args            = require('common/args');
 var log             = require('api-backend/common/log');
 var db              = require('api-backend/common/db');
 var __class         = require('api-backend/routes/class');
+var proxy           = require('common/proxy');
 
 var sess = { cookie:
 				{ },
@@ -43,6 +44,7 @@ app.use(function(req, res, next) {
 			});
 
 app.use(log.err_logger);
+proxy.add_route ('/api-backend', 'http://localhost:2178/api-backend');
 
 /*
  * Error handlers

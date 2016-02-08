@@ -9,6 +9,7 @@ var args            = require('common/args');
 var log             = require('provisioning/common/log');
 var db              = require('provisioning/common/db');
 var session         = require('provisioning/routes/session');
+var proxy           = require('common/proxy');
 
 var sess = { cookie:
 				{ },
@@ -43,6 +44,7 @@ app.use(function(req, res, next) {
 			});
 
 app.use(log.err_logger);
+proxy.add_route ('/provisioning', 'http://localhost:2178/provisioning');
 
 /*
  * Error handlers

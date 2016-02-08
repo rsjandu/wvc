@@ -14,6 +14,7 @@ var login               = require( 'auth/routes/login' );
 var config              = require( 'auth/routes/config' );
 var authentication      = require( 'auth/routes/app_soc' );
 var flash               = require( 'connect-flash' );
+var proxy               = require('common/proxy');
 
 //configure Express
 app.set( 'views', __dirname + '/views' );
@@ -43,6 +44,8 @@ app.use( session({
 
 app.use( passport.initialize());
 app.use( passport.session());
+
+proxy.add_route ('/auth', 'http://localhost:2178/auth');
 
 app.get('/', function(req, res){
 	/*

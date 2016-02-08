@@ -1,54 +1,39 @@
 var docker_monitor  = require('node-docker-monitor');
-var proxy           = require('./proxy');
-var log             = require('./common/log');
-var host            = require('./args');
-var route_list      = require('./route-list');
-var cache           = require('./common/cache');
+var log             = require('./common/log').child ({'sub-module' : 'proxy-docker-monitor'});
+var route_cache     = require('./route-cache');
 
 var key;
 var value;
 
 function dockermonitor () {
 
-	docker_monitor({
+	docker_monitor ({
 
-		onContainerUp: function(container) {
-			log.info(container, "docker-start-info");
+		onContainerUp: function (container) {
 			key = '/session/' + container.Name;
 			value = 'localhost:' + container.Ports[0].PublicPort + '/';
-			if (route_list.routes[key]){
-				if (route_list.routes[key].val == value){
-					log.info({info : "Route already exists"}, "register docker");
-					return;
-				}
-				
-				log.warn({container_name: container.Name}, 'Updating docker route');
-				proxy.unregister(host + key);
-				route_list.remove_route(key);
+
+			if (route_cache.exists (key)) {
+				log.warn({ key : key, oldvalue : route_cache.get(key), newvalue : value }, "register : route exists. going to overwrite.");
+				route_cache.remove_route (key);
 			}
-			proxy.register(host + key, value);
-			route_list.add_route(key, value);
-			cache.set(key, value);
+
+			route_cache.add_route (key, value, Date.now());
+
+			log.info ({ key : key, value : value }, 'route added');
 		},
 
 		onContainerDown: function (container) {
 			log.info(container, "docker-stop-info");
 			key = '/session/' + container.Name;
-			if (!route_list.routes[key]){
-				log.error({err:"Docker route not exists"},"unregister docker");
+
+			if (!route_cache.exists(key)) {
+				log.warn({ key : key },"route not found");
 				return;
 			}
-			proxy.unregister(host + key);
-			route_list.remove_route(key);
-			cache.get(key)
-				.then(
-						function (value){
-							cache.invalidate(key);
-						},
-						function () {
-							log.error({err: "Cache data inconsistant::docker-monitor"}, "cache error");
-						}
-					);
+
+			route_cache.remove_route (key);
+			log.info ({ key : key }, 'route removed');
 		}
 
 	});

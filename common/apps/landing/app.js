@@ -9,6 +9,7 @@ var express_winston = require('express-winston');
 var config          = require('landing/config');
 var log             = require('landing/common/log');
 var args            = require('common/args');
+var proxy           = require('common/proxy');
 var vc_session_v1   = require('landing/routes/session-v1');
 var auth_v1         = require('landing/routes/auth-v1');
 var test            = require('landing/routes/test');
@@ -33,6 +34,8 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session(sess));
+
+proxy.add_route ('/landing', 'http://localhost:2178/landing');
 
 app.use('/session/v1', vc_session_v1);
 app.use('/test', test);
