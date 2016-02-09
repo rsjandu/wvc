@@ -14,7 +14,8 @@ function get_host () {
 	if (!val){
 		val = process.env.HOST;
 		if (!val){
-			console.log ('Usage: node app.js --host or set env HOST');
+			console.log ('Usage: node app.js --host <hostname> or set env HOST');
+			console.log ('optional : \n--logs <true/false>');
 			process.exit(1);
 		}
 	}

@@ -78,6 +78,7 @@ function get_config_meghadoot (sess_id, callback) {
 			{
 				name: 'menu-sidepush-classic',
 				role: 'menu',
+				req_sess_info : false,
 				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
 				perms: { },
 				custom: {
@@ -88,6 +89,7 @@ function get_config_meghadoot (sess_id, callback) {
 			{
 				name: 'cube',
 				role: 'whitelabeling',
+				req_sess_info : false,
 				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
 				/*
 				 * perms must be returned per user */
@@ -118,6 +120,7 @@ function get_config_meghadoot (sess_id, callback) {
 			},
 			{
 				name: 'flipboard-v1',
+				req_sess_info : false,
 				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
 				/*
 				 * perms must be returned per user */
@@ -133,6 +136,7 @@ function get_config_meghadoot (sess_id, callback) {
 			},
 			{
 				name: 'att-list',
+				req_sess_info : false,
 				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main.min'] },
 				custom: {
 				},

@@ -1,9 +1,6 @@
-var $         = require('jquery-deferred');
-var cache     = require('common/cache').init('auth-gw', 4*60*60*1000);
-var path      = require('path');
-
 controller = {};
 
+/* show login page */
 controller.show = function (req, res, next) {
 	res.render('login.mat-design.jade', { user: req.user });
 };

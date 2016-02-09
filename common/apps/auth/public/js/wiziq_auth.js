@@ -5,10 +5,6 @@ $('#submit').click(function() {
 		"ResponseType" : "json"
 	};
 
-	//console.log($('#userName').val()+" "+formData.UserName);
-	//console.log($('#password').val()+" "+formData.Password);
-	//console.log(" "+formData.ResponseType);
-
 	$.ajax({
 		url: "https://api.wiziq.com/glmobileapp/restservice?method=authenticate",
 		type: "POST",
@@ -17,7 +13,7 @@ $('#submit').click(function() {
 		contentType: "application/json",
 		cache: false,
 		complete: function() {
-			//called when complete
+			/* called when complete */
 			console.log('process complete');
 		},
 
