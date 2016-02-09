@@ -10,7 +10,7 @@ define( function(require){
 
 	var store	= {}, 					/* vc_id : { identity : {}, meta : {}, rs_info : {} } */	
 		att 	= {},
-		people_ev = _events.emitter('framework:attendees', 'framework');
+		people_ev = _events.emitter('framework:attendees', 'attendees');
 
 
 	att.fill_users = function( users){			/* to add users already present__before I joined */
@@ -103,9 +103,9 @@ define( function(require){
 			case 'speaker'	 	:
 			case 'microphone'	:
 			case 'write-control':
-				if( is_req){
+				if( is_req){		  /* _key shouldn't be audio-control as it is view only */
 					/* just shout: 'someone set state of this device' and the duty is done. */
-					people_ev.emit('set_device_state',{ vc_id : vc_id, key : _key, value : value });	
+					people_ev.emit('av',{ vc_id : vc_id, key : _key, value : value });	
 				}
 				else{
 					/* somehow tell 'skin' about the change as skin is the one who maintains 'the state' of controls */
