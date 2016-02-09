@@ -4,12 +4,12 @@ var encodeGoogle     = require('./encode.js' );
 var db               = require( 'auth/models/db' );
 var express          = require( 'express' );
 var app              = express.Router();
-var GoogleStrategy   = require( 'passport-google-oauth2' ).Strategy;
 var args             = require( 'common/args' );
 var log              = require( 'auth/common/log' ).child({ 'sub-module' : 'auth/google' });
 var login            = require( 'auth/routes/login' );
 var $                = require( 'jquery-deferred' );
 var cache            = require( 'auth/social_auth/cache' );
+var encryption       = require( 'auth/common/encryption');
 
 /*
  * google strategy to be used for google_auth
@@ -54,20 +54,21 @@ passport.deserializeUser ( function ( obj, done ) {
 app.get('/account', ensureAuthenticated, function(req, res) {
 		var origin = req.cookies.wiziq_origin;
 		var MAX_SIZE_COOKIE = 4096;
-		if(origin){
+		if ( origin ) {
 			var info = {
 				/* all the required fields goes here..*/
 				user : req.user
 			};
-			//fetch all the necessary info from user/info
-			var user_identity =  encodeGoogle.getUserDetails(req.user);
-			var auth_string = JSON.stringify(user_identity);
+			/* fetch all the necessary info from user/info */
+			var user_identity =  encodeGoogle.getUserDetails ( req.user );
+			var auth_string = JSON.stringify ( user_identity );
 
 			if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
 				auth_string = "error: size_limit_exceeded";
 			}
+            /* encrypt user_info before adding to cookie */
+			auth_string = encryption.encrypt ( log, auth_string );
 
-			auth_string = encodeURIComponent(auth_string);
 			res.cookie('wiziq_auth' , auth_string );
 			
 			res.redirect(origin);
@@ -94,7 +95,7 @@ app.get('/',
 							  })
 	   );
 
-/*middleware to send request to passport module*/
+/* middleware to send request to passport module */
 function passport_init (req, res, next) {
 	
 	passport_use_google_strategy ( req, res )
@@ -107,7 +108,7 @@ function passport_init (req, res, next) {
 		);
 }
 
-/*middleware to fetch data from cache*/
+/* middleware to fetch data from cache */
 function fetch_data_from_cache (req,res,next) {
 
 	cache.get ('google')
