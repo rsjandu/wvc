@@ -1,5 +1,5 @@
 /* 
- * every icon in controlsbar is called a control/key throughout this file */
+ * an 'icon' in controlsbar represents on/off state of a control(aka key) */
 
 define( function(require){
 	var $ = require('jquery');
@@ -44,13 +44,13 @@ define( function(require){
 	 * private methods */
 
 	function control_clicked( evt){
-		var att_id = $(this).parent().parent().parent().attr('id');//.find('.att_id');		/* there has to be a clean way to do this */
-		if( !att_id){
+		var $id = $(this).parent().parent().parent().find('.att_id');		/* there has to be a clean way to do this */
+		if( !$id){
 			log.info('warn:::user id not found...did someone change the user template?');
 			return false; 
 		}
 	
-		var vc_id = att_id.replace( my_namespace, ''),
+		var vc_id = $id.html().replace( my_namespace, ''),
 			ele   = $(this).attr('id'),
 			key	  = ele.replace('-slashed','');
 			val   = undefined;
@@ -101,8 +101,14 @@ define( function(require){
 		 * it is better to cache the searches here 
 		 * instead of accessing the DOM everytime */
 		var _ele = cache.elements[ vc_id + key];
-		if( !_ele)
-			 _ele = cache.elements[ vc_id + key] = $('#'+vc_id+my_namespace+' #'+key); /* assignment works right_to_left */
+		if( !_ele){
+			/* because of limitations of listjs we need to use this dirty way */
+			var temp = $('.att_id').filter( function(){	return this.innerHTML == vc_id+my_namespace	});
+			if( temp)
+				_ele = cache.elements[ vc_id + key] = temp.parent().find('#'+key);		/* assignment works right_to_left */
+			else
+				log.info('_element not found..smth is wrong with template and values');
+		}
 
 		return _ele;
 	}
