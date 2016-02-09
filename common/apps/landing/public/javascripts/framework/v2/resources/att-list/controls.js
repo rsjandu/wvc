@@ -26,16 +26,17 @@ define( function(require){
 	controls.change = function( vc_id, key, val){
 		switch( state[vc_id+key]){
 			case undefined:							/* initial state of the control */
-				disable( vc_id, key, false);		/* disable false means 'enable' */
 				change_control( vc_id, key, val);	/* decides which icon to show (on/off) */
-				state[vc_id+key] = 'set';
+				change_state(vc_id,key);
 				break;
+
 			case 'set':
 				change_control( vc_id, key, val);	/* seems like someone else changed the value of some control */
 				break;
+
 			case 'busy':							/* this must be the ack/nack to our req. */
 				change_control( vc_id, key, val);	
-				state[vc_id+key] = 'set';
+				change_state(vc_id,key);
 				break;		
 		}
 	};
@@ -77,23 +78,16 @@ define( function(require){
 		}
 		if( val){
 			attendee_api.set_meta( vc_id, key, val, true);			/* 'true' tells it is a request */
-			disable( vc_id, key, 'true');							/* disable until we get an ack/nack */
-			state[vc_id+key] = 'busy';
+			change_state(vc_id,key);
 		}
 		log.info(vc_id+ ' key: '+ key + ', to be val:'+val+', on_click');
 	}
 	
-	function disable( vc_id, key, val){						/* disables both 'on' and 'off' icons of the control */
-		_element(vc_id,key 			 ).prop('disabled', val);
-		_element(vc_id,key+'-slashed').prop('disabled', val);
-	}
-
-
 	function change_control( vc_id, key, val){
 		/* set value */
 		var _ele_on = _element(vc_id, key),
 			_ele_off= _element(vc_id, key+'-slashed');
-		( val) ? ( _ele_on.show(), _ele_off.hide() )	: (	_ele_off.show(), _ele_on.hide() );
+		( val) ? ( _ele_on.show().css('display','inline-block'), _ele_off.hide() )	: (	_ele_off.show().css('display','inline-block'), _ele_on.hide() );
 	}
 
 	function _element( vc_id, key){						
@@ -111,6 +105,34 @@ define( function(require){
 		}
 
 		return _ele;
+	}
+
+	function change_state( vc_id, key){
+		/* allowed state changes are:
+		 *		1. undefined ----> set
+		 *		2. set		 ----> busy
+		 *		3. busy 	 ----> set */
+		var el = _element( vc_id, key+'-cover');
+		switch( state[ vc_id+key]){
+			case undefined:
+			case 'busy':
+				/* change to set */
+				el.removeClass('cover-show'); 
+				el.addClass('cover-hide'); 
+				state[ vc_id+key] = 'set';
+				break;
+
+			case 'set':
+				/* change to busy */
+				el.removeClass('cover-hide');
+				el.addClass('cover-show');
+				state[ vc_id+key] = 'busy';
+				break;
+
+			default:
+				log.info("element found in some unknown state");
+				state[vc_id+key] = undefined;				/* what else can i do here */
+		}
 	}
 
 	return controls;

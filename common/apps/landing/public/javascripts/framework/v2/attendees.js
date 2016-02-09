@@ -36,7 +36,7 @@ define( function(require){
 			store[ vc_id ].meta.isActive = false;		
 		}
 		else{
-			log.error ('this needs attention: user who left was not in attendees store::' + user);
+			log.error ('this needs attention: user who left was not in attendees store::' + vc_id);
 		}
 		people_ev.emit('out',vc_id);
 	};

@@ -34,6 +34,7 @@ define(function(require){
 
 			case 'control_changed':
 				controls.change( data.vc_id, data.known_key, data.value);
+				break;
 
 			default:
 				log.info('some event: ' + evt +' @atl_skin, not my problem');

@@ -63,9 +63,16 @@ define( function(require){
 	};
 
 	function format( user){
-		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40";
+		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40",
+			join_time;
+		if( user.vc_auth_ts){
+			var date_time = new Date( user.vc_auth_ts)
+			join_time = date_time.getHours();
+			join_time += ':' + date_time.getMinutes();
+		}
+
 		user.avatar = user.photos ? user.photos[0].value : avatar_def;
-		user.time	= user.vc_auth_ts || "---";
+		user.time	= "Joined: " + (join_time || "---");
 		user.email 	= user.emails ? user.emails[0].value  : "-----" ;
 		user.authvia= user.authvia || "---";
 		user.att_id = user.vc_id + my_namespace;
