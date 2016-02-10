@@ -4,7 +4,6 @@ var FacebookStrategy = require( 'passport-facebook' ).Strategy;
 var encodeFb         = require( './encode.js' );
 var express          = require( 'express' );
 var app              = express.Router();
-var FacebookStrategy = require( 'passport-facebook' ).Strategy;
 var args             = require( 'common/args' );
 var log              = require( 'auth/common/log' ).child({ 'sub-module' : 'auth/fb' });
 var login            = require( 'auth/routes/login' );
@@ -22,7 +21,9 @@ function passport_use_facebook_strategy ( req, res )
 	passport.use(new FacebookStrategy({
 			clientID: req.user_credentials.clientID,
 			clientSecret: req.user_credentials.clientSecret,
-			callbackURL: req.user_credentials.callbackURL
+			callbackURL: req.user_credentials.callbackURL,
+			profileFields: ['id', 'displayName', 'name', 'birthday', 'photos', 'emails', 'gender']
+
 		},
 		function(accessToken, refreshToken, profile, done) {
 			process.nextTick(function () {
@@ -60,6 +61,7 @@ app.get( '/account', ensureAuthenticated, function( req, res ){
 				/* all the required fields goes here */
 				user : req.user
 			};
+			log.info( {Info : info}, 'User info returned by fb' );
 			/* fetch all the necessary info from user/info */
 			var user_identity =  encodeFb.getUserDetails ( req.user );
 			var auth_string = JSON.stringify ( user_identity );
@@ -88,7 +90,7 @@ app.get('/',
 	    fetch_data_from_cache,
 		passport_init,
 	   	passport.authenticate('facebook',
-							  function ( req, res ) {}
+							  function (req,res){}
 							 )
 	   );
 /* middleware to send request to passport module */
