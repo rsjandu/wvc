@@ -83,11 +83,23 @@ define( function(require){
 		log.info(vc_id+ ' key: '+ key + ', to be val:'+val+', on_click');
 	}
 	
-	function change_control( vc_id, key, val){
-		/* set value */
+	function change_control( vc_id, key, val){				/* set value */
+		
+		if( key == 'audio-control'){
+			/* vu-meter is a special case */
+			var _ele = _element(vc_id, key);
+			_ele.css('width', val*100 + 'px');
+			return;	
+		}
+
+		/* ----------------------
+		 * all others are similar
+		 * ---------------------- */
 		var _ele_on = _element(vc_id, key),
 			_ele_off= _element(vc_id, key+'-slashed');
-		( val) ? ( _ele_on.show().css('display','inline-block'), _ele_off.hide() )	: (	_ele_off.show().css('display','inline-block'), _ele_on.hide() );
+	
+		( val) ? ( _ele_on.show().css('display','inline-block'), _ele_off.hide() )	
+			   : ( _ele_off.show().css('display','inline-block'), _ele_on.hide() );
 	}
 
 	function _element( vc_id, key){						
@@ -113,6 +125,12 @@ define( function(require){
 		 *		2. set		 ----> busy
 		 *		3. busy 	 ----> set */
 		var el = _element( vc_id, key+'-cover');
+		if( !el){
+			/* some elements may not have a cover
+			 * and hence no busy state. For eg. say __vu-meter__ */
+			state[ vc_id+key] = 'set';
+			return;
+		}
 		switch( state[ vc_id+key]){
 			case undefined:
 			case 'busy':

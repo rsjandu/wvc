@@ -64,9 +64,13 @@ define( function(require){
 
 	function format( user){
 		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40",
+			temp,
 			join_time;
-		if( user.vc_auth_ts){
-			var date_time = new Date( user.vc_auth_ts)
+
+		if( user.history){
+			temp = $(user.history).get(-1);
+			temp ? (temp = temp.joined) : temp;
+			var date_time = new Date( temp)
 			join_time = date_time.getHours();
 			join_time += ':' + date_time.getMinutes();
 		}
