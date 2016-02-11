@@ -64,19 +64,22 @@ define( function(require){
 
 	function format( user){
 		var avatar_def = "http://www.gravatar.com/avatar/?d=mm&s=40",
-			temp,
-			join_time;
+			t_join;
 
 		if( user.history){
-			temp = $(user.history).get(-1);
+			var temp = $(user.history).get(-1);		/* get last joined ( the latest one) */
+			
 			temp ? (temp = temp.joined) : temp;
-			var date_time = new Date( temp)
-			join_time = date_time.getHours();
-			join_time += ':' + date_time.getMinutes();
+			var _d = new Date( temp),
+				_h = _d.getHours(),
+				_m = _d.getMinutes();
+		
+			_m = ( _m<10)? '0'+_m : _m;		/* zero padding */	
+			t_join = _h + ':' + _m;
 		}
 
 		user.avatar = user.photos ? user.photos[0].value : avatar_def;
-		user.time	= "Joined: " + (join_time || "---");
+		user.time	= "Joined: " + (t_join || "---");
 		user.email 	= user.emails ? user.emails[0].value  : "-----" ;
 		user.authvia= user.authvia || "---";
 		user.att_id = user.vc_id + my_namespace;
