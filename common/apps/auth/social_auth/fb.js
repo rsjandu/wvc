@@ -1,15 +1,14 @@
-var $                = require( 'jquery-deferred' );
-var passport         = require( 'passport' );
-var FacebookStrategy = require( 'passport-facebook' ).Strategy;
-var encodeFb         = require( './encode.js' );
-var express          = require( 'express' );
-var app              = express.Router();
-var args             = require( 'common/args' );
-var log              = require( 'auth/common/log' ).child({ 'sub-module' : 'auth/fb' });
-var login            = require( 'auth/routes/login' );
-var db               = require( 'auth/models/db' );
-var cache            = require( 'auth/social_auth/cache' );
-var encryption       = require( 'auth/common/encryption' );
+var $                 = require( 'jquery-deferred' );
+var passport          = require( 'passport' );
+var facebook_strategy = require( 'passport-facebook' ).Strategy;
+var encode_fb         = require( './encode.js' );
+var express           = require( 'express' );
+var app               = express.Router();
+var args              = require( 'common/args' );
+var log               = require( 'auth/common/log' ).child({ 'sub-module' : 'auth/fb' });
+var login             = require( 'auth/routes/login' );
+var db                = require( 'auth/models/db' );
+var cache             = require( 'auth/social_auth/cache' );
 
 /*
  * facebook strategy to be used for fb_auth
@@ -18,7 +17,7 @@ function passport_use_facebook_strategy ( req, res )
 {
 	var _d = $.Deferred();
 
-	passport.use(new FacebookStrategy({
+	passport.use(new facebook_strategy({
 			clientID: req.user_credentials.clientID,
 			clientSecret: req.user_credentials.clientSecret,
 			callbackURL: req.user_credentials.callbackURL,
@@ -53,26 +52,18 @@ passport.deserializeUser ( function( obj, done ) {
 		});
 
 
-app.get( '/account', ensureAuthenticated, function( req, res ){
+app.get( '/account', ensure_authenticated, function( req, res ){
 		var origin = req.cookies.wiziq_origin;
-		var MAX_SIZE_COOKIE = 4096;
 		if ( origin ) {
 			var info = {
 				/* all the required fields goes here */
 				user : req.user
 			};
-			log.info( {Info : info}, 'User info returned by fb' );
+						
 			/* fetch all the necessary info from user/info */
-			var user_identity =  encodeFb.getUserDetails ( req.user );
-			var auth_string = JSON.stringify ( user_identity );
+			var user_identity =  encode_fb.get_user_details ( req.user );
 			
-			if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
-				auth_string = "error: size_limit_exceeded";
-			}	
-			/* encrypt user_info before adding to cookie */
-		   	auth_string = encryption.encrypt ( log, auth_string );
-
-			res.cookie( 'wiziq_auth' , auth_string );
+			res.cookie( 'wiziq_auth' , user_identity );
 			res.redirect( origin);
 		}
 		else{
@@ -142,7 +133,7 @@ app.get('/callback',
  * the request will proceed.  Otherwise, the user will be redirected to the
  * login page.
  */
-function ensureAuthenticated ( req, res, next ) {
+function ensure_authenticated ( req, res, next ) {
 	if (req.isAuthenticated()) { 
 		return next(); 
 	}
