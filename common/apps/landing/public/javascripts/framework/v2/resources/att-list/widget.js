@@ -1,13 +1,11 @@
 define( function(require){
-	var search 		= require('./search');
 
 	var my_namespace= '_att_skin';	/* because we don't want an element with id=vc_id *
 									 * what if some other resource has such an element and it does $('#vc_id').remove() */
 	var user_tpt 	= {},
 		widget_att 	= {},
 		$anchor 	= {},
-		log 		= {},
-		is_first_user = true;
+		log 		= {};
 
 	widget_att.init = function( anchor, templates, identity, logger){
 		var _d = $.Deferred();
@@ -35,19 +33,12 @@ define( function(require){
 		 * as this id is used as element id in our ul 
 		 * and hence is required while removing li
 		 */
-		if( is_first_user){
-			var $ele = user_tpt(user);
-			if( !$ele){
-				log.info('template creation failed');
-			}
-
-			$('#atl-list').append( $ele);		/* why is it hardcoded */
-			search.init(); 
-			is_first_user = false; 
-		} 
-		else { 
-			search.add( user);
+		var $ele = user_tpt(user);
+		if( !$ele){
+			log.info('template creation failed');
 		}
+
+		$('#atl-list').append( $ele);		/* why is it hardcoded */
 		
 		_d.resolve();
 		return _d.promise();
@@ -59,7 +50,7 @@ define( function(require){
 
 	widget_att.remove_user = function(data){
 		console.log('remove: '+ data );
-		search.remove( data + my_namespace);
+		$('#'+data + my_namespace).remove();
 	};
 
 	function format( user){
