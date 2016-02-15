@@ -1,12 +1,13 @@
 define(function(require) {
-	var $         = require('jquery');
-	var cc        = require('cc');
-	var lc        = require('layout-controller');
-	var identity  = require('identity');
-	var events    = require('events');
-	var notify    = require('notify');
-	var attendees = require('attendees');
-	var log       = require('log')('framework', 'info');
+	var $              = require('jquery');
+	var cc             = require('cc');
+	var lc             = require('layout-controller');
+	var identity       = require('identity');
+	var events         = require('events');
+	var notify         = require('notify');
+	var attendees      = require('attendees');
+	var tab_controller = require('tab-controller');
+	var log            = require('log')('framework', 'info');
 
 	var framework     = {};
 	var modules       = {};
@@ -33,6 +34,8 @@ define(function(require) {
 		if (modules[_module.name]) {
 			log.error ('Duplicate module for init: ' + _module.name);
 			_d.reject('Duplicate module' + _module.name);
+
+			_module.init_ok = false;
 			return _d.promise ();
 		}
 
@@ -44,6 +47,7 @@ define(function(require) {
 
 			log.error ('Failed to attach module ' + _module.name);
 
+			_module.init_ok = false;
 			_d.reject (err);
 			return _d.promise ();
 		}
@@ -59,11 +63,15 @@ define(function(require) {
 				modules[_module.name] = _module;
 				set_role (_module);
 				progress_ev.emit ('init ' + _module.name + ' ok');
+
+				_module.init_ok = true;
 				_d.resolve (_module);
 			},
 			function (err) {
 				log.error ('init failed for \"' + _module.name + '\" : err = ' + err);
 				progress_ev.emit ('init ' + _module.name + ' failed');
+
+				_module.init_ok = false;
 				_d.reject(err);
 				return;
 			}
@@ -82,6 +90,13 @@ define(function(require) {
 			/* We have recieved resource information for a resource which we did not
 			 * load. Indicates a configuration issue. Flag it. Someone should notice */
 			log.error ('module \"' + name + '\" was never loaded, yet recieved resource information. Misconfigured class. Ignoring.');
+			return;
+		}
+
+		/*
+		 * Do not start a module whose init has failed */
+		if (!_module.init_ok) {
+			log.info ('not starting module "' + name + '", because it\'s init failed');
 			return;
 		}
 
@@ -234,6 +249,7 @@ define(function(require) {
 		var handle = {
 			identity       : identity,
 			attendees      : attendees.api,
+			tabs           : new tab_controller.api(module_name),
 			module_name    : module_name,
 			send_command   : send_command,
 			send_info      : send_info,
@@ -435,6 +451,10 @@ define(function(require) {
 				break;
 
 			case 'av':
+				break;
+
+			case 'tab-controller':
+				tab_controller.flush_pending_registrations ();
 				break;
 
 			case 'whitelabeling':

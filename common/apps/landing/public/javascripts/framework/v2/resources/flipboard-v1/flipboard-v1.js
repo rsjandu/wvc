@@ -36,6 +36,10 @@ define(function(require) {
 
 	var ctx;
 
+	flipboard.register = function (mod_name, mod_resource) {
+		return null;
+	};
+
 	flipboard.start = function (sess_info) {
 
 		$(function() {

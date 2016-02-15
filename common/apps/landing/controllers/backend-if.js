@@ -119,12 +119,19 @@ function get_config_meghadoot (sess_id, callback) {
 				},
 			},
 			{
-				name: 'flipboard-v1',
+				name: 'tabs-v1',
+				role: 'tab-controller',
 				req_sess_info : false,
-				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
+				display_spec: { widget: "tabs", templates: [ "tabs" ], css: [ "tabs.min" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
+				custom: {
+				},
+			},
+			{
+				name: 'webpage',
+				display_spec: { widget: 'tabs', templates: [ ], css: [ "webpage.min" ]  },
 				custom: {
 				},
 			},

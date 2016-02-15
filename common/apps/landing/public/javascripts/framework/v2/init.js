@@ -20,12 +20,14 @@ requirejs.config({
 		dom_ready:     '/landing/javascripts/ext/domReady',
 		bookblock:     '/landing/javascripts/ext/jquery.bookblock',
         remodal:       '/landing/javascripts/ext/remodal.min',
+        bootstrap:     '/landing/javascripts/ext/bootstrap.3.3.5.min',
 	},
 	'shim' : {
 		'jquery_drag'     : [ 'jquery' ],
 		'jquery_mmenu'    : [ 'jquery' ],
 		'jquerypp'        : [ 'jquery', 'modernizer' ],
-		'bookblock'       : [ 'jquerypp' ]
+		'bookblock'       : [ 'jquerypp' ],
+		'bootstrap'       : [ 'jquery' ]
 	}
 });
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 function abs_path () {
     target=$1;
     cd $target > /dev/null 2>&1;
@@ -40,4 +38,4 @@ echo '#########################################################'
 sudo docker run -dt -p $INTERNAL_PORT -v $ABS_PATH:/session --name $NAME $IMAGE
 sudo docker ps | grep $NAME
 
-[ "$QUIT" == '-q' ] && sudo docker logs --follow $NAME
+[ "$QUIET" == '-q' ] || sudo docker logs --follow $NAME

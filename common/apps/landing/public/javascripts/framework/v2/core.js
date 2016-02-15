@@ -104,7 +104,7 @@ define(function(require) {
 
 		for (var i = 0; i < modules.length; i++) {
 			count++;
-			var d = __init (modules[i]);
+			var d = framework.init_modules (modules[i]);
 			d.then (ok.bind('ok', modules[i].name), ok.bind('failed', modules[i].name));
 		}
 
@@ -197,10 +197,6 @@ define(function(require) {
 		core_ev.emit ('module load ' + resource.name + ' ok');
 		modules.push(module);
 		_d.resolve();
-	}
-
-	function __init (module) {
-		return framework.init_modules (module);
 	}
 
 	function mark_complete (arg) {
