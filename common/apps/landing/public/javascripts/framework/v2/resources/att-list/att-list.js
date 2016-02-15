@@ -9,6 +9,7 @@ define(function(require){
 		log 		= require('log')('att-list','info'),
 		widget 		= require('./widget'),
 		controls 	= require('./controls'),
+		search	 	= require('./search'),
 		listener 	= require('./listener');
 
 	var att = {},
@@ -34,6 +35,7 @@ define(function(require){
 		$(anchor).hide();						/* should be visible on selection only */
 		widget.init( anchor, templates, f_handle.identity, log)
 			.then( 	controls.init.bind(undefined,f_handle.attendees,log) , 	_d.reject )
+			.then( 	search.init.bind(undefined,f_handle.attendees,log) , 	_d.reject )
 			.then( 	_d.resolve,				 								_d.reject );
 
 		listener.init(log);			/* listen for attendees events. (For now) */
