@@ -46,7 +46,7 @@
 	}
 }
 
-@avatar-width : 6em;
+@avatar-width : 3em;
 @margin-side : 10px;
 
 .atl-me{
@@ -65,6 +65,7 @@
 		width  : @avatar-width;
 		display : inline-block;
 		border-radius : 50%;
+		float: left;
 		overflow : hidden;
 
 		img.atl-avatar {
@@ -84,10 +85,10 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 2em;
+		height : 1.3em;
 
 		span.atl-username {
-			font-size : 1.2em;
+			font-size : 1.1em;
 			float: left;
 		}
 
@@ -102,15 +103,16 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 2em;
+		overflow: hidden;
+		height : 1.5em;
 
 		span.atl-useremail {
-			font-size : 1.2em;
+			font-size : 0.8em;
 			float: left;
 		}
 
 		span.atl-authvia {
-			font-size : .8em;
+			font-size : .7em;
 			float: right;
 		}
 	}
@@ -120,10 +122,10 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 4em;
+		height : 2em;
 
 		#vu-meter{
-			height : 20px;
+			height : 1em;
 			width  : 100px;
 			background: rgba(167,152,152,0.35);
 			border-radius:10px;
@@ -139,9 +141,10 @@
 		.atl-control {
 			display : inline-block;
 			z-index : 0;
+			fill : black;
 	
 			& svg {
-				height : 2em;
+				height : 1.5em;
 				width : 2em;
 			}
 			margin : 00;
@@ -153,7 +156,7 @@
 			position: absolute;
 			opacity : 0.4;
 			border-radius: 10px;
-			height : 2em;
+			height : 1.5em;
 			width : 2em;
 		}
 	}

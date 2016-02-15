@@ -15,6 +15,7 @@ define( function(require){
 		var _d = $.Deferred();
 		
 		log = logger;
+		window.att_api = api; 	/* for testing purpose */
 		attendee_api = api;
 		cache.elements = {}; 			/* we will cache element DOM objects */
 		$('#atl-list').on('click', '.atl-control', control_clicked);
@@ -27,7 +28,7 @@ define( function(require){
 		switch( state[vc_id+key]){
 			case undefined:							/* initial state of the control */
 				change_control( vc_id, key, val);	/* decides which icon to show (on/off) */
-				change_state(vc_id,key);
+				change_state(vc_id, key);
 				break;
 
 			case 'set':
@@ -36,7 +37,7 @@ define( function(require){
 
 			case 'busy':							/* this must be the ack/nack to our req. */
 				change_control( vc_id, key, val);	
-				change_state(vc_id,key);
+				change_state(vc_id, key);
 				break;		
 		}
 	};
@@ -45,19 +46,19 @@ define( function(require){
 	 * private methods */
 
 	function control_clicked( evt){
-		var $id = $(this).parent().parent().parent().find('.att_id');		/* there has to be a clean way to do this */
-		if( !$id){
+		var id = $(this).closest('li').attr('id');
+		if( !id){
 			log.info('warn:::user id not found...did someone change the user template?');
 			return false; 
 		}
 	
-		var vc_id = $id.html().replace( my_namespace, ''),
+		var vc_id = id.replace( my_namespace, ''),
 			ele   = $(this).attr('id'),
 			key	  = ele.replace('-slashed','');
 			val   = undefined;
 
-		if( state[vc_id+key] == 'busy'){
-			log.info('attempted to change while in \'busy\' state. Is a problem, control shouldn\'t be clickable');
+		if( state[vc_id+key] == 'busy' || state[vc_id+key] == undefined ){
+			log.info('attempted to change while in \'busy/undef\' state. Is a problem, control shouldn\'t be clickable');
 			return false;
 		}
 		switch( ele){
@@ -75,10 +76,11 @@ define( function(require){
 				break;
 			default:
 				log.info( key + " clicked____and is not handled");
+				return;
 		}
 		if( val){
 			attendee_api.set_meta( vc_id, key, val, true);			/* 'true' tells it is a request */
-			change_state(vc_id,key);
+			change_state(vc_id, key);
 		}
 		log.info(vc_id+ ' key: '+ key + ', to be val:'+val+', on_click');
 	}
@@ -108,42 +110,36 @@ define( function(require){
 		 * instead of accessing the DOM everytime */
 		var _ele = cache.elements[ vc_id + key];
 		if( !_ele){
-			/* because of limitations of listjs we need to use this dirty way */
-			var temp = $('.att_id').filter( function(){	return this.innerHTML == vc_id+my_namespace	});
-			if( temp)
-				_ele = cache.elements[ vc_id + key] = temp.parent().find('#'+key);		/* assignment works right_to_left */
-			else
-				log.info('_element not found..smth is wrong with template and values');
+				_ele = cache.elements[ vc_id + key] = $('#'+vc_id + my_namespace+ ' #'+key);		/* assignment works right_to_left */
 		}
 
 		return _ele;
 	}
 
-	function change_state( vc_id, key){
+	function change_state( vc_id, key, val){
 		/* allowed state changes are:
 		 *		1. undefined ----> set
 		 *		2. set		 ----> busy
 		 *		3. busy 	 ----> set */
-		var el = _element( vc_id, key+'-cover');
-		if( !el){
-			/* some elements may not have a cover
-			 * and hence no busy state. For eg. say __vu-meter__ */
-			state[ vc_id+key] = 'set';
-			return;
-		}
+		//handle audio -control wala case
+		var el_on = _element( vc_id, key),
+			el_off = _element( vc_id, key+'-slashed');
 		switch( state[ vc_id+key]){
 			case undefined:
+				_element( vc_id, key+'-cover').addClass('cover-hide');
+//				_element( vc_id, key-'-cover').removeClass('show-cover');
+
 			case 'busy':
 				/* change to set */
-				el.removeClass('cover-show'); 
-				el.addClass('cover-hide'); 
+				el_on.css('fill','green'); 
+				el_off.css('fill','red'); 
 				state[ vc_id+key] = 'set';
 				break;
 
 			case 'set':
 				/* change to busy */
-				el.removeClass('cover-hide');
-				el.addClass('cover-show');
+				el_on.css('fill','yellow'); 
+				el_off.css('fill','yellow'); 
 				state[ vc_id+key] = 'busy';
 				break;
 
