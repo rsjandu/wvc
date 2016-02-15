@@ -1,6 +1,7 @@
 define( function(require){
 
-	var my_namespace= '_att_skin';	/* because we don't want an element with id=vc_id *
+	var search = require('./search'),
+		my_namespace= '_att_skin';	/* because we don't want an element with id=vc_id *
 									 * what if some other resource has such an element and it does $('#vc_id').remove() */
 	var user_tpt 	= {},
 		widget_att 	= {},
@@ -39,7 +40,7 @@ define( function(require){
 		}
 
 		$('#atl-list').append( $ele);		/* why is it hardcoded */
-		
+		search.update();
 		_d.resolve();
 		return _d.promise();
 	};
@@ -51,6 +52,7 @@ define( function(require){
 	widget_att.remove_user = function(data){
 		console.log('remove: '+ data );
 		$('#'+data + my_namespace).remove();
+		search.update();
 	};
 
 	function format( user){
