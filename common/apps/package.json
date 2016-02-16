@@ -29,6 +29,7 @@
     "mongodb-core": "^1.2.23",
     "mongoose": "^4.2.7",
     "node-docker-monitor": "^1.0.3",
+    "wiziq-node-docker": "^1.0.3",
     "proxy-addr": "^1.0.10",
     "redbird": "^0.4.14",
     "restler": "^3.4.0",
