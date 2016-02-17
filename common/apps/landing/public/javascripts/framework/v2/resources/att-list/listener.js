@@ -24,8 +24,9 @@ define(function(require){
 		
 		switch( evt){
 			case 'in':
-				user = data[0];
-				widget.add_user( user);
+				data.forEach( function(user){
+					widget.add_user( user);
+				});
 				break;
 
 			case 'out':

@@ -25,7 +25,9 @@ define( function(require){
 
 	att.user_join = function( data){
 		log.info('user_join called');			/* can be removed after 1st run */
-		add_to_map( data[0] );
+		data.forEach( function(user){
+			add_to_map( user);
+		});
 		people_ev.emit('in', data);
 		return;
 	};

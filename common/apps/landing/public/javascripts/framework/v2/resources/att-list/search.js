@@ -27,6 +27,10 @@ define( function(require){
 		var user;
 		var val = $(this).val(); 
 
+		/* TODO: 
+		 * handle backspaces differently and 
+		 * search only in the filtered ones instead of all the keys */
+
 		Object.keys(userlist).forEach( function( key){    
 			user = userlist[key];
 			for( var i=0; i< keys_len; i++){
