@@ -1,0 +1,25 @@
+define(function(require){
+	var $ = require('jquery');
+
+	var scroll = {},
+		last_scroll = 0,
+		li_height = 1;
+
+	scroll.start = function( $anchor){
+		var temp = $anchor.find('li').height();
+		li_height = temp ? temp : '72';
+		$anchor.on('scroll', scroll_handler);
+	};
+	
+	function scroll_handler( evt){
+		console.log('scroll evt::'+ evt);
+		var $el = $(this),
+		scroll = $el.scrollTop(),
+		round = last_scroll < scroll ? Math.ceil : Math.floor;
+
+		last_scroll = round( scroll/li_height) * li_height;
+		$el.scrollTop( last_scroll);
+	}
+
+	return scroll;
+});

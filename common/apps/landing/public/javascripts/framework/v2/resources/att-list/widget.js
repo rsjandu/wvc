@@ -41,12 +41,14 @@ define( function(require){
 
 		$('#atl-list').append( $ele);		/* why is it hardcoded */
 		search.update();
+
 		_d.resolve();
 		return _d.promise();
 	};
 
 	widget_att.toggle_visible = function(){
 		$anchor.toggle();
+		first && first.ack();		/* first time visible ack */
 	};
 
 	widget_att.remove_user = function(data){
@@ -78,5 +80,13 @@ define( function(require){
 		user.att_id = user.vc_id + my_namespace;
 	}
 
+	var first = {					/* things to be done after _first_user_join */
+		ack : function(){
+			require('./scroll').start( $('#atl-list-wrap') );		/* we allow scrolling with lower limit of one attendee  */	
+			
+			first = null;
+		}	
+	}
+	
 	return widget_att;
 });

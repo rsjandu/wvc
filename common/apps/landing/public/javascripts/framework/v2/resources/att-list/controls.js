@@ -126,9 +126,6 @@ define( function(require){
 			el_off = _element( vc_id, key+'-slashed');
 		switch( state[ vc_id+key]){
 			case undefined:
-				_element( vc_id, key+'-cover').addClass('cover-hide');
-//				_element( vc_id, key-'-cover').removeClass('show-cover');
-
 			case 'busy':
 				/* change to set */
 				el_on.css('fill','green'); 
