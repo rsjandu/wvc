@@ -1,13 +1,13 @@
 define( function(require){
-	var $		= require('jquery');
+	var $		= require('jquery'),
+		_dom 	= require('./element');
 
 	var search 	 = {},
 		userlist = {},
 		att_api  = {},
 		log 	 = {},
 		keys 	 = ['displayName', 'email'],
-		keys_len = keys.length,
-		my_namespace = '_att_skin';
+		keys_len = keys.length;
 
 	search.init = function( api, logger){
 		log = logger;
@@ -45,7 +45,7 @@ define( function(require){
 	}
 
 	function _show( vc_id, val){
-		var $elem = $('#'+vc_id + my_namespace);
+		var $elem = _dom.handle(vc_id);				/* we are caching them already in controls.js. */
 		val ? $elem.show() : $elem.hide();
 		return;	
 	}

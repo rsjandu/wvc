@@ -2,10 +2,10 @@
  * an 'icon' in controlsbar represents on/off state of a control(aka key) */
 
 define( function(require){
-	var $ = require('jquery');
+	var $ 		= require('jquery'),
+		_dom 	= require('./element');	/* provides the cached handles of elements */
 
 	var	log 	 	 = {},
-		cache 		 = {},
 		state 	 	 = {},				/* state of each control: initially 'undefined' then either 'set' or 'busy'. */
 		controls 	 = {},
 		attendee_api = {},
@@ -17,7 +17,6 @@ define( function(require){
 		log = logger;
 		window.att_api = api; 	/* for testing purpose */
 		attendee_api = api;
-		cache.elements = {}; 			/* we will cache element DOM objects */
 		$('#atl-list').on('click', '.atl-control', control_clicked);
 	
 		_d.resolve();
@@ -47,7 +46,8 @@ define( function(require){
 		/* remove the things related to this user
 		 * i.e. states of the controls
 		 * and dom elements cache */
-		state[vc_id] = cache.elements[vc_id] = undefined;
+		state[vc_id] = undefined;
+		_dom.forget(vc_id); 
 	}
 
 	/*
@@ -98,7 +98,7 @@ define( function(require){
 		
 		if( key == 'audio-control'){
 			/* vu-meter is a special case */
-			var _ele = _element(vc_id, key);
+			var _ele = _dom.handle(vc_id, key);
 			_ele.css('width', val*100 + 'px');
 			return;	
 		}
@@ -106,24 +106,11 @@ define( function(require){
 		/* ----------------------
 		 * all others are similar
 		 * ---------------------- */
-		var _ele_on = _element(vc_id, key),
-			_ele_off= _element(vc_id, key+'-slashed');
+		var _ele_on = _dom.handle(vc_id, key),
+			_ele_off= _dom.handle(vc_id, key+'-slashed');
 	
 		( val) ? ( _ele_on.show().css('display','inline-block'), _ele_off.hide() )	
 			   : ( _ele_off.show().css('display','inline-block'), _ele_on.hide() );
-	}
-
-	function _element( vc_id, key){						
-		/* 
-		 * it is better to cache the searches here 
-		 * instead of accessing the DOM everytime */
-		cache.elements[vc_id] = cache.elements[vc_id] || {};
-		var _ele = cache.elements[ vc_id][key];
-		if( !_ele){
-				_ele = cache.elements[ vc_id][key] = $('#'+vc_id + my_namespace+ ' #'+key);		/* assignment works right_to_left */
-		}
-
-		return _ele;
 	}
 
 	function change_state( vc_id, key, val){
@@ -132,8 +119,8 @@ define( function(require){
 		 *		2. set		 ----> busy
 		 *		3. busy 	 ----> set */
 		//handle audio -control wala case
-		var el_on = _element( vc_id, key),
-			el_off = _element( vc_id, key+'-slashed');
+		var el_on = _dom.handle( vc_id, key),
+			el_off = _dom.handle( vc_id, key+'-slashed');
 		switch( state[vc_id][key]){
 			case undefined:
 			case 'busy':
