@@ -51,10 +51,10 @@ define( function(require){
 		first && first.ack();		/* first time visible ack */
 	};
 
-	widget_att.remove_user = function(data){
-		console.log('remove: '+ data );
-		$('#'+data + my_namespace).remove();
-		search.update();
+	widget_att.remove_user = function( vc_id){
+		console.log('remove: '+ vc_id );
+		$('#'+vc_id + my_namespace).remove();
+		search.update();			// is it needed? 
 	};
 
 	function format( user){
