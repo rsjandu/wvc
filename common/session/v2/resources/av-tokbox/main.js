@@ -57,15 +57,6 @@ av_tokbox.init = function (myinfo, common, handles) {
 av_tokbox.init_user = function (user, prev_info, log) {
     var _d = $.Deferred ();
 
-	/*
-	 * If we allocated something for this user the previous
-	 * time, let's just reuse this */
-	if (prev_info) {
-		log.info ({ prev_info : prev_info }, 'reusing');
-		_d.resolve(prev_info);
-		return _d.promise();
-	}
-
     createToken (user, log, function (err, res) {
         return ( err ) ? _d.reject (err) : _d.resolve (res);
     });

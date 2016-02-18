@@ -82,7 +82,7 @@ users.add_user = function (user_info, conn) {
 
 	curr_attendees++;
 
-	log.info ({ vc_id : vc_id, info : entry, attendees : curr_attendees }, 'user added');
+	log.info ({ module : 'users', info : entry, attendees : curr_attendees }, 'user added');
 	return entry;
 };
 
@@ -115,7 +115,7 @@ users.remove_user = function (vc_id) {
 	delete list[vc_id];
 	curr_attendees--;
 
-	log.info ({ vc_id: vc_id, attendees : curr_attendees }, 'user removed');
+	log.info ({ module: 'users', attendees : curr_attendees }, 'user removed');
 
 	return true;
 };
