@@ -63,7 +63,7 @@
 	display : block;
 	position : relative;
 	top : 8px;
-	margin-right  : @margin-side;
+	//margin-right  : @margin-side;
 	margin-left  : @margin-side;
 
 	.atl-avatar-wrap {
@@ -72,6 +72,7 @@
 		display : inline-block;
 		border-radius : 50%;
 		overflow : hidden;
+		float : left;
 
 		img.atl-avatar {
 			height : 100%;
@@ -149,29 +150,13 @@
 			fill : grey;
 	
 			& svg {
-				height : 1.5em;
+				height : 1.3em;
 				width : 2em;
 			}
 			margin : 00;
 			padding : 00;
 		}
-		.atl-control-cover {
-			background : grey;
-			display: inline-block;
-			position: absolute;
-			opacity : 0.6;
-			border-radius: 10px;
-			height : 1.5em;
-			width : 2em;
-		}
 	}
-}
-
-.cover-show{
-	z-index: 1;
-}
-.cover-hide{
-	z-index: -1;
 }
 
 .border-bottom {
