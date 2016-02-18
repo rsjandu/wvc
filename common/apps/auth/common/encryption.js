@@ -16,7 +16,7 @@ encryption.encrypt = function (log, msg) {
 	/* no encryption as of now, sending the same msg bck. 
 	 * Actual encryption will be added here, whenever done
 	 */
-	log.info ({ Info: 'cipher encrypt', cipher : msg });
+	//log.info ({ Info: 'cipher encrypt', cipher : msg });
 	return msg;
 }
 
