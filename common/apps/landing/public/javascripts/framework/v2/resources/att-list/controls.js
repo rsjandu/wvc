@@ -25,7 +25,8 @@ define( function(require){
 	};
 
 	controls.change = function( vc_id, key, val){
-		switch( state[vc_id+key]){
+		state[vc_id] = state[vc_id] || {};
+		switch( state[vc_id][key]){
 			case undefined:							/* initial state of the control */
 				change_control( vc_id, key, val);	/* decides which icon to show (on/off) */
 				change_state(vc_id, key);
@@ -42,6 +43,13 @@ define( function(require){
 		}
 	};
 
+	controls.forget = function( vc_id){
+		/* remove the things related to this user
+		 * i.e. states of the controls
+		 * and dom elements cache */
+		state[vc_id] = cache.elements[vc_id] = undefined;
+	}
+
 	/*
 	 * private methods */
 
@@ -57,7 +65,8 @@ define( function(require){
 			key	  = ele.replace('-slashed','');
 			val   = undefined;
 
-		if( state[vc_id+key] == 'busy' || state[vc_id+key] == undefined ){
+		state[vc_id] = state[vc_id] || {};
+		if( state[vc_id][key] == 'busy' || state[vc_id][key] == undefined ){
 			log.info('attempted to change while in \'busy/undef\' state. Is a problem, control shouldn\'t be clickable');
 			return false;
 		}
@@ -108,9 +117,10 @@ define( function(require){
 		/* 
 		 * it is better to cache the searches here 
 		 * instead of accessing the DOM everytime */
-		var _ele = cache.elements[ vc_id + key];
+		cache.elements[vc_id] = cache.elements[vc_id] || {};
+		var _ele = cache.elements[ vc_id][key];
 		if( !_ele){
-				_ele = cache.elements[ vc_id + key] = $('#'+vc_id + my_namespace+ ' #'+key);		/* assignment works right_to_left */
+				_ele = cache.elements[ vc_id][key] = $('#'+vc_id + my_namespace+ ' #'+key);		/* assignment works right_to_left */
 		}
 
 		return _ele;
@@ -124,25 +134,25 @@ define( function(require){
 		//handle audio -control wala case
 		var el_on = _element( vc_id, key),
 			el_off = _element( vc_id, key+'-slashed');
-		switch( state[ vc_id+key]){
+		switch( state[vc_id][key]){
 			case undefined:
 			case 'busy':
 				/* change to set */
 				el_on.css('fill','green'); 
 				el_off.css('fill','red'); 
-				state[ vc_id+key] = 'set';
+				state[vc_id][key] = 'set';
 				break;
 
 			case 'set':
 				/* change to busy */
 				el_on.css('fill','yellow'); 
 				el_off.css('fill','yellow'); 
-				state[ vc_id+key] = 'busy';
+				state[vc_id][key] = 'busy';
 				break;
 
 			default:
 				log.info("element found in some unknown state");
-				state[vc_id+key] = undefined;				/* what else can i do here */
+				state[vc_id][key] = undefined;				/* what else can i do here */
 		}
 	}
 

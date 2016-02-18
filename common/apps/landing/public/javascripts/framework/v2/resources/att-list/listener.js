@@ -31,6 +31,7 @@ define(function(require){
 
 			case 'out':
 				widget.remove_user(data);
+				controls.forget(data);
 				break;
 
 			case 'control_changed':
