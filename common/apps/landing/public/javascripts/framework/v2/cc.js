@@ -83,17 +83,16 @@ define(function(require) {
 		return send (message, true);
 	};
 
-	cc.send_command = function (to, sub_resource, op, from_module) {
+	cc.send_command = function (from, to, command, data) {
 		var _d = $.Deferred ();
-		var from = 'user:' + identity.vc_id + 'resource:' + from_module;
 
-		var message = prot.command_pdu (to, sub_resource, op, from);
+		var message = protocol.command_pdu (from, to, command, data);
 		if (!message) {
 			_d.reject ('protocol parse error');
 			return _d.promise ();
 		}
 
-		message.seq = ++seq;
+		message.seq = seq++;
 
 		send (message, true)
 			.then (
@@ -129,10 +128,11 @@ define(function(require) {
 			 * If an ACk is required then create and store
 			 * a deferred, indexed by the sequence number of
 			 * the message */
+			var seq = message.seq.toString();
 
 			_d = $.Deferred ();
-			msg_q[message.seq] = {};
-			msg_q[message.seq]._d = _d;
+			msg_q[seq] = {};
+			msg_q[seq]._d = _d;
 		}
 
 		sock.send (JSON.stringify(message));
@@ -256,7 +256,7 @@ define(function(require) {
 	}
 
 	function process_ack (message) {
-		var seq = message.seq;
+		var seq = message.seq.toString();
 		var msg = message.msg;
 
 		if (!msg_q[seq] || !msg_q[seq]._d) {
@@ -264,19 +264,21 @@ define(function(require) {
 			return;
 		}
 
+		var _d = msg_q[seq]._d;
+
 		switch (msg.status) {
 			case 'ok':
-				msg_q[seq]._d.resolve(msg.data);
+				_d.resolve(msg.data);
 				break;
 
 			case 'not-ok':
 			case 'error':
-				msg_q[seq]._d.reject(msg.data);
+				_d.reject(msg.data);
 				break;
 
 			default :
 				log.error ('RX: ACK: illegal status (' + msg.status + '): message = ', message);
-				msg_q[seq]._d.reject(msg.data);
+				_d.reject(msg.data);
 				break;
 		}
 
@@ -313,7 +315,7 @@ define(function(require) {
 	}
 
 	function ack (m, status, data) {
-		var message = protocol.ack_pdu (message, status, data);
+		var message = protocol.ack_pdu (m, status, data);
 
 		message.seq = m.seq;
 

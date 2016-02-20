@@ -19,6 +19,10 @@ define(function(require) {
 		identity.full_user_info = user_info;
 	};
 
+	identity.am_i = function (vc_id) {
+		return identity.vc_id === vc_id;
+	};
+
 	function get_cookie (name) {
 	  var value = "; " + document.cookie;
 	  var parts = value.split("; " + name + "=");

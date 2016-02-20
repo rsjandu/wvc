@@ -46,6 +46,15 @@ define(function (require) {
 	var av_controls_handler = null;
 	var cam_state = 'unmute';
 
+	menu.local_media_changed = function (the_thing, _new) {
+		var target = the_thing === 'camera' ? 'video' : 'audio';
+		var action = _new ? 'unmute' : 'mute';
+		var inverse_action = (!_new) ? 'unmute' : 'mute';
+
+		$('#av-menu-' + target + '-' + action).css('display', 'none');
+		$('#av-menu-' + target + '-' + inverse_action).css('display', 'inline-block');
+	};
+
 	menu.av_controls = {
 		set_handler : function (handler) {
 
@@ -69,7 +78,6 @@ define(function (require) {
 			var action = curr_target.replace(/^.*-([^-]*mute)$/g, "$1");
 			var inverse_action = (action === 'mute' ? 'unmute' : 'mute');
 
-			log.info ('target = ' + target + ' action = ' + action);
 			av_controls_handler (target, action);
 			$('#av-menu-' + target + '-' + action).css('display', 'none');
 			$('#av-menu-' + target + '-' + inverse_action).css('display', 'inline-block');

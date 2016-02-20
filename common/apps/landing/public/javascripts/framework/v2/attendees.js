@@ -88,14 +88,14 @@ define( function(require){
 		 *     - a number between 0 & 1 for 'audio-volume'
 		 */
 		if( !store[vc_id]){
-			log.info('invalid vc_id::' + vc_id);
+			log.error('invalid vc_id::' + vc_id);
 			return false;
 		}
 
 		switch( _key){
 			case 'audio-control':
 				if(!( value >= 0 && value <= 1)){
-					log.info('invalid value:: ' + value);
+					log.error('invalid value:: ' + value);
 					return false;
 				}
 				/* else fall down __don't break just yet */
@@ -118,7 +118,7 @@ define( function(require){
 				break;
 
 			default:
-				log.info('unknown key::' + _key);
+				log.error('unknown key::' + _key);
 				return false;
 		}
 		return true;

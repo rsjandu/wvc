@@ -1,5 +1,6 @@
 define(function(require) {
 	var log = require('log')('protocol', 'info');
+	var identity = require('identity');
 
 	var prot = {};
 
@@ -22,29 +23,28 @@ define(function(require) {
 		return message;
 	};
 
-	prot.command_pdu = function (to, sub_resource, op, from) {
+	prot.command_pdu = function (from, to, command, data) {
 		var m = {};
 
-		if (!to || !sub_resource || !op || !from) {
+		if (!from || !to || !command) {
 			log.error ('command_pdu: null argument(s): ' +
+					   		'from = ' + from +
 					   		'to = ' + to +
-					   		', sub_resource = ' + sub_resource +
-					   		', op = ' + op +
-					   		', from = ' + from
+					   		', command = ' + command
 					  );
 
 			return null;
 		}
 
-		m.v     = '1';
+		m.v     = 1;
 		m.type  = 'req';
 
 		m.to    = to;
 		m.from  = from;
 
 		m.msg  = {
-			target : sub_resource,
-			op     : op
+			command : command,
+			data    : data
 		};
 
 		return m;
@@ -96,12 +96,13 @@ define(function(require) {
 		m.v = 1;
 		m.type = 'ack';
 		m.to   = message.from;
-		m.from = message.to;
+		m.from = 'user:' + identity.vc_id + '.' + message.to;
 		m.msg  = {
 			status : status,
 			data   : data
 		};
 
+		return m;
 	};
 
 	return prot;

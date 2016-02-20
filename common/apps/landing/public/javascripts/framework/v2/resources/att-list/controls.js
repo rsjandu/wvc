@@ -53,7 +53,7 @@ define( function(require){
 	/*
 	 * private methods */
 
-	function control_clicked( evt){
+	function control_clicked ( evt ) {
 		var id = $(this).closest('li').attr('id');
 		if( !id){
 			log.info('warn:::user id not found...did someone change the user template?');
@@ -70,7 +70,8 @@ define( function(require){
 			log.info('attempted to change while in \'busy/undef\' state. Is a problem, control shouldn\'t be clickable');
 			return false;
 		}
-		switch( ele){
+		
+		switch (ele) {
 			case 'microphone':
 				val = 'false';
 				break;
@@ -87,6 +88,7 @@ define( function(require){
 				log.info( key + " clicked____and is not handled");
 				return;
 		}
+
 		if( val){
 			attendee_api.set_meta( vc_id, key, val, true);			/* 'true' tells it is a request */
 			change_state(vc_id, key);

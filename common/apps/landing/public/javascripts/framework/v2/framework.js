@@ -11,6 +11,7 @@ define(function(require) {
 
 	var framework     = {};
 	var modules       = {};
+	var role_map      = {};
 	var menu_handle   = {};
 	var progress_ev   = events.emitter ('framework-progress', 'framework');
 
@@ -40,6 +41,15 @@ define(function(require) {
 		}
 
 		modules[_module.name] = _module;
+		/*
+		 * Create a role map */
+		if (_module.resource.role) {
+			var role = _module.resource.role;
+			if (role_map[role])
+				log.error ('module already registered with role "' + role + '" (' + role_map[role].name + '). overwriting with "' + _module.name + '"');
+
+			role_map[role] = _module;
+		}
 
 		log.info ('inserting module - ' + _module.name + ' ...');
 
@@ -57,6 +67,17 @@ define(function(require) {
 			_module.resource.custom,
 			_module.resource.perms
 		);
+
+		/*
+		 * Check for incorrectly written modules */
+		if (!is_promise (_d_mod)) {
+			log.error ('init may have failed for \"' + _module.name + '\" : err = did not return promise');
+			progress_ev.emit ('init ' + _module.name + 'maybe failed');
+
+			_module.init_ok = false;
+			_d.reject(err);
+			return _d.promise();
+		}
 
 		_d_mod.then (
 			function() {
@@ -186,24 +207,45 @@ define(function(require) {
 	 * Should return a promise. */
 
 	framework.rx_req = function (message) {
-		var module_name = message.to.split(':')[1];
-		var instance    = message.to.split(':')[2];
+		var _m          = message.to.split(':');
+		var module_name = _m[0];
+		var instance    = _m[1];
 		var _d = $.Deferred ();
+		var _module = null;
 
 		if (module_name === 'framework') {
-			handle_req (_d, message);
+			log.error ('rx_req: framework directed requests not implemented yet');
 			return _d.promise ();
 		}
 
-		if (!modules[module_name]) {
-			_d.reject ('module (' + module_name + ') not registered');
+		/*
+		 * It is likely that the message is addressed from a 'role' rather than
+		 * the actual resource name. Try that first, and then the latter. */
+		_module = role_map[module_name];
+		if (!_module) {
+			if (!modules[module_name]) {
+				log.error ('rx_req for unknown module "' + module_name + '". rejecting.', message);
+				_d.reject ('module (' + module_name + ') not registered');
+				return _d.promise ();
+			}
+			_module = modules[module_name];
+		}
+
+		if (!_module.handle.remote_req) {
+			log.error ('no remote_req handler defined for module "' + module_name + '" (' + _module.name + ').rejecting remote req', message);
+			_d.reject ('module (' + module_name + ') not capable of handling remote req');
 			return _d.promise ();
 		}
 
-		/* TODO : do check for instance */
+		var maybe_d = _module.handle.remote_req (message.msg, instance);
 
-		modules[module_name].handle.remote_req (message.msg)
-			.then (
+		if (!is_promise (maybe_d)) {
+			_d.reject ('remote_req handler not returning a promise');
+			return _d.promise ();
+		}
+
+		/* OK, maybe it is a promise after all */
+		maybe_d.then (
 				_d.resolve.bind(_d),
 				_d.reject.bind(_d)
 			);
@@ -245,7 +287,6 @@ define(function(require) {
 	};
 
 	framework.handle = function (module_name) {
-
 		var handle = {
 			identity       : identity,
 			attendees      : attendees.api,
@@ -393,14 +434,30 @@ define(function(require) {
 		return true;
 	}
 
+	function make_addresses (user, mod, from_instance) {
+		var addr = {};
+		var module_suffix = '.' + mod + ':' + (from_instance? from_instance: '0');
+
+		/*
+		 * if user is null or empty, the intended recipient is
+		 * the server counterpart of the module. */
+
+		addr.to   = (!user || user.length === 0) ?  mod : 'user:' + user + module_suffix;
+		addr.from = 'user:' + identity.vc_id + module_suffix;
+
+		return addr;
+	}
+
 	/*
 	 * returns a promise
 	 */
-	function send_command (user, sub_resource, op) {
-		var _d      = $.Deferred ();
+	function send_command (user, command, data, from_instance) {
+		var _d    = $.Deferred ();
+		var _module  = modules[this.module_name];
+		var role = _module ? (_module.resource ? _module.resource.role : null ) : null;
+		var addrs = make_addresses (user, role ? role : this.module_name, from_instance);
 
-		var to = 'user:' + user + '.resource:' + this.module_name;
-		cc.send_command (to, sub_resource, op, this.module_name)
+		cc.send_command (addrs.from, addrs.to, command, data)
 			.then (
 				_d.resolve.bind(_d),
 				_d.reject.bind(_d)
@@ -422,19 +479,8 @@ define(function(require) {
 
 	function send_info (user, info_id, data, from_instance) {
 
-		var module_suffix = '.' + this.module_name + ':' + (from_instance? from_instance: '0');
-
-		/*
-		 * if user is null or empty, the intended recipient is
-		 * the server counterpart of the module. */
-
-		to = (!user || user.length === 0) ?
-			this.module_name :
-			'user:' + user + module_suffix;
-
-		var from = 'user:' + identity.vc_id + module_suffix;
-
-		cc.send_info (from, to, info_id, data);
+		var addrs = make_addresses (user, this.role ? this.role : this.module_name, from_instance);
+		cc.send_info (addrs.from, addrs.to, info_id, data);
 
 		return;
 	}
@@ -450,8 +496,10 @@ define(function(require) {
 				set_role_menu (_module);
 				break;
 
-			case 'av':
-				break;
+			case 'av': break;
+			case 'chat': break;
+			case 'app': break;
+			case 'attendees': break;
 
 			case 'tab-controller':
 				tab_controller.flush_pending_registrations ();
@@ -524,6 +572,25 @@ define(function(require) {
 		catch (e) {
 			log.error ('deliver_info: \"' + to + '\" err = ' + e);
 		}
+	}
+
+	/*
+	 * A hacky way to determine if a value is a promise */
+	function is_promise (value) {
+
+		if (!value || !value.then)
+			return false;
+
+		if (typeof value.then !== "function")
+			return false;
+
+		return true;
+		/*
+		 * Save this for another day
+		var promiseThenSrc = String($.Deferred().then);
+		var valueThenSrc = String(value.then);
+		return promiseThenSrc === valueThenSrc;
+		*/
 	}
 
 	return framework;

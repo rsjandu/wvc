@@ -79,19 +79,19 @@ define(function(require) {
 	 * ___________ Handlers ____________
 	 *
 	 */
-	function menu_handler (element, action) {
+	local.publisher_controls = function (element, action) {
 
-		log.info ('menu_handler called, ' + element + ', ' + action);
+		log.info ('local.publisher_controls called, ' + element + ', ' + action);
 
 		switch (element) {
 			case 'audio':
-				log.info ('audio ' + action + 'ing ...');
+				log.info ('audio ' + action + '-ing ...');
 				publisher.publishAudio (action === 'mute' ? false : true);
 				my_container.set_meta ({ has_audio : (action === 'mute' ? false : true)});
 				break;
 
 			case 'video':
-				log.info ('video ' + action + 'ing ...');
+				log.info ('video ' + action + '-ing ...');
 				publisher.publishVideo (action === 'mute' ? false : true);
 				my_container.set_meta ({ has_video : (action === 'mute' ? false : true)});
 				break;
@@ -123,7 +123,7 @@ define(function(require) {
 		var stream = ev.stream;
 		layout.reveal_video (my_container);
 
-		menu.av_controls.set_handler (menu_handler);
+		menu.av_controls.set_handler (local.publisher_controls);
 
 		conn_emitter_cached.emit('incoming-media', {
 			connection_id : 'local-media',
