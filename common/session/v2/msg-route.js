@@ -17,13 +17,10 @@ route.route_req = function (conn, from, to, msg) {
 	var _to = addr.inspect_top (to);
 
 	switch (_to.resource) {
-		case 'user' :
-			_d.reject ('not implemented', 'msg-route');
-			return;
-
 		case 'controller' :
-
-			controller.process (conn, from, addr.pop(to), msg)
+			/* Fall through */
+		case 'user' :
+			controller.process_req (conn, from, to, msg)
 				.then (
 					_d.resolve.bind(_d),
 					_d.reject.bind(_d)
@@ -32,7 +29,7 @@ route.route_req = function (conn, from, to, msg) {
 
 		default:
 			_d.reject ('bad address', 'msg-route');
-			return;
+			return _d.promise ();
 	}
 
 	return _d.promise ();

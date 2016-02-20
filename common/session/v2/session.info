@@ -6,6 +6,7 @@
 	"resources" : [
 		{
 			"name" : "av-tokbox-v2",
+			"role" : "av",
 			"custom" : { 
 				"apikey" : "45457782",
 				"apisecret" : "e5b2b08aba748e20b7cbedca4c878257c17b1634",
@@ -16,13 +17,8 @@
 			}
 		},
 		{
-			"name" : "wboard-basic",
-			"custom" : { 
-				"background" : "default"
-			}
-		},
-		{
 			"name" 		: "chat-box",
+			"role"      : "chat",
 			"custom" 	: {
 				"server_url" : "https://wiziq-ubuntu-a.cloudapp.net/",
 				"req_timeout": "10000"

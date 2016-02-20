@@ -35,6 +35,10 @@ function show_conn (c, comment) {
 	log.debug (comment + '# ' + c.id + '/' + (c.state ? c.state : '-') + ' ' + c.addr + ':' + c.port + ' (user: ' + (c.vc_id ? c.vc_id : '-') + ')');
 }
 
+function send_command (from, to, command, data) {
+	return cc.send_command (this.c.sock, from, to, command, data);
+}
+
 function send_info (from, to, info_id, info) {
 	cc.send_info (this.c.sock, from, to, info_id, info);
 }
@@ -91,6 +95,7 @@ connection.new_connection = function (sock) {
 	var handle =  {
 		c         : c,
 		send_info : send_info,
+		send_command : send_command,
 		show_conn : show_conn,
 		set_user  : set_user,
 		log_handle : function () { return this.c.log; },

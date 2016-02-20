@@ -1,3 +1,4 @@
+var $               = require("jquery-deferred");
 var mylog           = require("./common/log").sub_module('users');
 var config          = require("./config");
 var addr            = require("./addr");
@@ -204,6 +205,33 @@ users.send_info = function (vc_id, from, to, info_id, info) {
 	conn.send_info (from, addr.prepend(to, 'user', vc_id), info_id, info);
 };
 
+/*
+ * Used to forward a pre-formed user-to-user command */
+users.relay_command = function (from, to, message) {
+	var _d = $.Deferred ();
+	var vc_id = addr.user(to);
+	var _u = list_active[vc_id];
+
+	if (!_u) {
+		/* Could happen due to early disconnection etc */
+		mylog.warn ({ from:from, to:to, pdu:message }, 'relay_command: user not in active list');
+		_d.reject ('user not in active list');
+		return _d.promise ();
+	}
+
+	var conn = _u.conn;
+	conn.send_command (from, to, message.command, message.data)
+		.then(
+				function (data) {
+					return _d.resolve (data);
+				},
+				function (err) {
+					return _d.reject (err);
+				}
+			 );
+
+	return _d.promise ();
+};
 
 users.broadcast_info = function (from, to, info_id, info, except) {
 	var list = [];

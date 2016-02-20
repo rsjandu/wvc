@@ -8,7 +8,6 @@ var wss;
 
 var cc = {};
 var upstream;
-var seq = 1;
 
 cc.init = function (server, route, sess_config) {
 
@@ -25,6 +24,7 @@ cc.init = function (server, route, sess_config) {
 		log.debug ({ headers : ws.upgradeReq.headers }, 'incoming connection');
 
 		/* Add connection to list */
+		ws.pending_acks = {};
 		upstream.new_connection (ws);
 
 		ws.on ('message', function (message) {
@@ -37,21 +37,52 @@ cc.init = function (server, route, sess_config) {
 
 		ws.on ('close', function (err) {
 			upstream.close (ws);
+
+			/* Fire any deferred's waiting on acks on this socket */
+			for (var d in ws.pending_acks) {
+				ws.pending_acks[d].reject('connection closed');
+				delete ws.pending_acks[d];
+			}
 		});
 	});
 };
 
+cc.send_command = function (sock, from, to, command, data) {
+	var _d = $.Deferred ();
+
+	var m = protocol.command_pdu (from, to, command, data);
+	if (!m) {
+		_d.reject('cc.send_command : protocol.command_pdu error');
+		return _d.promise();
+	}
+
+	sock.pending_acks[m.seq.toString()] = _d;
+	sock.send (JSON.stringify(m), function (err) {
+		if (err) {
+			log.error ({ err:err, to:to, info_id:info_id }, 'send command socket error');
+			delete sock.pending_acks[m.seq.toString()];
+			return _d.reject('cc.send_command: ' + err);
+		}
+
+		/* Wait for the ACK from the other end */
+		protocol.print(m, 'TX');
+		return;
+	});
+
+	return _d.promise ();
+};
+
 cc.send_info = function (sock, from, to, info_id, info) {
 	var m = protocol.info_pdu (from, to, info_id, info);
+
 	if (!m)
 		return;
 
-	m.seq = seq++;
 	sock.send (JSON.stringify(m), function (err) {
 		if (err)
-			log.error ({ err:err, to:to, info_id:info_id }, 'socket send error');
+			log.error ({ err:err, to:to, info_id:info_id }, 'send info socket error');
 	});
-	protocol.print(m);
+	protocol.print(m, 'TX');
 };
 
 function verify (info, callback) {
@@ -59,15 +90,17 @@ function verify (info, callback) {
 }
 
 function handle_incoming (ws, message) {
+	var m;
+
 	try {
 		m = protocol.parse (message);
-	}
+	 }
 	catch (e) {
-		log.error ( { msg:message, err: e.message }, 'protocol parse error');
+		log.error ( { pdu:message, err: e.message }, 'protocol parse error');
 		return;
 	}
 
-	protocol.print(m);
+	protocol.print(m, 'RX');
 
 	switch (m.type) {
 
@@ -87,7 +120,40 @@ function handle_incoming (ws, message) {
 		case 'info':
 			upstream.route_info (ws, m.from, m.to, m.msg);
 			break;
+
+		case 'ack':
+			process_ack (ws, m);
+			break;
 	}
+}
+
+function process_ack (ws, message) {
+	var seq = message.seq.toString();
+	var msg = message.msg;
+	var conn_handle = ws.conn_handle;
+
+	if (!ws.pending_acks[seq]) {
+		log.error ({ pdu : message, seq : seq }, 'orphan ack');
+		return;
+	}
+
+	switch (msg.status) {
+		case 'ok':
+			ws.pending_acks[seq].resolve(msg.data);
+			break;
+
+		case 'not-ok':
+		case 'error':
+			ws.pending_acks[seq].reject(msg.data);
+			break;
+
+		default :
+			log.error ({ pdu : message, seq : seq }, 'illegal ack status');
+			ws.pending_acks[seq].reject(msg.data);
+			break;
+	}
+
+	delete ws.pending_acks[seq];
 }
 
 function ack (sock, _m, data) {
@@ -101,10 +167,14 @@ function nack (sock, _m, data) {
 function __ack (sock, _m, status, data, from) {
 	var m = protocol.ack_pdu (_m, status, data, from);
 
-	m.seq = _m.seq;
-	sock.send(JSON.stringify(m));
+	sock.send(JSON.stringify(m), function (err) {
+		if (err) {
+			log.warn ({ err:err, m:_m, status: status, data: data, from:from }, 'send ack socket error');
+			return;
+		}
 
-	protocol.print(m);
+		protocol.print(m, 'TX');
+	});
 }
 
 module.exports = cc;
