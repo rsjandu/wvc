@@ -1,7 +1,7 @@
 {
      "baseUrl" : ".",
-	 "name"    : "av-tokbox-v2",
-	 "out"     : "av-tokbox-v2.min.js",
+	 "name"    : "webpage",
+	 "out"     : "webpage.min.js",
 	 "insertRequire" : [  ],
 
      "paths" : {

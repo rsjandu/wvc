@@ -1,7 +1,7 @@
 {
      "baseUrl" : ".",
-	 "name"    : "av-tokbox-v2",
-	 "out"     : "av-tokbox-v2.min.js",
+	 "name"    : "tabs-v1",
+	 "out"     : "tabs-v1.min.js",
 	 "insertRequire" : [  ],
 
      "paths" : {
@@ -31,7 +31,8 @@
 		"jquery_mmenu" :  "../../../../ext/jquery.mmenu.min.all",
 		"dom_ready" :     "../../../../ext/domReady",
 		"bookblock" :     "../../../../ext/jquery.bookblock",
-    	"remodal" :       "../../../../ext/remodal.min"
+    	"remodal" :       "../../../../ext/remodal.min",
+		"bootstrap" :     "../../../../ext/bootstrap.3.3.5.min"
 	 },
 
      "exclude" : [
@@ -61,7 +62,8 @@
 		"jquery_mmenu",
 		"dom_ready",
 		"bookblock",
-    	"remodal"
+    	"remodal",
+    	"bootstrap"
       ]
 }
  

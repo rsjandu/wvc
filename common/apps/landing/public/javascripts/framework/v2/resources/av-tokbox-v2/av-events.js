@@ -27,9 +27,9 @@ define(function (require) {
 	};
 
 	function handle_av_events (data) {
-		var vc_id = data.vc_id;
-		var key = data.key;
-		var val = data.value;
+		var key    = data.key;
+		var val    = data.value;
+		var vc_id  = data.vc_id;
 		var for_me = f_handle_cached.identity.am_i (vc_id);
 
 		if (!for_me)

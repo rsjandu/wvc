@@ -8,7 +8,7 @@ define(function(require) {
 	var screenshare = require('./screenshare');
 	var local       = require('./local-media');
 	var menu        = require('./menu');
-	var events      = require('./events');
+	var events      = require('./av-events');
 	var cpool       = require('./container-pool');
 
 	var av = {};
