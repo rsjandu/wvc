@@ -81,23 +81,19 @@ define(function(require) {
 	 */
 	local.publisher_controls = function (element, action) {
 
-		log.info ('local.publisher_controls called, ' + element + ', ' + action);
-
 		switch (element) {
 			case 'audio':
-				log.info ('audio ' + action + '-ing ...');
 				publisher.publishAudio (action === 'mute' ? false : true);
 				my_container.set_meta ({ has_audio : (action === 'mute' ? false : true)});
 				break;
 
 			case 'video':
-				log.info ('video ' + action + '-ing ...');
 				publisher.publishVideo (action === 'mute' ? false : true);
 				my_container.set_meta ({ has_video : (action === 'mute' ? false : true)});
 				break;
 
 			default:
-				log.error ('invalid element type = ' + element);
+				log.error ('invalid element type = ' + element + ', for action: ' + action);
 		}
 	}
 
