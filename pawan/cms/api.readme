@@ -1,0 +1,3 @@
+POST: /content/:store/upload/get-tmp-path { filename : <>, dirname : <>}
+
+curl -H "Content-Type: application/json" -X POST -d '{"filename":"calculus-001","dirname":"mathematics/presentations"}' http://localhost:7099/content/v1/s3/upload/get-tmp-path
