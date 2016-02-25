@@ -21,8 +21,6 @@ cc.init = function (server, route, sess_config) {
 
 	wss.on('connection', function (ws) {
 
-		log.debug ({ headers : ws.upgradeReq.headers }, 'incoming connection');
-
 		/* Add connection to list */
 		ws.pending_acks = {};
 		upstream.new_connection (ws);
@@ -36,7 +34,7 @@ cc.init = function (server, route, sess_config) {
 		});
 
 		ws.on ('close', function (err) {
-			upstream.close (ws);
+			upstream.closed (ws);
 
 			/* Fire any deferred's waiting on acks on this socket */
 			for (var d in ws.pending_acks) {

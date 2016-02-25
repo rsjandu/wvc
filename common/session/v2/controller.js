@@ -154,7 +154,6 @@ function actually_join_user (user) {
 	};
 
 	users.send_info (user.vc_id, 'controller', 'framework', 'session-info', sess_info);
-	users.broadcast_info ('controller', 'framework', 'new-johnny', users.get_publishable_info(user.vc_id), user.vc_id);
 
 	/*
 	 * Set the ball rolling for resources init for the specific user. The per-resource
@@ -164,7 +163,6 @@ function actually_join_user (user) {
 
 function handle_user_remove (vc_id) {
 	users.remove_user (vc_id);
-	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', vc_id, vc_id);
 }
 
 module.exports = controller;

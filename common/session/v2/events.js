@@ -4,13 +4,13 @@ var emitter = new EventEmitter();
 
 var events = {};
 function emit (prefix, e, data) {
-	log.debug ({ e : prefix + '.' + e}, 'emit');
+	//log.debug ({ e : prefix + '.' + e}, 'emit');
 	emitter.emit (prefix + '.' + e, data);
 }
 
 function on (prefix, e, callback) {
 	emitter.on (prefix + '.' + e, function (data) {
-		log.debug ({ e : prefix + '.' + e, data : (data ? data : 'none')}, 'trigger');
+		//log.debug ({ e : prefix + '.' + e, data : (data ? data : 'none')}, 'trigger');
 		callback (data);
 	});
 }

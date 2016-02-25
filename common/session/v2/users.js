@@ -29,36 +29,37 @@ users.can_admit = function (log_) {
 	return curr_attendees < max_attendees;
 };
 
+function add_to_map (user_key, user_info) {
+
+	/*
+	 * Already exists */
+	if (map[user_key])
+		return map[user_key];
+
+	/*
+	 * Looks like a first time user */
+	map[user_key] = {
+		info : user_info,
+		internal : {
+			resources : {},
+		}
+	};
+
+	map[user_key].info.history  = [];
+	map[user_key].info.vc_id    = random_id ();
+	map[user_key].info.nickname = names ();
+
+	return map[user_key];
+}
+
 users.add_user = function (user_info, conn) {
+
 	/*
 	 * Passive join */
-
-	var vc_id;
 	var user_key = make_key (user_info);
-
-	/*
-	 * If we don't have this user in our map then he is a new user */
-	if (!map[user_key]) {
-		map[user_key] = {
-			info : user_info,
-			internal : {
-				resources : {},
-			}
-		};
-		map[user_key].info.history = [];
-	}
-
-	var entry = map[user_key].info;
-
-	if (!entry.vc_id) {
-		/* First time user - assign a unique ID and a nickname to the user */
-		vc_id          = random_id ();
-		entry.vc_id    = vc_id;
-		entry.nickname = names ();
-	}
-
-	vc_id = entry.vc_id;
-	var log = conn.log_handle().child({ vc_id : vc_id });
+	var entry = add_to_map (user_key, user_info).info;
+	var vc_id = entry.vc_id;
+	var log   = conn.log_handle().child({ vc_id : vc_id });
 
 	/* Add a join time to the history of the user */
 	entry.history.push ({
@@ -70,8 +71,15 @@ users.add_user = function (user_info, conn) {
 		 * Just a sanity check - this user shouldn't already exist in the
 		 * passive list - if he does our logic is inconsistent somewhere.
 		 * Flag it */
-		log.error ({ vc_id : vc_id, entry : list_passive[vc_id] }, 'user already exists in the passive list. overwriting');
+		log.error ({ vc_id : vc_id, entry : list_passive[vc_id].user }, 'user already exists in the passive list. overwriting');
 	}
+
+	/*
+	 * If the user is in the active list, then it's likely that this user refreshed the
+	 * browser and we didn't recieve the 'close' socket event. Eject the older entry of
+	 * this user from the active list */
+	if (is_active(vc_id))
+		eject_user (log, vc_id);
 
 	list_passive[vc_id] = {
 		user       : entry,
@@ -118,13 +126,16 @@ users.remove_user = function (vc_id) {
 
 	log.info ({ module: 'users', attendees : curr_attendees }, 'user removed');
 
+	/*
+	 * Broadcast to all informing them of this */
+	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', vc_id, vc_id);
 	return true;
 };
 
 users.activate = function (vc_id) {
 
 	if (list_active[vc_id]) {
-		/* Shouldn't happen - indicates a bug */
+		/* Could happen due to race conditions */
 		mylog.error ({ vc_id: vc_id }, 'activate: user already in active list');
 		return;
 	}
@@ -139,7 +150,35 @@ users.activate = function (vc_id) {
 	list_active[vc_id]       = list_passive[vc_id];
 	list_active[vc_id].state = 'in-session';
 	delete list_passive[vc_id];
+
+	/*
+	 * Broadcast to all the addition of a new user */
+	users.broadcast_info ('controller', 'framework', 'new-johnny', users.get_publishable_info (vc_id), vc_id);
 };
+
+function is_active (vc_id) {
+	if (list_active[vc_id])
+		return true;
+	return false;
+}
+
+function eject_user (log, vc_id) {
+	/*
+	 * Ejection means:
+	 *     1. Close the user socket
+	 *     2. Inform others of user exit
+	 */
+
+	if (!list_active[vc_id]) {
+		log.error ({ vc_id : vc_id, method : 'eject_user' }, 'not active');
+		return
+	}
+
+	var conn = list_active[vc_id].conn;
+	conn.close ();
+
+	users.remove_user (vc_id);
+}
 
 users.get_resources = function (vc_id) {
 

@@ -122,7 +122,7 @@ prot.print = function (m, dir) {
 	else if (m.type === 'req')
 		print_req_pdu (compact, m, dir);
 	else if (m.type === 'ack')
-		log.debug ({ m:m }, 'PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.status + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+		log.debug ('PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.status + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
 	else
 		log.debug (compact ? '' : { m:m }, 'PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
 };

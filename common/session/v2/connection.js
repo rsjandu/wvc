@@ -19,12 +19,6 @@ function set_user (vc_id) {
 	return true;
 }
 
-function close () {
-	log.info ({conn_id : this.c.id}, 'connection: closed: removing connection');
-	events.emit ('closed', this.c.vc_id);
-	delete list[this.c.id];
-}
-
 function show_conn (c, comment) {
 	if (!c)
 		c = this.c;
@@ -65,10 +59,30 @@ connection.route_info = function (sock, from, to, msg) {
 };
 
 connection.events = events;
-connection.close  = function (sock) {
-	var conn_handle = sock.conn_handle;
-	conn_handle.close ();
+connection.closed  = function (sock) {
+	/*
+	 * Called by cc to inform of a socket closing */
+	var c = sock.conn_handle.c;
+
+	log.info ({ conn_id : c.id, vc_id : c.vc_id }, 'closed: removing connection');
+	events.emit ('closed', c.vc_id);
+
+	/*
+	 * It's possible that due to various race conditions that this
+	 * has already been closed and therefore not in this list */
+	if (list[c.id])
+		delete list[c.id];
 };
+
+function close () {
+	var sock = this.c.sock;
+
+	sock.close (function (err) {
+		/*
+		 * Ignore the error, as due to a race condition
+		 * this socket may have already been closed */
+	});
+}
 
 connection.new_connection = function (sock) {
 
@@ -88,18 +102,18 @@ connection.new_connection = function (sock) {
 	show_conn(c, 'new');
 
 	if (list[c.id])
-		log.error ({conn_id : c.id}, 'new: possibly over-writing connection info');
+		c.log.error ({conn_id : c.id}, 'new: possibly over-writing connection info');
 
 	list[c.id] = c;
 
 	var handle =  {
-		c         : c,
-		send_info : send_info,
+		c            : c,
+		send_info    : send_info,
 		send_command : send_command,
-		show_conn : show_conn,
-		set_user  : set_user,
-		log_handle : function () { return this.c.log; },
-		close     : close
+		show_conn    : show_conn,
+		set_user     : set_user,
+		close        : close,
+		log_handle   : function () { return this.c.log; },
 	};
 
 	sock.conn_handle = handle;

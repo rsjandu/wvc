@@ -47,7 +47,7 @@ auth.authenticate = function (req, res, next) {
 		res.cookie('wiziq_origin', original_url, {
 			maxAge : 1000*60*60*24*7,    /* Expires in a long time */
 			path   : '/',
-			secure : false
+			secure : true
 		});
 
 		var auth_via = req.wiziq.sess_config.auth.via;

@@ -5,7 +5,7 @@ auth.process = function (log_, msg) {
 	var user_info = null;
 	var log  = log_.child ({ module : 'auth' });
 
-	var payload = cipher.decode (log_, 'auth', msg);
+	var payload = cipher.decode (log_, 'auth', msg.data);
 
 	if (!payload) {
 		log.warn ('auth: decode error');

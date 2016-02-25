@@ -85,7 +85,11 @@ define(function(require) {
 		m.type = 'req';
 		m.to = to;
 		m.from = from;
-		m.msg = data;
+		m.msg  = {
+			command : 'authenticate-me',
+			data    : data
+		};
+
 
 		return m;
 	};
