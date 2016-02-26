@@ -1,43 +1,18 @@
 
 var log		= require('common/log')  ,
-	dir 	= require('core/dir')  ,
 	content = require('core/content')  ;
 
 var core = {};
 
-core.dir_list 	= function( req, res, next){
-	var store  = req.store  ,
-		parent = req.dir_top  ;
-	
-	log.info('store: '+store + ' parent:' + parent);
-	dir.list( store, parent, function( list){
-		res.send(list);
-	});
-};
-
-core.dir_create = function( req, res, next){
-	var store 	= req.store  ,
-		name	= req.dir ;
-
-	dir.create( store, dir, function( err){
-		if( err){
-			res.send("couldn't create");
-			return ;
-		}
-		res.send('success');
-	});
-};
-
-core.dir_remove = dir.remove;
-
-core.upload	= function( req, res, next){
+core.add = function( req, res, next){
 	/* parse body and get values */
 
 	var info = {};
-	info.f_name	= req.body.filename ,
-	info.dir	= req.body.dirname ,
-	info.store	= req.store  ,
-	info.uid	= '1123'  ;
+	info.dir	= req.body.dir ,
+	info.name	= req.body.name ,
+	info.flags	= req.body.flags ,
+	info.email	= req.email  ,
+	info.store	= req.store  ;
 
 	log.info( JSON.stringify(info));
 	
@@ -49,7 +24,45 @@ core.upload	= function( req, res, next){
 		res.send(url);
 	});
 };
-core.remove = content.remove;
 
+core.added = function( req, res, next){
+	var info = req.body;
+	info.id = req.email;
+	info.store = req.store;
+	log.debug('core.added called INFO::' + JSON.stringify(info));
+
+	content.added(info,function(err){
+		if(err){
+			res.send(err);
+			return ;
+		}
+		res.send('success');
+	});
+}
+
+core.list = function( req, res, next){
+	var info	= {} ;
+
+	info.email	= req.email;
+	info.store	= req.store;
+	info.dir	= req.query.dir;
+	
+	log.info('email: '+ info.email + ' parent:' + info.dir);
+	content.list( info, function( err, list){
+		if( err){
+			res.send( err);
+			return;
+		}
+		res.send(list);
+	});
+};
+
+core.remove = function( req, res, next){
+	res.send('not_implemented_yet')
+}
+
+core.update = function( req, res, next){
+	res.send('not_implemented_yet')
+}
 
 module.exports = core;

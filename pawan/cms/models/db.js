@@ -3,8 +3,10 @@ var $			= require('jquery-deferred')  ,
 	config		= require('common/config')  ,
 	log			= require('common/log')  ;
 
+mongoose.connect( config.mongo);
+
 var _d			= $.Deferred()  ,
-	connection	= mongoose.createConnection( config.mongo)  ;
+	connection	= mongoose.connection  ;
 
 connection.on('error', function( err){
 	log.error('connection to database: '+ config.mongo + ', failed.');
@@ -23,7 +25,7 @@ connection.once('open', function( callback){
 
 var db = {};
 
-db.conn = connection;
+db.handle = connection;
 
 db.init = function(){
 	return _d.promise();

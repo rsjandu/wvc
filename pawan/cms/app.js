@@ -32,9 +32,9 @@ resources.init()
 );
 
 function start(){
-	log.log('**************************');
+	log.log('\n**************************');
 	log.info('Started, listening on: '+ _port);
-	log.log('**************************');
+	log.log('**************************\n');
 	app.listen(_port);
 }
 

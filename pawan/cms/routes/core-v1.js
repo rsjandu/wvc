@@ -4,19 +4,19 @@ var express = require('express')  ,
 
 var router = express.Router()  ;
 
-router.param('store',function( req, res, next, store){
-	req.store = store;
+router.param('email',function( req, res, next, email){
+	req.email = email;
+	req.store = 's3';
 	next();
 });
 
-router.get('/:store/list/:dir_top', core.dir_list);		/* can we have a separate controller for dir? */
-router.post('/:store/create/:dir', core.dir_create);	/* may not be needed anymore */
-router.post('/:store/remove/:dir', core.dir_remove);
+router.post('/user/:email/add', core.add);			//____create content
+router.post('/user/:email/added', core.added);
+	
+router.get('/user/:email/list', core.list);			//____retrieve content
 
-router.post('/:store/upload/get-tmp-path', core.upload);
-router.delete(':store/remove/:file_path', core.remove);
+router.post('/user/:email/update', core.update);		//____update content			<--not implemented yet--
 
-//router.get('/get/:content_id', core.get); 			/* isn't it needed, as well? */
-
+router.post('/user/:email/remove', core.remove);		//____delete content
 
 module.exports = router;

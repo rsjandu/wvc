@@ -1,4 +1,5 @@
-var $ = require('jquery-deferred')  ;
+var $ = require('jquery-deferred')  ,
+	db= require('models/db') ;
 
 var res = {}  ;
 
@@ -11,9 +12,11 @@ res.init = function(){
 	 * check if local db is ok(i.e. consistant)  _maybe_ 
 	 * do things that are meant to be done at startup.. */
 
-	_d.resolve();
+	return db.init();
 
-	return _d.promise();
+	//_d.resolve();
+
+	//return _d.promise();
 };
 
 /* 
