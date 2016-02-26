@@ -48,7 +48,7 @@ m.add_route = function (key, val, ts) {
 	if (redis.set(key, JSON.stringify (cache[key])))
 		cache[key].persist = true;
 
-	proxy.register (host + key , val);
+	proxy.register (host + key , val, {ssl : true});
 };
 
 m.remove_route = function (key) {
