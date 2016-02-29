@@ -9,6 +9,4 @@ NODE_JS=$1
 
 set -x
 sudo apt-get install libcap2-bin
-sudo setcap cap_net_bind_service=+ep $NODE_JS
-sudo setcap cap_setgid=+ep $NODE_JS
-
+sudo setcap cap_setgid,cap_net_bind_service=+ep $NODE_JS
