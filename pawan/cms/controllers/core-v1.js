@@ -11,14 +11,14 @@ core.add = function( req, res, next){
 	info.dir	= req.body.dir ,
 	info.name	= req.body.name ,
 	info.flags	= req.body.flags ,
-	info.email	= req.email  ,
+	info.uid	= req.email  ,
 	info.store	= req.store  ;
 
 	log.info( JSON.stringify(info));
 	
-	content.upload( info, function( url, err){
+	content.upload( info, function( err, url){
 		if( err){
-			res.send('error');
+			res.send('Error::' + err);
 			return ;
 		}
 		res.send(url);
@@ -27,7 +27,7 @@ core.add = function( req, res, next){
 
 core.added = function( req, res, next){
 	var info = req.body;
-	info.id = req.email;
+	info.uid = req.email;
 	info.store = req.store;
 	log.debug('core.added called INFO::' + JSON.stringify(info));
 
@@ -43,11 +43,11 @@ core.added = function( req, res, next){
 core.list = function( req, res, next){
 	var info	= {} ;
 
-	info.email	= req.email;
+	info.uid	= req.email;
 	info.store	= req.store;
 	info.dir	= req.query.dir;
 	
-	log.info('email: '+ info.email + ' parent:' + info.dir);
+	log.info('email: '+ info.uid + ' parent:' + info.dir);
 	content.list( info, function( err, list){
 		if( err){
 			res.send( err);
