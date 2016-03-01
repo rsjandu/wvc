@@ -6,6 +6,7 @@ var res = {}  ;
 res.init = function(){
 	var _d = $.Deferred();
 	/* 
+	 * add proxy route
 	 * connect mongo
 	 * connect redis 
 	 * init stores 

@@ -10,9 +10,14 @@ core.add = function( req, res, next){
 	var info = {};
 	info.dir	= req.body.dir ,
 	info.name	= req.body.name ,
-	info.flags	= req.body.flags ,
+	info.flags	= req.body.flags || {} ,
 	info.uid	= req.email  ,
 	info.store	= req.store  ;
+
+	if( !info.name || !info.dir ){
+		res.send( 'some fields are required..please consult api docs');
+		return;
+	}
 
 	log.info( JSON.stringify(info));
 	
@@ -29,6 +34,7 @@ core.added = function( req, res, next){
 	var info = req.body;
 	info.uid = req.email;
 	info.store = req.store;
+
 	log.debug('core.added called INFO::' + JSON.stringify(info));
 
 	content.added(info,function(err){
