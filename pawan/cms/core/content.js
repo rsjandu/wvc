@@ -1,36 +1,47 @@
 
 var log 		= require('common/log')  ,
-	database	= require('models/user')  ,
+	nodes		= require('core/nodes')  ,
 	storage_if	= require('core/storage-if')  ;
 
 var content = {};
 
 content.upload = function( info, cb){
 
-	/*
-	 * check db 
-	 * 	if _email+_dir+_fname exists then return error				__but this has pitfalls, one is say upload failed
-	 * 	else return url	and maybe store this entry
+	/* 
+	 * what if user requests for and gets 2 upload urls for the same file
+	 * 		-- this can be avoided if we store this node to db, but then what happens if the upload fails
+	 * 			-- maybe we will store a status of the request as well and return 
+	 * 					the same url (if requested again) with some message which tells it is a duplicate request
+	 *					OR
+	 *					just an error and the same url if a force flag is used
 	 * */
-	storage_if.get_upload_url( 
+
+	nodes.get_node( info, function( node){
+		if(node){
+			cb( 'NODE_ADD_ERR: Already Exists');
+			return;
+		}
+
+		storage_if.get_upload_url( 
 					info.store , 
 					info.name , 
-					function( url, err){
-						log.info('url::' + url);
+					function( err, url){
+						log.info('err::' + err + ' url::' + url);
 						if( cb){
-							 err ? cb( null, err) :	cb( url);
+							 err ? cb( err) :	cb( null, url);
 						}
 						/* may need to store it to db */
 					});
+	});
 };
 
 content.added = function( info, cb){
 	info.status = 'uploaded';
 
 	var options = {};
-	options.uid	  =	info.id;
-	options.nodes = [];					//	__will send info.node when user add is handled differently__
-	options.nodes.push(	{	
+	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
+	options.node  =	{
+				host	:	info.uid,	
 				name	:	info.name,	
 				dir		:	info.dir,	
 				url	 	:	info.url,
@@ -38,22 +49,26 @@ content.added = function( info, cb){
 				size	:	info.size,	
 				status	: 	info.status,
 				tags	:	info.tags
-	});	
+	};	
 	
 	log.debug( 'content to be added::'+ JSON.stringify(options));
 
-	database.add_node( options,function(err){
+	nodes.add( options,function(err){
 		cb(err);		//	__iska error is important
 	});
 
 };
 
-content.list = function(info , cb){			// info ==> dir email store
+content.list = function(info , cb){			// info ==> uid email store
+	/*
+	 * different methods will be called 
+	 * depending on which filter is to be used 
+	 */
 	if( info.dir){
-		database.get_by_dir( info , cb);	
+		nodes.get_by_dir( info , cb);	
 	}
 	else{
-		database.get( info.email, cb);	
+		nodes.get( info.uid, cb);	
 	}
 };
 

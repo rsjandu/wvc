@@ -18,7 +18,7 @@ _if.get_upload_url = function( store_name, filename, cb ){
 			return ;	
 	}
 	_s.get_upload_url( {'filename': filename})
-	.then( cb, cb.bind(null) ) ;
+	.then( cb.bind(null, null), cb) ;
 };
 
 module.exports = _if;
