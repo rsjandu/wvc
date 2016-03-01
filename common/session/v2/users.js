@@ -61,11 +61,6 @@ users.add_user = function (user_info, conn) {
 	var vc_id = entry.vc_id;
 	var log   = conn.log_handle().child({ vc_id : vc_id });
 
-	/* Add a join time to the history of the user */
-	entry.history.push ({
-		'joined' : (new Date()).toISOString()
-	});
-
 	if (list_passive[vc_id]) {
 		/*
 		 * Just a sanity check - this user shouldn't already exist in the
@@ -80,6 +75,11 @@ users.add_user = function (user_info, conn) {
 	 * this user from the active list */
 	if (is_active(vc_id))
 		eject_user (log, vc_id);
+
+	/* Add a join time to the history of the user */
+	entry.history.push ({
+		'joined' : (new Date()).toISOString()
+	});
 
 	list_passive[vc_id] = {
 		user       : entry,
@@ -171,7 +171,7 @@ function eject_user (log, vc_id) {
 
 	if (!list_active[vc_id]) {
 		log.error ({ vc_id : vc_id, method : 'eject_user' }, 'not active');
-		return
+		return;
 	}
 
 	var conn = list_active[vc_id].conn;
