@@ -32,32 +32,30 @@ define(function(require) {
 		var err = '';
 		var _d = $.Deferred();
 
+		_module.init_ok = false;
+
 		if (modules[_module.name]) {
 			log.error ('Duplicate module for init: ' + _module.name);
 			_d.reject('Duplicate module' + _module.name);
 
-			_module.init_ok = false;
 			return _d.promise ();
 		}
 
-		modules[_module.name] = _module;
 		/*
-		 * Create a role map */
+		 * Check for role duplication */
 		if (_module.resource.role) {
 			var role = _module.resource.role;
-			if (role_map[role])
-				log.error ('module already registered with role "' + role + '" (' + role_map[role].name + '). overwriting with "' + _module.name + '"');
-
-			role_map[role] = _module;
+			if (role_map[role]) {
+				log.error ('a module is already registered with role "' + role + '" (' + role_map[role].name + '). failing init for "' + _module.name + '"');
+				_d.reject ('role "' + role + '" already registered');
+				return _d.promise();
+			}
 		}
 
 		log.info ('inserting module - ' + _module.name + ' ...');
 
 		if ((err = lc.attach_module (_module)) !== null) {
-
 			log.error ('Failed to attach module ' + _module.name);
-
-			_module.init_ok = false;
 			_d.reject (err);
 			return _d.promise ();
 		}
@@ -74,7 +72,6 @@ define(function(require) {
 			log.error ('init may have failed for \"' + _module.name + '\" : err = did not return promise');
 			progress_ev.emit ('init ' + _module.name + 'maybe failed');
 
-			_module.init_ok = false;
 			_d.reject(err);
 			return _d.promise();
 		}
@@ -92,7 +89,6 @@ define(function(require) {
 				log.error ('init failed for \"' + _module.name + '\" : err = ' + err);
 				progress_ev.emit ('init ' + _module.name + ' failed');
 
-				_module.init_ok = false;
 				_d.reject(err);
 				return;
 			}
@@ -490,6 +486,8 @@ define(function(require) {
 
 		if (!role)
 			return;
+
+		role_map[role] = _module;
 
 		switch (role) {
 			case 'menu':

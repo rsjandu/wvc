@@ -6,9 +6,10 @@
 CANPATH=`pwd`/`dirname $0`
 
 JQ=$CANPATH/../bin/jq-linux64
-REDIS_CLI=$CANPATH/../../ext/redis-3.0.3/src/redis-cli
+REDIS_CLI=`which redis-cli`
+[ -z "$REDIS_CLI" ] && { echo 'redis-cli not installed. aborting' > /dev/stderr ; exit 1; }
 
-[ $# -lt 1 ] && { echo Usage : `basename $0` 'key-regexp [ -l [ -R] ]' ; exit 1; }
+[ $# -lt 1 ] && { echo Usage : `basename $0` 'key-regexp [ -l [ -R] ]' > /dev/stderr ; exit 1; }
 KEYS=$1
 SHOW_VALS=$2
 RAW=$3
