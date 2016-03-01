@@ -157,6 +157,15 @@ function get_config_meghadoot (sess_id, callback) {
 				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main.min'] },
 				custom: {
 				},
+			},
+			{
+				name: 'content',
+				role: 'content',
+				display_name : 'Content',
+				req_sess_info : false,
+				display_spec: { widget: 'tabs', templates: [ "player", "library"], css: [ 'content.min' ] },
+				custom: {
+				},
 			}
 		],
 		role_map : {

@@ -59,6 +59,11 @@ connection.route_info = function (sock, from, to, msg) {
 };
 
 connection.events = events;
+connection.error  = function (sock, err) {
+	var c = sock.conn_handle.c;
+	log.warn ({ conn_id : c.id, vc_id : c.vc_id, err : err }, 'socket error: TODO handle it');
+};
+
 connection.closed  = function (sock) {
 	/*
 	 * Called by cc to inform of a socket closing */

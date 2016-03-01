@@ -1,6 +1,6 @@
 var WebSocketServer = require('ws').Server;
 var $               = require("jquery-deferred");
-var log             = require("./common/log").sub_module(cc);
+var log             = require("./common/log").sub_module('cc');
 var config          = require("./config");
 var protocol        = require("./protocol");
 
@@ -30,7 +30,7 @@ cc.init = function (server, route, sess_config) {
 		});
 
 		ws.on ('error', function (err) {
-			log.error ({ err : err }, 'connection error');
+			upstream.error (ws, err);
 		});
 
 		ws.on ('close', function (err) {
