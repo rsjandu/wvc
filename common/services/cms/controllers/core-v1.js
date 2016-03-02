@@ -22,11 +22,16 @@ core.add = function( req, res, next){
 	log.info( JSON.stringify(info));
 	
 	content.upload( info, function( err, url){
+		var obj = {};
 		if( err){
-			res.send('Error::' + err);
+			obj.status = 'error';
+			obj.data = err;
+			res.send( obj);
 			return ;
 		}
-		res.send(url);
+		obj.status = 'success';
+		obj.data = url;
+		res.send( obj);
 	});
 };
 
@@ -38,11 +43,16 @@ core.added = function( req, res, next){
 	log.debug('core.added called INFO::' + JSON.stringify(info));
 
 	content.added(info,function(err){
+		var obj = {};
 		if(err){
-			res.send(err);
+			obj.status = 'error';
+			obj.data = err;
+			res.send( obj);
 			return ;
 		}
-		res.send('success');
+		obj.status = 'success';
+		obj.data = {};
+		res.send( obj);
 	});
 }
 
@@ -55,11 +65,16 @@ core.list = function( req, res, next){
 	
 	log.info('email: '+ info.uid + ' parent:' + info.dir);
 	content.list( info, function( err, list){
+		var obj = {};
 		if( err){
-			res.send( err);
+			obj.status = 'error';
+			obj.data = err;
+			res.send( obj);
 			return;
 		}
-		res.send(list);
+		obj.status = 'success';
+		obj.data = list;
+		res.send( obj);
 	});
 };
 
