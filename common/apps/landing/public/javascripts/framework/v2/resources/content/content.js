@@ -4,13 +4,18 @@ define(function(require) {
 	var log         = require('log')('content', 'info');
 	var framework   = require('framework');
 	var player      = require('./player');
-	//var library     = require('./library');
+	var library     = require('./library');
 
 	var content = {};
 	var f_handle = framework.handle ('content');
 
 	content.init = function (display_spec, custom, perms) {
 		var _d = $.Deferred();
+
+		if (!library.init (display_spec, custom, perms, f_handle)) {
+			_d.reject ('content library init failed');
+			return _d.promise ();
+		}
 
 		if (!player.init (display_spec, custom, perms, f_handle)) {
 			_d.reject ('content player init failed');
@@ -30,6 +35,7 @@ define(function(require) {
 
 		var handle = f_handle.tabs.create (options);
 
+		return library.start (handle);
 		/*
 		 * Show the library and then open the specific content
 		 * clicked by the user */

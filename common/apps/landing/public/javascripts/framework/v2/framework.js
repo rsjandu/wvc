@@ -438,7 +438,7 @@ define(function(require) {
 		 * if user is null or empty, the intended recipient is
 		 * the server counterpart of the module. */
 
-		addr.to   = (!user || user.length === 0) ?  mod : 'user:' + user + module_suffix;
+		addr.to   = (!user || user.length === 0) ?  'controller.' + mod : 'user:' + user + module_suffix;
 		addr.from = 'user:' + identity.vc_id + module_suffix;
 
 		return addr;

@@ -1,22 +1,37 @@
-var $        		= require('jquery-deferred');
-var rest 		= require('restler');
+var $     = require ('jquery-deferred');
+var rest  = require ('restler');
+var crypt = require ('../../crypt');
+
 var view_api;
 var api_token;
 var thumbnails_dimensions;
-var content_info 	= {};
+var content_info = {};
 var log;
 var conversion = {};
+
 /*
  * Initalize method
  */ 
-conversion.init = function(startupInfo,logs){
+conversion.init = function (startupInfo, log_) {
+	try {
+		api_token = crypt.decipher (startupInfo.custom.api_token_encrypted, 'boxview');
+	}
+	catch (e) {
+		log_.error ({ err : e, cipher: startupInfo.custom.api_token_encrypted, method : 'conversion.init' }, 'API Key Decryption failed');
+		return false;
+	}
+
 	view_api = startupInfo.custom.view_api;
-	api_token = startupInfo.custom.api_token;
+
 	/* comes in string where dimensions are separted by comma.*/
 	thumbnails_dimensions = startupInfo.custom.thumbnails_dimensions; 
-	log = logs;
+	log = log_;
+
+	return true;
 };
-/*Method used to start the conversion process using box api 
+
+/*
+ * Method used to start the conversion process using box api 
  * param info.
  * 	mandatory fileds are file_url and file_name.
  *

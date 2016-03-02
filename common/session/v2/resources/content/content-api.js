@@ -2,16 +2,18 @@ var $           = require('jquery-deferred');
 var rest        = require('restler');
 var api_url;
 var content_api = {};
+var log;
 /*
  *	Initialize method
  */ 
-content_api.init = function (info){
+content_api.init = function (info, log_){
+	log = log_.child ({ 'resource-section' : 'content-api' });
 	api_url = info.custom.content_api;
 };
 /*
  *	Method to get temporary url to upload content.
  */ 
-content_api.get_presigned_url  = function (info){
+content_api.get_presigned_url  = function (info) {
 	var _d =  $.Deferred();
 	var data = {
 		dir	: info.dir,
@@ -19,17 +21,35 @@ content_api.get_presigned_url  = function (info){
 		type	: info.file_type,
 		flag	: info.flag
 	};
-	var request_url = api_url+"content/v1/user/"+ info.user_id+"/add";
-	rest.post(request_url,{
+	var request_url = api_url + "content/v1/user/" + info.user_id + "/add";
+
+	log.debug ({ info: info }, 'in get_presigned_url');
+
+	rest.post (request_url,{
 		headers : {'Content-Type':'application/json'},
 		data    : JSON.stringify(data) 
-	}).on('complete',function(result, response){
-		if(result.status === 'error'){
-			_d.reject(result.message);
-		}else{
-			_d.resolve(result.data);
-		}
-	});
+	})
+		.on ('complete',function(result, response) {
+
+			log.info ({ result: result }, 'post complete');
+
+			if (result.status === 'error') {
+				_d.reject(result.message);
+			} else {
+				_d.resolve(result.data);
+			}
+		})
+
+		.on ('error', function (err, response) {
+			log.error ({ err: err }, 'post error');
+			_d.reject (err);
+		})
+		
+		.on ('timeout', function (ms) {
+			log.error ({ ms: ms }, 'post timedout');
+			_d.reject (ms);
+		});
+
 	return _d.promise();
 };
 /*

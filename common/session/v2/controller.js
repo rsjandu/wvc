@@ -72,7 +72,7 @@ controller.process_req = function (conn, from, to, msg) {
 };
 
 function handle_controller_req (_d, conn, from, to, msg, log_) {
-	var to = addr.pop(to);
+	to = addr.pop(to);
 	var _to = addr.inspect_top(to);
 
 	switch (_to.resource) {
@@ -82,13 +82,10 @@ function handle_controller_req (_d, conn, from, to, msg, log_) {
 			break;
 
 		default :
-			log.error ({ 
-				pdu : msg,
-				from : from,
-				to : to,
-			}, 'illegal to.resource');
-			_d.reject ('illegal to.reource', 'controller');
-	};
+			/*
+			 * This is most likely a resource */
+			return resources.route_command (_d, conn, from, to, msg, log_);
+	}
 }
 
 function handle_new_user (_d, conn, from, msg, log_) {

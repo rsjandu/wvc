@@ -102,6 +102,32 @@ function publish_res_info (user, mod, status, info) {
 	});
 }
 
+res.route_command = function (_d, conn, from, to, msg, log_) {
+
+	if (!list[to]) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'to non-existent module');
+		return _d.reject ('module "' + to + '" not found');
+	}
+
+	if (!list[to].handle.command) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'undefined "command" method');
+		return _d.reject ('module "' + to + '": undefined "command" method');
+	}
+
+	var user = addr.user(from);
+
+	if (!user) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'unacceptable from address');
+		return _d.reject ('unacceptable "from" address');
+	}
+
+	list[to].handle.command (user, msg.command, msg.data)
+		.then (
+			_d.resolve.bind(_d),
+			_d.reject.bind(_d)
+		);
+};
+
 res.route_info = function (from, to, msg) {
 	if (!list[to]) {
 		mylog.error ({ from: from, to: to, msg: msg }, 'route_info: to non-existent module');

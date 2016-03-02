@@ -1,1 +1,10 @@
-h1 Content Library Template
+.content-lib-outer
+  .content-lib-header
+  .content-lib-main
+    h1 Content Library Template
+    button.btn.btn-primary.content-test-gen-url Gen URL
+    form.form-inline.fileinput-button
+      div.form-group
+        button.btn.btn-primary(for="fileupload") Upload
+        input#fileupload.form-control(type="file", name="myfile", data-url="/u/v2/store/upload", multiple)
+        span#busy.glyphicon.glyphicon-refresh.spinning(style="display:none")

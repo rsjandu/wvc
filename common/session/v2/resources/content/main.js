@@ -1,20 +1,25 @@
-var $ 			= require('jquery-deferred');
-var conversion 		= require('./conversion');
-var file_manager	= require('./file-management');
-var queue 		= require('./queue-conversion');
+var $ 			        = require('jquery-deferred');
+var conversion 		    = require('./conversion');
+var queue 		        = require('./queue-conversion');
 var content_management 	= require('./content-management');
+
 var log;
 var coms;
 var content = {};
+
 content.init = function (myinfo, common, handles) {
 	var _d = $.Deferred ();
 
 	log = handles.log;
 	coms = handles.coms;
-	log.info ('Content management: init.');
-	conversion.init(myinfo, log);
-	content_management.init(myinfo,log);
-	//file_manager.init(myinfo, log);
+
+	if (!conversion.init (myinfo, log)) {
+		_d.reject ('conversion init failed');
+		return _d.promise ();
+	}
+
+	content_management.init (myinfo,log);
+
 	_d.resolve ();
 	return _d.promise ();
 };
@@ -29,6 +34,25 @@ content.init_user = function (user) {
 
 	return _d.promise ();
 };
+
+content.command = function (vc_id, command, data) {
+	var _d = $.Deferred ();
+
+	switch (command) {
+
+		case 'get-tmp-url' : 
+			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx command');
+			get_presigned_url (_d, data);
+			break;
+
+		default :
+			_d.reject ('unknown command "' + command + '"');
+			return _d.promise();
+	}
+
+	return _d.promise ();
+};
+
 content.info = function (from, id, info) {
 	if(id === 'content_upload'){
 		log.info('Content management upload :ID--->: ',id,' Info:-> ',info.file_name,' From: ',from );
@@ -47,21 +71,15 @@ content.info = function (from, id, info) {
 };
 
 /* Method called from client to get the temporary url to upload file.*/
-function get_presigned_url(info){
-	//file_manager.get_presigned_url(info)
+function get_presigned_url (_d, info){
 
-	content_management.get_temporaryurl(info)
-	.then(
-		function (result){
-			coms.broadcast_info ('content_upload', result, 'arvind');
-			log.info('CM GET PRESIGNED URL SUCCESS.: ', result);
-		},
-		function (err){
-			coms.broadcast_info ('content_upload', err, 'arvind');
-			log.error('CM ERROR getting pre signed url: '+err);
-		}
-	);
+	content_management.get_temporaryurl (info)
+		.then (
+			_d.resolve.bind(_d),
+			_d.reject.bind(_d)
+		);
 }
+
 /* Method used to send file to box conversion*/
 function send_file_to_conversion(info){
 	conversion.start(info)
