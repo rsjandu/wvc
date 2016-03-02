@@ -12,6 +12,7 @@
     "express": "^4.13.3",
     "mongodb": "^2.0.48",
     "mongodb-core": "^1.2.23",
-    "mongoose": "^4.2.7"
+    "mongoose": "^4.2.7",
+    "restler": "^3.4.0"
   }
 }

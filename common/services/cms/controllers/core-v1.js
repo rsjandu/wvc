@@ -8,13 +8,13 @@ core.add = function( req, res, next){
 	/* parse body and get values */
 
 	var info = {};
-	info.dir	= req.body.dir ,
+	info.dir	= req.body.dir || '/',
 	info.name	= req.body.name ,
 	info.flags	= req.body.flags || {} ,
 	info.uid	= req.email  ,
 	info.store	= req.store  ;
 
-	if( !info.name || !info.dir ){
+	if( !info.name ){
 		res.send( 'some fields are required..please consult api docs');
 		return;
 	}

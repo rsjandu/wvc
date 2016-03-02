@@ -27,7 +27,7 @@ content.upload = function( info, cb){
 };
 
 content.added = function( info, cb){
-	info.status = 'uploaded';
+	info.dir = info.dir || '/';
 
 	var options = {};
 	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
