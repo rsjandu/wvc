@@ -91,9 +91,17 @@ define(function(require) {
 	function init_handlers () {
 
 		/*
-		 * Handler to change layout */
-		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li#content-menu-layout-toggle', function (ev) {
+		 * Handler to change layout
+		 */
+		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li.content-layout-toggle', function (ev) {
 			handle_layout_change (ev);
+		});
+
+		/*
+		 * Handler for page navigation
+		 */
+		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li.content-page-nav', function (ev) {
+			handle_page_navigation (ev);
 		});
 	}
 
@@ -121,6 +129,24 @@ define(function(require) {
 
 		/* Change tooltip */
 		$(ev.currentTarget).find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
+	}
+
+	/*
+	 * ----------------------------
+	 * Page Navigation Handling
+	 * ----------------------------
+	 */
+	function handle_page_navigation (ev) {
+		var viewer = get_viewer_from_menu_click (ev);
+
+		if (!viewer)
+			return;
+
+		var dir = $(ev.currentTarget).attr('data-nav-direction');
+		viewer.handle.scrollTo (dir === 'next' ? Crocodoc.SCROLL_NEXT : Crocodoc.SCROLL_PREVIOUS);
+
+		/* Change tooltip */
+		//$(ev.currentTarget).find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
 	}
 
 	return player;

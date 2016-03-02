@@ -4,6 +4,7 @@ define(function(require) {
 	var log         = require('log')('content', 'info');
 	var framework   = require('framework');
 	var player      = require('./player');
+	//var library     = require('./library');
 
 	var content = {};
 	var f_handle = framework.handle ('content');
