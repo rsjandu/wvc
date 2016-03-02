@@ -5,11 +5,11 @@ var log	= require('common/log')  ,
 
 var _if = {};
 
-_if.get_upload_url = function( store_name, filename, cb ){
+_if.get_upload_url = function( info, cb ){
 	var _s = {};
 
-	log.info('_if::' + store_name + filename);
-	switch( store_name){
+	log.info('_if::' + info.store + info.name);
+	switch( info.store){
 		case 's3':
 			_s = s3;
 			break;
@@ -17,7 +17,7 @@ _if.get_upload_url = function( store_name, filename, cb ){
 			cb( null, 'store name not valid');	
 			return ;	
 	}
-	_s.get_upload_url( {'filename': filename})
+	_s.get_upload_url( info)
 	.then( cb.bind(null, null), cb) ;
 };
 

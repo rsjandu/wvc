@@ -14,8 +14,7 @@ content.upload = function( info, cb){
 		}
 
 		storage_if.get_upload_url( 
-					info.store , 
-					info.name , 
+					info, 
 					function( err, url){
 						log.info('err::' + err + ' url::' + url);
 						if( cb){

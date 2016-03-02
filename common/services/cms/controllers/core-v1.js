@@ -10,11 +10,12 @@ core.add = function( req, res, next){
 	var info = {};
 	info.dir	= req.body.dir || '/',
 	info.name	= req.body.name ,
+	info.type	= req.body.type ,
 	info.flags	= req.body.flags || {} ,
 	info.uid	= req.email  ,
 	info.store	= req.store  ;
 
-	if( !info.name ){
+	if( !info.name || !info.type ){
 		res.send( 'some fields are required..please consult api docs');
 		return;
 	}
