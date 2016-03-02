@@ -35,7 +35,7 @@ define(function(require) {
 
 		var handle = f_handle.tabs.create (options);
 
-		return library.start (handle);
+		//return library.start (handle);
 		/*
 		 * Show the library and then open the specific content
 		 * clicked by the user */
