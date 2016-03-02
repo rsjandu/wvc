@@ -20,7 +20,7 @@ s3.get_upload_url = function(info){
 	var _d 		= $.Deferred() ,
 		params	= {
 			Bucket: S3_BUCKET,
-			Key: KEY_NAME+'/'+ info.dir + '/'+info.name,
+			Key: KEY_NAME+'/'+ ( !info.dir ? '' : info.dir+'/' ) + info.name,
 			Expires: EXPIRE_TIMESTAMP,
 			ContentType: info.type,
 			ACL: 'public-read'
