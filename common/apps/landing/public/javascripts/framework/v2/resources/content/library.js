@@ -42,9 +42,10 @@ define(function(require) {
 	function handle_gen_url (ev) {
 		var key = 'get-tmp-url';
 		var val = {
-			dir : '/',
-			file : 'abc.txt',
-			type : 'txt'
+			dir       : '',
+			file_name : 'abc.txt',
+			file_type : 'txt',
+			user_id   : 'avinash.bhatia@gmail.com'
 		};
 
 		log.info ('handle_gen_url handler');

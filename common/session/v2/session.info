@@ -16,7 +16,7 @@
                 "bucket_name"             :"boxcontent",
                 "s3_key_name"             :"uploadcontent",
                 "s3_content_url"          :"https://boxcontent.s3.amazonaws.com/uploadcontent/",
-                "content_api"             :"http://10.0.2.15:7099/"
+                "content_server"          :"https://wiziq-ubuntu-a.cloudapp.net/cms/"
             }
         },
 		{

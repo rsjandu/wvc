@@ -8,7 +8,7 @@ var log;
  */ 
 content_api.init = function (info, log_){
 	log = log_.child ({ 'resource-section' : 'content-api' });
-	api_url = info.custom.content_api;
+	api_url = info.custom.content_server;
 };
 /*
  *	Method to get temporary url to upload content.
@@ -16,11 +16,17 @@ content_api.init = function (info, log_){
 content_api.get_presigned_url  = function (info) {
 	var _d =  $.Deferred();
 	var data = {
-		dir	: info.dir,
-		name	: info.file_name,
-		type	: info.file_type,
-		flag	: info.flag
+		dir	 : info.dir,
+		name : info.file_name,
+		type : info.file_type,
+		flag : info.flag
 	};
+
+	if (!info.user_id || !info.file_name || !info.file_type) {
+		_d.reject ('some mandatory parameters not specified');
+		return _d.promise ();
+	}
+
 	var request_url = api_url + "content/v1/user/" + info.user_id + "/add";
 
 	log.debug ({ info: info }, 'in get_presigned_url');
