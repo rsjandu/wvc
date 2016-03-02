@@ -34,7 +34,6 @@ content.info = function (from, id, info) {
 		log.info('Content management upload :ID--->: ',id,' Info:-> ',info.file_name,' From: ',from );
 		get_presigned_url(info);
 	}else if(id === 'content_conversion'){
-		//send_file_to_conversion(info);
 		var queue_size = queue.size();
 		if(queue_size === 0){
 			send_file_to_conversion(info);
@@ -53,11 +52,11 @@ function get_presigned_url(info){
 	content_management.get_temporaryurl(info)
 	.then(
 		function (result){
-			//coms.broadcast_info ('content_upload', result, 'arvind');
+			coms.broadcast_info ('content_upload', result, 'arvind');
 			log.info('CM GET PRESIGNED URL SUCCESS.: ', result);
 		},
 		function (err){
-			//coms.broadcast_info ('content_upload', err, 'arvind');
+			coms.broadcast_info ('content_upload', err, 'arvind');
 			log.error('CM ERROR getting pre signed url: '+err);
 		}
 	);
