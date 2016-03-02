@@ -7,13 +7,11 @@ define(function(require) {
 
 	var content = {};
 	var f_handle = framework.handle ('content');
-	var anchor, dropdown_menu;
-	var apps = {};
 
 	content.init = function (display_spec, custom, perms) {
 		var _d = $.Deferred();
 
-		if (!player.init (display_spec, custom, perms)) {
+		if (!player.init (display_spec, custom, perms, f_handle)) {
 			_d.reject ('content player init failed');
 			return _d.promise ();
 		}

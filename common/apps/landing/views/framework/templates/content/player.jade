@@ -1,10 +1,37 @@
-div.content-navbar
-	button.content-prev <-
-	button.content-next ->
-	input.content-goto-page(type="text)
-	label.content-total-pages
-	button.content-zoomout -
-	button.content-zoomin +
-	button.content-fit-width Fit Width
-	button.content-change-view V View
-div.content-outer
+.content-player-outer
+  .content-area(id="#{content_area_id}")
+  .content-menu
+    .navbar(role='navigation')
+      .nav-inner
+        .navbar-header
+          button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        .navbar-collapse.collapse
+          ul.nav.navbar-nav(data-content-area-id="#{content_area_id}")
+            li#content-menu-layout-toggle
+              a.tooltip(href="javascript:void(0)")
+                span.fa.fa-exchange
+                div.tooltip-content
+                  div
+                    span.tooltip-header Layout
+                  div
+                    span.tooltip-text Vertical, Single Column, Scrollable
+            li#content-menu-zoomin
+              a.tooltip(href="javascript:void(0)")
+                span.fa.fa-search-plus
+                div.tooltip-content Zoom In
+            li#content-menu-zoomout
+              a.tooltip(href="javascript:void(0)")
+                span.fa.fa-search-minus
+                div.tooltip-content Zoom Out
+            li#content-menu-next
+              a.tooltip(href="javascript:void(0)")
+                span.fa.fa-step-forward
+                div.tooltip-content Next
+            li#content-menu-prev
+              a.tooltip(href="javascript:void(0)")
+                span.fa.fa-step-backward
+                div.tooltip-content Previous

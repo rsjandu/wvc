@@ -45,6 +45,7 @@ content.info = function (from, id, info) {
 		coms.broadcast_info (id, info, from);
 	}
 };
+
 /* Method called from client to get the temporary url to upload file.*/
 function get_presigned_url(info){
 	//file_manager.get_presigned_url(info)
