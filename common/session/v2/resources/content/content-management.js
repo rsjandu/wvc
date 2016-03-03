@@ -27,9 +27,9 @@ content.get_temporaryurl = function(info){
  *	Method to get all content against userid
  *
  */ 
-content.get_content_list = function(info){
+content.get_content_list = function(user_id){
 	var _d = $.Deferred();
-	content_api.get_content_list(info)
+	content_api.get_content_list(user_id)
 	.then(
 		function(result){
 			_d.resolve(result);
@@ -43,9 +43,9 @@ content.get_content_list = function(info){
 /*
  *	Method to add user content to content library.
  */
-content.addcontent = function(info){
+content.add_content_info = function(info){
 	var _d = $.Deferred();
-	content_api.update_contentstatus(info)
+	content_api.update_on_conversion(info)
 	.then(
 		function(result){
 			_d.resolve(result);
