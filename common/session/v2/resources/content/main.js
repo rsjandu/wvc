@@ -45,6 +45,14 @@ content.command = function (vc_id, command, data) {
 			get_presigned_url (_d, data);
 			break;
 
+		case 'upload_content' :
+			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx command');
+			if (queue.size()  === 0) {
+				send_file_to_conversion (_d, data);
+			}
+			queue.add_item (data);
+			break;
+
 		default :
 			_d.reject ('unknown command "' + command + '"');
 			return _d.promise();
@@ -54,24 +62,11 @@ content.command = function (vc_id, command, data) {
 };
 
 content.info = function (from, id, info) {
-	if(id === 'content_upload'){
-		log.info('Content management upload :ID--->: ',id,' Info:-> ',info.file_name,' From: ',from );
-		get_presigned_url(info);
-	}else if(id === 'content_conversion'){
-		var queue_size = queue.size();
-		if(queue_size === 0){
-			send_file_to_conversion(info);
-		}
-		queue.add_item(info);
-		log.info('CM QUEUE: ', queue.size(),'filename: ', info.file_name);
-	}
-	else{
-		coms.broadcast_info (id, info, from);
-	}
+	coms.broadcast_info (id, info, from);
 };
 
 /* Method called from client to get the temporary url to upload file.*/
-function get_presigned_url (_d, info){
+function get_presigned_url (_d, info) {
 
 	content_management.get_temporaryurl (info)
 		.then (
@@ -81,35 +76,47 @@ function get_presigned_url (_d, info){
 }
 
 /* Method used to send file to box conversion*/
-function send_file_to_conversion(info){
-	conversion.start(info)
-	.then(
-		conversion_success_handler,
-		conversion_failure_handler
-	);
+function send_file_to_conversion (_d, info) {
+	conversion.start (info)
+		.then(
+			conversion_success_handler.bind (_d),
+			conversion_failure_handler.bind (_d)
+		);
 }
 
-/***/
-function conversion_success_handler(val){
-	coms.broadcast_info ('content_conversion', val, 'arvind');
-	// conversion process has been completed now delete raw file.
-	delete_raw_file(val.file_name);
-	queue.delete_item();
-	log.info('CM CONVERSION COMPLETE:<++> ', val.file_name," +Q++ ",queue.size());
+/*
+*
+* Method called on conversion success.
+* Also pick next item from queue and send for conversion.
+*/
+function conversion_success_handler (result) {
+	queue.delete_item (); //remove item from queue after conversion.
+
+	log.info ({ result : result }, ' < Conversion complete >');
+	
 	if(queue.size() > 0){
 		send_file_to_conversion(queue.get_item());
 	}
+	this.resolve (result);
 }
-/****/
-function conversion_failure_handler(val){
-	if(val.retry_after !== undefined ){
-		setTimeout(send_file_to_conversion,val.retry_after,queue.get_item());		
-		log.error('CM CONVERSION FAILURE AND RETRY: ');
-	}else{
-		coms.broadcast_info ('content_upload', val, 'arvind');
-		log.error('CM CONVERSION FAILURE :'+val);
-	}
+/*
+ * Method called on conversion failure.
+ * If 
+ * 	there is request throttling error then same item send for conversion again
+ * else
+ * 	
+ */ 
+function conversion_failure_handler(error){
+	if(error.retry_after !== undefined ){
 
+		setTimeout (send_file_to_conversion, error.retry_after, queue.get_item());		
+		log.error ( { error: error }, 'Conversion request throttling error.');
+
+	}else{
+		log.info ( { error : error }, 'Conversion complete');
+		queue.delete_item (); //remove item from queue after conversion.
+		this.reject (error);
+	}
 }
 
 /*
