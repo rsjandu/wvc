@@ -36,9 +36,9 @@ content_api.get_presigned_url  = function (info) {
 		data    : JSON.stringify(data) 
 	});
 
-	_r.on ('complete',function(result, response) {
+	_r.on ('complete', function(result, response) {
 
-		log.info ({ result: result }, 'post complete');
+		log.info ({ result: result, response: response }, 'post complete');
 
 		if (result.status === 'error') {
 			_d.reject(result);

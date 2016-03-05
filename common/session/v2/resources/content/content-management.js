@@ -12,7 +12,7 @@ content.init = function (info, log_){
 /*
  *	Method make request to api to get temporary url for upload
  */ 
-content.get_temporaryurl = function(info){
+content.get_presigned_url = function(info){
 	var _d = $.Deferred();
 
 	content_api.get_presigned_url (info)

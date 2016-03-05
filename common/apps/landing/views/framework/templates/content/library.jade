@@ -1,10 +1,16 @@
 .content-lib-outer
-  .content-lib-header
-  .content-lib-main
+  .content-lib-upload
     h1 Content Library Template
-    button.btn.btn-primary.content-test-gen-url Gen URL
-    form.form-inline.fileinput-button
-      div.form-group
-        button.btn.btn-primary(for="fileupload") Upload
-        input#fileupload.form-control(type="file", name="myfile", data-url="/u/v2/store/upload", multiple)
-        span#busy.glyphicon.glyphicon-refresh.spinning(style="display:none")
+    .row
+      // File input
+      .col-md-2
+        span.fileinput-button
+          span.content-upload-label.fa.fa-plus-square Add a file
+          input.content-upload-input(type="file", name="files[]")
+
+      // Progress bar
+      .col-md-10
+        .progress(style="width:100%; display:block;")
+          .progress-bar.progress-bar-striped.active(role="progresbar", aria-valuenow="100", aria-valuemin="0")
+            span
+  .content-lib-main

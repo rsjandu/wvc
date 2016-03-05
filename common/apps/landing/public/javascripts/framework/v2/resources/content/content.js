@@ -5,6 +5,7 @@ define(function(require) {
 	var framework   = require('framework');
 	var player      = require('./player');
 	var library     = require('./library');
+	var upload      = require('./upload');
 
 	var content = {};
 	var f_handle = framework.handle ('content');
@@ -14,6 +15,11 @@ define(function(require) {
 
 		if (!library.init (display_spec, custom, perms, f_handle)) {
 			_d.reject ('content library init failed');
+			return _d.promise ();
+		}
+
+		if (!upload.init (display_spec, custom, perms, f_handle)) {
+			_d.reject ('content upload init failed');
 			return _d.promise ();
 		}
 
@@ -35,7 +41,8 @@ define(function(require) {
 
 		var handle = f_handle.tabs.create (options);
 
-		//return library.start (handle);
+		return library.start (handle);
+
 		/*
 		 * Show the library and then open the specific content
 		 * clicked by the user */

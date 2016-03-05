@@ -13,6 +13,7 @@ define(function(require) {
 	var handlers = {
 		/* Session related */
 		'sessionConnected'       : sessionConnected,
+		'sessionConnectFailed'   : sessionConnectFailed,
 		'sessionDisconnected'    : sessionDisconnected,
 		'sessionReconnecting'    : sessionReconnecting,
 		'sessionReconnected'     : sessionReconnected,
@@ -71,8 +72,13 @@ define(function(require) {
 	function sessionConnected (ev) {
 		log.info ('TODO : sessionConnected:', ev);
 	}
-	function sessionDisconnected (ev) {
 
+	function sessionConnectFailed (ev) {
+		log.error ('TODO : sessionConnectFailed:', ev);
+	}
+
+	function sessionDisconnected (ev) {
+		log.error ('TODO : sessionDisconnected:', ev);
 		f_handle_cached.notify.alert ('AV: Session Disconnected', ev.reason, 'danger', {
 			non_dismissable : true,
 			button : { }

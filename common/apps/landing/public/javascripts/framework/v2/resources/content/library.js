@@ -2,13 +2,11 @@ define(function(require) {
 	var $           = require('jquery');
 	window.jade     = require('jade');
 	var log         = require('log')('library', 'info');
+	var upload      = require('./upload');
 
 	var library = {};
 	var f_handle_cached;
 	var viewer_list = {};
-	/*
-	 * Use a hardcoded URI for now */
-	var content_uri = "https://boxcontent.s3.amazonaws.com/9a99bc2a1dde42698e1e6bab105193ab";
 
 	library.init = function (display_spec, custom, perms, f_handle) {
 		f_handle_cached = f_handle;
@@ -16,6 +14,8 @@ define(function(require) {
 		return true;
 	};
 
+	/*
+	 * Called upon creation of a new tab */
 	library.start = function (handle) {
 		var viewer;
 		var anchor = handle.anchor;
@@ -24,10 +24,14 @@ define(function(require) {
 
 		/*
 		 * Load the library template */
+
 		var template = f_handle_cached.template('library');
 		var content_area_id = make_content_area_id (anchor_id);
 		$(anchor).append (template ({}));
 
+		upload.start ($(anchor).find('.content-lib-upload'));
+
+		_d.resolve ();
 		return _d.promise ();
 	};
 

@@ -1,3 +1,4 @@
+var log = require('common/log');
 var crypt = require('common/crypt');
 
 var config = {};

@@ -4,7 +4,7 @@ var crypto = require('crypto');
 var algo = 'aes-256-cbc';
 var keys = {
 		boxview: '3e5fefb1e4ec381bc4b0d9e5f4b8a1176cf91e59e73d94283b17f6ebcf1f85f3',
-		unsubscribe: 'd58268dc913a58530da4ac003ee8ec8c76d68b8f657ab77e4a829d683c0b73ab',
+		s3:      '384e5f70576c30684e5f6933346729736f426a35743e3063423548303770a87d',
 };
 
 var crypt = {};

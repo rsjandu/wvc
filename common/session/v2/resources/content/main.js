@@ -68,7 +68,7 @@ content.info = function (from, id, info) {
 /* Method called from client to get the temporary url to upload file.*/
 function get_presigned_url (_d, info) {
 
-	content_management.get_temporaryurl (info)
+	content_management.get_presigned_url (info)
 		.then (
 			_d.resolve.bind(_d),
 			_d.reject.bind(_d)
