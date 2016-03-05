@@ -16,7 +16,8 @@
                 "bucket_name"             :"boxcontent",
                 "s3_key_name"             :"uploadcontent",
                 "s3_content_url"          :"https://boxcontent.s3.amazonaws.com/uploadcontent/",
-                "content_server"          :"https://wiziq-ubuntu-a.cloudapp.net/cms/"
+                "content_server"          :"https://wiziq-ubuntu-a.cloudapp.net/cms/",
+		"s3_bucket_url"           :"https://boxcontent.s3.amazonaws.com/"
             }
         },
 		{

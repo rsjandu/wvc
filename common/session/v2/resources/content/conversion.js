@@ -39,14 +39,15 @@ conversion.init = function (startupInfo, log_) {
 conversion.start = function(info){
 	var _df = $.Deferred();
 
-	if (!info.content_url || !info.file_name) {
+	if (!info.access_url || !info.file_name) {
+		log.error({url : info.access_url, name: info.file_name }, 'Content conversion');
 		_d.reject ('some mandatory parameters not specified');
 		return _d.promise ();
 	}
 
 	//store_contentinfo (info, start_time);
 
-	conversion_start(info.content_url,info.file_name)
+	conversion_start(info.access_url,info.file_name)
 	.then(
 		conversion_success.bind(_df),
 		conversion_failure.bind(_df),
@@ -62,6 +63,7 @@ function conversion_start(file_url, file_name)
 {
 	var _d = $.Deferred();
 	var _r = rest.post (view_api+'documents', {
+
 		headers : { Authorization: api_token, 'Content-Type':'application/json'},
 		data    : JSON.stringify( { url	: file_url, name : file_name, thumbnails : thumbnails_dimensions })
 
@@ -83,10 +85,11 @@ function conversion_start(file_url, file_name)
 		} else {
 
 			log.error ({ data: data, status_code :response.statusCode, file_name : file_name }, 'Conversion Start Error');
-			if (response.statusCode === 429){
+			if (response.statusCode === 429) {
 				var err_obj = {
 					retry_after : response.headers['retry-after'],
-					status_code : response.statusCode
+					status_code : response.statusCode,
+					file_name   : file_name
 				};
 				_d.reject(err_obj);
 			} else {
@@ -140,7 +143,7 @@ function get_conversion_status(docID)
 
 	_r.on('complete', function (data,response) {
 
-		log.info ({ data: data, status_code : response.statusCode },  ' Conversion progress.');
+		log.info ({ name: data.name, progress: data.status, id: data.id, status_code : response.statusCode },  ' Conversion progress....');
 		if ( data.id !== undefined ){
 
 			if ( data.status === 'done' ){

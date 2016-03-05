@@ -16,48 +16,38 @@ content.get_presigned_url = function(info){
 	var _d = $.Deferred();
 
 	content_api.get_presigned_url (info)
-		.then (
-			function(result) {
-				_d.resolve (result);
-			},
-			function (err) {
-				_d.reject (err);
-			}
+		.then(
+			_d.resolve.bind (_d),
+		        _d.reject.bind (_d)
 		);
-
 	return _d.promise();
 };
 /*
  *	Method to get all content against userid
  *
  */ 
-content.get_content_list = function(user_id){
+content.get_past_content_list = function( info){
 	var _d = $.Deferred();
-	content_api.get_content_list(user_id)
-	.then(
-		function(result){
-			_d.resolve(result);
-		},
-		function (err){
-			_d.reject(err);
-		}
-	);
+
+	content_api.get_past_content_list(info)
+		.then(
+			_d.resolve.bind (_d),
+			_d.reject.bind (_d)
+		);
+
 	return _d.promise();
 };
 /*
  *	Method to add user content to content library.
  */
-content.add_content_info = function(info){
+content.addinfo_to_contentserver = function (info) {
 	var _d = $.Deferred();
-	content_api.update_on_conversion(info)
-	.then(
-		function(result){
-			_d.resolve(result);
-		},                  
-		function (err){
-			_d.reject(err);
-		}
-	);
+
+	content_api.addinfo_to_contentserver (info)
+		.then(
+			_d.resolve.bind (_d),
+			_d.reject.bind (_d)
+		);
 	return _d.promise();
 };
 module.exports = content;
