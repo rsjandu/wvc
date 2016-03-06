@@ -1,5 +1,6 @@
 define(function(require) {
 	var $           = require('jquery');
+	var events      = require('events');
 	window.jade     = require('jade');
 	var identity    = require('identity');
 	var log         = require('log')('upload', 'info');
@@ -8,6 +9,7 @@ define(function(require) {
 
 	var upload = {};
 	var f_handle_cached;
+	var emitter = events.emitter ('content:upload', 'upload');
 
 	upload.init = function (display_spec, custom, perms, f_handle) {
 		f_handle_cached = f_handle;
@@ -18,11 +20,19 @@ define(function(require) {
 	/*
 	 * This is called upon the creation of a new tab */
 	upload.start = function (anchor) {
-		var upload_span = anchor.find('.content-upload-label');
-		var upload_input = anchor.find('.content-upload-input');
+		var upload_span  = anchor.find ('.content-upload-label');
+		var upload_input = anchor.find ('.content-upload-input');
+		var upload_error = anchor.find ('.content-upload-error');
+		var status_span  = anchor.find ('.content-upload-status');
+		var progress     = anchor.find ('.progress');
 
 		upload_span.on('click', function (ev) {
 			upload_input.trigger('click');
+		});
+
+		upload_input.on('click', function (ev) {
+			update_status (status_span, 'Select');
+			upload_input.val(null);
 		});
 
 		upload_input.on('change', function (ev) {
@@ -30,32 +40,151 @@ define(function(require) {
 			if (!files || files.length === 0)
 				return;
 
+			clear_error (upload_error);
+			init_progress_bar (progress);
+			update_status (status_span, 'Requesting ...');
+
 			get_presigned_url (files[0])
-				.then (
-					upload_start,
-					function (err) {
-						log.error ('session returned err  = ', err);
-					}
-				);
+				.then (upload_start.bind(null, files, progress, status_span),     handle_error.bind(null, progress, upload_error))
+				.then (start_conversion.bind(null, files, anchor, status_span),   handle_error.bind(null, progress, upload_error))
+				.then (inform_library.bind(null, anchor),                         handle_error.bind(null, progress, upload_error))
+				.then (finish.bind(null, status_span),                            handle_error.bind('conversion', progress, upload_error));
 		});
 	};
 
-	function upload_start (data) {
-		var file_obj = upload_info[data.file_name].file;
+	function update_status (status_span, text) {
+		status_span.html(text);
+	}
+
+	function handle_error (progress, error_span, err) {
+		if (err && err.error_message)
+			err = err.error_message;
+
+		vanish_progress_bar (progress, err);
+		mark_error (error_span, err);
+	}
+
+	function finish (status_span) {
+		update_status (status_span, 'Choose');
+	}
+
+	function mark_error (error_span, err) {
+		var err_str = (typeof err === 'object' ? 'Server Error' : err);
+
+		log.error ('mark_error : err = ', err);
+		error_span.html (err_str);
+		error_span.css('display', 'inline-block');
+	}
+
+	function clear_error (error_span) {
+		error_span.html ('');
+		error_span.css('display', 'none');
+	}
+
+	function upload_start (files, progress, status_span, data) {
+		var _d = $.Deferred ();
+		var file_obj = files[0];
+
+		log.info ('upload_start : data = ', data);
 
 		var xhr = new XMLHttpRequest();
-		xhr.open("PUT", data.upload_url);
+		xhr.open ("PUT", data.upload_url);
 		xhr.setRequestHeader('x-amz-acl', 'public-read');
-		//xhr.upload.addEventListener("progress", update_progress);
+		xhr.upload.addEventListener ("progress", update_progress.bind (null, progress));
 		xhr.onload = function() {
-			//upload_success(xhr.status,data.file_name, file_obj);
-			log.info ('upload ok');
+			if (xhr.status !== 200) {
+				_d.reject ('upload failed with status code ' + xhr.status);
+				vanish_progress_bar (progress, xhr.status);
+				return;
+			}
+
+			_d.resolve (data, file_obj);
+			vanish_progress_bar (progress, null);
 		};
-		xhr.onerror = function() {
-			alert("Could not upload file.");
+		xhr.onerror = function(err) {
+			log.error ('upload_start: err = ', err);
+			update_status (status_span, 'Upload Failed');
+			_d.reject(err);
 		};
 		xhr.send(file_obj);
+		update_status (status_span, 'Uploading ...');
 
+		return _d.promise ();
+	}
+
+	function init_progress_bar (progress) {
+		progress.find('.progress-bar').removeClass('progress-bar-danger');
+		progress.find('.progress-bar').removeClass('progress-bar-success');
+		progress.find('.progress-bar').css('width', '0%');
+		progress.fadeIn(500);
+	}
+	function vanish_progress_bar (progress, err) {
+		progress.find('.progress-bar').addClass('progress-bar-' + (err ? 'danger' : 'success'));
+		progress.find('.progress-bar').removeClass('progress-bar-' + (err ? 'success' : 'danger'));
+		progress.fadeOut(500);
+	}
+
+	function update_progress (progress, evt) {
+		if (evt.lengthComputable === true){
+			var percentage_upload = (evt.loaded/evt.total)*100;
+			progress.find('.progress-bar').css('width', parseInt (evt.loaded / evt.total * 100, 10) + '%');
+		}
+	}
+
+	function start_conversion (files, anchor, status_span, data, file_obj){
+		var _d = $.Deferred ();
+		update_status (status_span, 'Converting ...');
+
+		var key = 'start-conversion';
+		var value = {
+			vc_id 		    : f_handle_cached.identity.vc_id,
+			u_name 		    : f_handle_cached.identity.id,
+			user_id		    : 'arvind@authorgen.com',
+			file_name 	    : data.file_name,
+			file_org_name	: file_obj.name,
+			file_size 	    : file_obj.size,
+			dir		        : '',
+			type		    : file_obj.type,
+			tags		    : 'content, pdf'
+		};
+
+		anchor.find('.content-conversion-busy').css('display', 'inline-block');
+		f_handle_cached.send_command (null, key, value, 0)
+			.then (
+				function (arg) {
+					_d.resolve (data, arg);
+					update_status (status_span, 'Conversion Finished');
+				},
+				function (err) {
+					_d.reject (err);
+					update_status (status_span, 'Conversion Failed');
+				}
+			)
+			.always (
+				function () {
+					anchor.find('.content-conversion-busy').css('display', 'none');
+				}
+			);
+
+		return _d.promise ();
+	}
+
+	function inform_library (anchor, data, other) {
+		var _d = $.Deferred ();
+
+		emitter.emit ('content-added', {
+			tab        : anchor,
+			name       : other.name,
+			type       : other.type,
+			created_at : other.created_at,
+			id         : other.id,
+			orign_url  : data.access_url,
+			conv_url   : other.converted_url
+		});
+
+		_d.resolve (data);
+
+		return _d.promise ();
 	}
 
 	function init_handlers () {

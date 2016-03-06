@@ -1,6 +1,6 @@
-var $ 			= require('jquery-deferred');
-var conversion 		= require('./conversion');
-var queue 		= require('./queue-conversion');
+var $ 			        = require('jquery-deferred');
+var conversion 		    = require('./conversion');
+var queue 		        = require('./queue-conversion');
 var content_management 	= require('./content-management');
 
 var content_list = {};
@@ -47,12 +47,12 @@ content.command = function (vc_id, command, data) {
 			get_presigned_url (_d, data);
 			break;
 
-		case 'content_conversion' :
+		case 'start-conversion' :
 			log.info ({ command: command, data:data }, 'rx Command');
 			send_file_to_conversion (_d, data);
 			break;
 
-		case 'get_all_content' :
+		case 'get-content' :
 			log.info ({ command: command, data:data }, 'rx Command');
 			get_past_content_list ( _d, data );
 			break;
@@ -82,7 +82,7 @@ function get_presigned_url (_d, info) {
 				};
 				content_list[result.data.filename] = data;
 
-				_d.resolve ({ upload_url: result.data.upload_url, file_name: result.data.filename });	
+				_d.resolve ({ upload_url: result.data.upload_url, file_name: result.data.filename, access_url: result.data.access_url });
 			},
 			_d.reject.bind(_d)
 		);
@@ -108,9 +108,8 @@ function send_file_to_conversion (_d, info) {
 	if ( !info.file_name ) {
 
 		log.error({ name: info.file_name, url : info.access_url}, ' Send file to coversion.');
-		_d.reject ('Mandatory parameters for conversion not specified.');
+		_d.reject ('Mandatory parameters for conversion not specified');
 		return  _d.promise ();
-
 	}
 
 	var content_info = update_contentinfo(info); // check for undefined.
@@ -152,6 +151,7 @@ function conversion_success_handler (result) {
 		content_list [result.name] = data; /* Add info of coverted content in local list */
 		
 		addinfo_to_contentserver(this,  content_list [result.name]);
+		result.converted_url = data.converted_url;
 		this.resolve (result);
 	}
 }
@@ -179,7 +179,7 @@ function addinfo_to_contentserver (_d , info){
  * else
  * 	
  */ 
-function conversion_failure_handler(error){
+function conversion_failure_handler (error){
 
 	log.error ( { error: error }, 'Conversion error.');
 	this.reject(error);

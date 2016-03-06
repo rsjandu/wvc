@@ -93,7 +93,7 @@ define(function(require) {
 		setTimeout(function() {
 			log.log ('TRIG ( ' + name_space + ' _ ' + ev + ' ) for ' + listener.binder);
 			handler (ev, data);
-		});
+		}, 0);
 	}
 
 	return _event;

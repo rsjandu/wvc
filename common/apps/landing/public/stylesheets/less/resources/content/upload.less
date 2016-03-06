@@ -1,0 +1,67 @@
+@upload-control-width : 100px;
+@upload-height : 50px;
+@upload-left-margin : 25px;
+@upload-right-margin : 25px;
+
+.content-lib-upload {
+	position: absolute;
+	width : 100%;
+	line-height : 30px;
+}
+
+.content-upload-control {
+    width: 100%;
+    margin: 0px 0px 0px @upload-left-margin;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+	& span.content-upload-label {
+		font-size: 50px;
+	}
+	height : @upload-height;
+	vertical-align : middle;
+	display: inline-block;
+	position: absolute;
+
+	& span.content-upload-status {
+		position: absolute;
+		top : 0px;
+		left: 50px;
+		font-size : x-small;
+		font-style : italic;
+	}
+}
+
+.content-progress {
+	width : calc(~'100% - @{upload-control-width} - @{upload-left-margin} - @{upload-right-margin}');
+	margin : 0 @upload-right-margin 0 0;
+	height : @upload-height;
+	max-height : @upload-height;
+	display : inline-block;
+	position: relative;
+	left : 80px;
+	top  : 20px;
+	& span.content-upload-error {
+		font-size : normal;
+	}
+}
+
+.content-progress .progress {
+	position : absolute;
+	top : 0;
+	margin-left : -5px;
+	margin-top  : 4px;
+}
+.content-progress .progress-bar {
+    margin : 0;
+}
+
+span.content-upload-error {
+	&::before {
+		margin-right : 10px;
+	}
+}
+
+span.content-conversion-busy {
+	font-size : 20px;
+}

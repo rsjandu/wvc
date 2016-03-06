@@ -47,7 +47,7 @@ define(function(require) {
 		 * Show the library and then open the specific content
 		 * clicked by the user */
 
-		player.start (handle)
+		player.start (handle.anchor)
 			.then (
 				function () {
 				},

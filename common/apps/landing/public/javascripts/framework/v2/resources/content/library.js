@@ -1,12 +1,16 @@
 define(function(require) {
 	var $           = require('jquery');
+	var events      = require('events');
 	window.jade     = require('jade');
 	var log         = require('log')('library', 'info');
 	var upload      = require('./upload');
+	var player      = require('./player');
 
 	var library = {};
 	var f_handle_cached;
 	var viewer_list = {};
+
+	events.bind ('content:upload', handle_new_content, 'library');
 
 	library.init = function (display_spec, custom, perms, f_handle) {
 		f_handle_cached = f_handle;
@@ -29,7 +33,10 @@ define(function(require) {
 		var content_area_id = make_content_area_id (anchor_id);
 		$(anchor).append (template ({}));
 
-		upload.start ($(anchor).find('.content-lib-upload'));
+		upload.start ({
+			anchor : $(anchor).find('.content-lib-upload'),
+			tab_anchor : anchor
+		});
 
 		_d.resolve ();
 		return _d.promise ();
@@ -63,6 +70,22 @@ define(function(require) {
 						log.error ('remote command "' + key +  '->' + val + '" failed: reason: ' + err);
 					}
 			     );
+	}
+
+	function handle_new_content (ev, data) {
+		switch (ev) {
+			case 'content-added' : 
+				var anchor = data.tab;
+				var url    = data.converted_url;
+
+				/* remove the library from the anchor */
+				anchor.empty ();
+				player.start (anchor, url);
+				break;
+
+			default :
+				log.error ('unknown event "' + ev + '". possibly a bug in the code. ignoring.');
+		}
 	}
 
 	return library;

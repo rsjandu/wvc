@@ -48,30 +48,31 @@ conversion.start = function(info){
 	//store_contentinfo (info, start_time);
 
 	conversion_start(info.access_url,info.file_name)
-	.then(
-		conversion_success.bind(_df),
-		conversion_failure.bind(_df),
-		conversion_inprogress.bind(_df)
-	);
+		.then(
+			conversion_success.bind(_df),
+			conversion_failure.bind(_df),
+			conversion_inprogress.bind(_df)
+		);
 	return _df.promise();
 };
 /*Method call to initiate the conversion process.
  *
- * this method call the box api using retler.
+ * this method calls the box api using restler.
  */
-function conversion_start(file_url, file_name)
+function conversion_start (file_url, file_name)
 {
 	var _d = $.Deferred();
-	var _r = rest.post (view_api+'documents', {
-
-		headers : { Authorization: api_token, 'Content-Type':'application/json'},
-		data    : JSON.stringify( { url	: file_url, name : file_name, thumbnails : thumbnails_dimensions })
-
+	var _r = rest.post (view_api + 'documents', {
+		headers : { 
+			Authorization: api_token, 
+			'Content-Type':'application/json'
+		},
+		data    : JSON.stringify ({ url	: file_url, name : file_name, thumbnails : thumbnails_dimensions })
 	});
 
-	_r.on('complete',function ( data, response ){
+	_r.on ('complete', function(data, response) {
 
-		if(data.type !== 'error'){
+		if (data.type !== 'error'){
 
 			log.info ({ data: data, status_code :response.statusCode, file_name : file_name }, 'Conversion Start.');
 			if ( data.status === 'done'){

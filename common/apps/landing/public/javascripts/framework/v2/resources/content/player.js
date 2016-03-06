@@ -10,7 +10,7 @@ define(function(require) {
 	var viewer_list = {};
 	/*
 	 * Use a hardcoded URI for now */
-	var content_uri = "https://boxcontent.s3.amazonaws.com/9a99bc2a1dde42698e1e6bab105193ab";
+	var default_content_uri = "https://boxcontent.s3.amazonaws.com/9a99bc2a1dde42698e1e6bab105193ab";
 
 	player.init = function (display_spec, custom, perms, f_handle) {
 		f_handle_cached = f_handle;
@@ -18,9 +18,8 @@ define(function(require) {
 		return true;
 	};
 
-	player.start = function (handle) {
+	player.start = function (anchor, content_uri) {
 		var viewer;
-		var anchor = handle.anchor;
 		var anchor_id = $(anchor).attr('id');
 		var _d = $.Deferred ();
 
@@ -31,6 +30,9 @@ define(function(require) {
 		$(anchor).append(template({ content_area_id : content_area_id }));
 
 		var content_area = $(anchor).find('.content-area');
+
+		if (!content_uri)
+			content_uri = default_content_uri;
 
 		viewer = Crocodoc.createViewer (content_area, { url: content_uri });
 		viewer.load();

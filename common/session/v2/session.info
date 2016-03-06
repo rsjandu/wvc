@@ -15,9 +15,8 @@
                 "s3_secret_key_encrypted" :"5c28092d29c33a0e3c313919bf24f7c8809f9d07434796c414d7a18f5795132556ceaa43f525d084e886d66e3f2a1a3562d8d7c914cef2b7d88ea46c4cb56ac1",
                 "bucket_name"             :"boxcontent",
                 "s3_key_name"             :"uploadcontent",
-                "s3_content_url"          :"https://boxcontent.s3.amazonaws.com/uploadcontent/",
                 "content_server"          :"https://wiziq-ubuntu-a.cloudapp.net/cms/",
-		"s3_bucket_url"           :"https://boxcontent.s3.amazonaws.com/"
+				"s3_bucket_url"           :"https://boxcontent.s3.amazonaws.com/"
             }
         },
 		{

@@ -38,7 +38,7 @@ content_api.get_presigned_url  = function (info) {
 
 	_r.on ('complete', function(result, response) {
 
-		log.info ({ result: result, response: response }, 'post complete');
+		log.info ({ result: result }, 'post complete');
 
 		if (result.status === 'error') {
 			_d.reject(result);
