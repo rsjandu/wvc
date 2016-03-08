@@ -19,7 +19,8 @@ define(function(require) {
 
 	/*
 	 * This is called upon the creation of a new tab */
-	upload.start = function (anchor) {
+	upload.start = function (initial_data) {
+		var anchor       = initial_data.anchor;
 		var upload_span  = anchor.find ('.content-upload-label');
 		var upload_input = anchor.find ('.content-upload-input');
 		var upload_error = anchor.find ('.content-upload-error');
@@ -47,7 +48,7 @@ define(function(require) {
 			get_presigned_url (files[0])
 				.then (upload_start.bind(null, files, progress, status_span),     handle_error.bind(null, progress, upload_error))
 				.then (start_conversion.bind(null, files, anchor, status_span),   handle_error.bind(null, progress, upload_error))
-				.then (inform_library.bind(null, anchor),                         handle_error.bind(null, progress, upload_error))
+				.then (inform_library.bind(null, initial_data),                   handle_error.bind(null, progress, upload_error))
 				.then (finish.bind(null, status_span),                            handle_error.bind('conversion', progress, upload_error));
 		});
 	};
@@ -169,11 +170,11 @@ define(function(require) {
 		return _d.promise ();
 	}
 
-	function inform_library (anchor, data, other) {
+	function inform_library (initial_data, data, other) {
 		var _d = $.Deferred ();
 
 		emitter.emit ('content-added', {
-			tab        : anchor,
+			tab        : initial_data.tab_anchor,
 			name       : other.name,
 			type       : other.type,
 			created_at : other.created_at,

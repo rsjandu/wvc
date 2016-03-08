@@ -75,12 +75,12 @@ define(function(require) {
 	function handle_new_content (ev, data) {
 		switch (ev) {
 			case 'content-added' : 
-				var anchor = data.tab;
-				var url    = data.converted_url;
+				var tab    = $(data.tab);
+				var url    = data.conv_url;
 
 				/* remove the library from the anchor */
-				anchor.empty ();
-				player.start (anchor, url);
+				tab.empty ();
+				player.start (tab, url);
 				break;
 
 			default :
