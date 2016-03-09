@@ -6,7 +6,7 @@ var router = express.Router()  ;
 
 router.param('email',function( req, res, next, email){
 	console.log('\n\n');		//  <--temp 
-	if( !req.email){
+	if( !email){
 		res.send('email is a necessary url field, please consult api docs');
 		return;
 	}

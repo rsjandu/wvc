@@ -13,8 +13,8 @@ nodes.add = function( info, cb){
 
 	get_node( _node, function( node){
 		if( node){
-			_ack('NODE_ADD_ERROR : already exists');
-			return;
+			//_ack('NODE_ADD_ERROR : already exists');
+			//return;
 		}
 		
 		get_user( info, function( user){
@@ -59,14 +59,14 @@ nodes.get = function( id, cb){			//there should be a similar method in user sche
 	});
 };
 
-nodes.get_by_dir = function( info, cb){
-	log.debug(' get by dir : ' + info.dir);
+nodes.get_by_path = function( info, cb){
+	log.debug(' get by path : ' + info.path);
 	Node.find({ 
 		'owner' : info.uid, 
-		'dir' : new RegExp(info.dir,'i') 
+		'path' : new RegExp( '^' + info.path,'i')			//  '^' tells it is a "starts with" query rather than just 'contains'
 	}, function( err, nodes){
 		if( err){
-			log.warn('get_by_dir db error: ' + err);
+			log.warn('get_by_path db error: ' + err);
 			cb && cb(err);
 			return;
 		}
@@ -74,20 +74,48 @@ nodes.get_by_dir = function( info, cb){
 	});
 };
 
-nodes.remove = function( _node, cb){
-	/* remove from user as well */
-/*	Node.findOne({
-		'owner' : _node.owner,
-		'dir'	: _node.dir,
-		'name'	: _node.name,
-		'type'	: _node.type
-	}).remove().exec();
-*/
-};
+nodes.remove = remove_node ;
+	//}).remove().exec();
 
 /* -----------------
  *  private methods
  * ----------------- */
+
+function remove_node( _node, cb){
+	_node.owner = _node.owner || _node.uid;
+	Node.findOne({
+		'owner' : _node.owner ,
+		'path'	: _node.path
+	}, function( err, node){
+		if( !err && !node){
+			cb && cb();
+			return;
+		}
+		
+		if( err){
+			cb && cb( err);
+			return;
+		}
+		log.debug( 'removing node :: ' + node._id);
+		User.findOne({
+			'uid' : _node.owner
+		}, function( err, user){
+			if( err){
+				cb && cb( err);
+				return;
+			}
+			log.debug( 'of user :: ' + user.id );
+			user.remove_node( node._id);
+			node.remove( function( err){
+				if( err){
+					cb && cb(err);
+					return;
+				}
+			});
+			cb();
+		});
+	});
+}
 
 function ack( cb, err, data){
 	log.info('ack called with err: ' + err + ' and data: ' + data);
@@ -101,8 +129,7 @@ function get_node( _node, cb){
 	_node.owner = _node.owner || _node.uid;
 	Node.findOne({ 
 			'owner'	: _node.owner, 
-			'dir'	: _node.dir, 
-			'name'	: _node.name
+			'path'	: _node.path 
 	}, function( err, node){
 			log.debug('get node done');
 			if( err){
