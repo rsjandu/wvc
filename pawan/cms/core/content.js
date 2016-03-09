@@ -16,7 +16,6 @@ content.upload = function( info, cb){
 						}
 						/* no need to store it, we keep our server stateless */
 					});
-	});
 };
 
 content.added = function( info, cb){
