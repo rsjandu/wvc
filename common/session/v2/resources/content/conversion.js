@@ -4,7 +4,7 @@ var crypt = require ('../../crypt');
 
 var view_api;
 var api_token;
-var thumbnails_dimensions;
+var thumbnails_dimensions = "300x300";
 var content_info = {};
 var log;
 var conversion = {};
@@ -24,7 +24,7 @@ conversion.init = function (startupInfo, log_) {
 	view_api = startupInfo.custom.view_api;
 
 	/* comes in string where dimensions are separted by comma.*/
-	thumbnails_dimensions = startupInfo.custom.thumbnails_dimensions; 
+	//thumbnails_dimensions = startupInfo.custom.thumbnails_dimensions; 
 	log = log_;
 
 	return true;
@@ -39,15 +39,15 @@ conversion.init = function (startupInfo, log_) {
 conversion.start = function(info){
 	var _df = $.Deferred();
 
-	if (!info.access_url || !info.file_name) {
-		log.error({url : info.access_url, name: info.file_name }, 'Content conversion');
+	if (!info.url || !info.path) {
+		log.error({url : info.url, path: info.path }, 'Content conversion');
 		_d.reject ('some mandatory parameters not specified');
 		return _d.promise ();
 	}
 
 	//store_contentinfo (info, start_time);
 
-	conversion_start(info.access_url,info.file_name)
+	conversion_start(info)
 		.then(
 			conversion_success.bind(_df),
 			conversion_failure.bind(_df),
@@ -59,7 +59,7 @@ conversion.start = function(info){
  *
  * this method calls the box api using restler.
  */
-function conversion_start (file_url, file_name)
+function conversion_start (info)
 {
 	var _d = $.Deferred();
 	var _r = rest.post (view_api + 'documents', {
@@ -67,14 +67,14 @@ function conversion_start (file_url, file_name)
 			Authorization: api_token, 
 			'Content-Type':'application/json'
 		},
-		data    : JSON.stringify ({ url	: file_url, name : file_name, thumbnails : thumbnails_dimensions })
+		data    : JSON.stringify ({ url	: info.url, name : info.path, thumbnails : thumbnails_dimensions })
 	});
 
 	_r.on ('complete', function(data, response) {
 
 		if (data.type !== 'error'){
 
-			log.info ({ data: data, status_code :response.statusCode, file_name : file_name }, 'Conversion Start.');
+			log.info ({ status_code :response.statusCode, info: info }, 'Conversion Start.');
 			if ( data.status === 'done'){
 				_d.resolve(data);
 			} else if ( data.status === 'error'){
@@ -85,12 +85,12 @@ function conversion_start (file_url, file_name)
 
 		} else {
 
-			log.error ({ data: data, status_code :response.statusCode, file_name : file_name }, 'Conversion Start Error');
+			log.error ({ data: data, status_code :response.statusCode, file_name : info.path }, 'Conversion Start Error');
 			if (response.statusCode === 429) {
 				var err_obj = {
 					retry_after : response.headers['retry-after'],
 					status_code : response.statusCode,
-					file_name   : file_name
+					file_name   : info.path
 				};
 				_d.reject(err_obj);
 			} else {
