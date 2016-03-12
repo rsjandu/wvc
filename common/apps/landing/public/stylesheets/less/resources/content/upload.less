@@ -1,12 +1,14 @@
-@upload-control-width : 100px;
-@upload-height : 50px;
-@upload-left-margin : 25px;
-@upload-right-margin : 25px;
+@import "variables.less";
+
+.content-lib-outer {
+	height : 100%;
+}
 
 .content-lib-upload {
-	position: absolute;
+	top: 0;
 	width : 100%;
 	line-height : 30px;
+	height : calc(~'100% - @{library-height} - @{mystery-vertical-gap}');
 }
 
 .content-upload-control {
@@ -18,13 +20,10 @@
 	& span.content-upload-label {
 		font-size: 50px;
 	}
-	height : @upload-height;
 	vertical-align : middle;
 	display: inline-block;
-	position: absolute;
 
 	& span.content-upload-status {
-		position: absolute;
 		top : 0px;
 		left: 50px;
 		font-size : x-small;
@@ -35,8 +34,8 @@
 .content-progress {
 	width : calc(~'100% - @{upload-control-width} - @{upload-left-margin} - @{upload-right-margin}');
 	margin : 0 @upload-right-margin 0 0;
-	height : @upload-height;
-	max-height : @upload-height;
+	height : calc(~'100% - @{library-height}');
+	max-height : calc(~'100% - @{library-height}');
 	display : inline-block;
 	position: relative;
 	left : 80px;

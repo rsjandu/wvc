@@ -38,9 +38,57 @@ define(function(require) {
 			tab_anchor : anchor
 		});
 
+		populate_library ($(anchor).find('.content-lib-main'));
+
 		_d.resolve ();
 		return _d.promise ();
 	};
+
+	function populate_library ($anchor_lib) {
+
+		get_content ()
+			.then (
+				__populate.bind($anchor_lib), handle_error.bind($anchor_lib)
+			);
+	}
+
+	function handle_error (err) {
+		log.error ('TODO: handle this error');
+	}
+
+	function get_content () {
+		var key = 'get-content';
+		var val = { user_id : 'arvind@authorgen.com' };
+
+		return f_handle_cached.send_command (null, key, val, 0);
+	}
+
+	function __populate (content_arr) {
+		var $anchor_lib = this;
+
+		log.info ('populating with ', content_arr);
+		for (var i = 0; i < content_arr.data.length; i++) {
+			var info = content_arr.data[i];
+			var template = f_handle_cached.template('library-item');
+			var library_item = template (info);
+
+			/*
+			 * The info looks like this:
+			 *     __v: 0
+			 *     _id: "56dada11117a43a0fda531bb"
+			 *     ctime: "2016-03-05T13:07:29.821Z"
+			 *     dir: "/"
+			 *     name: "gpM4Y2_1457183205532_aSes_1.pdf"
+			 *     owner: "arvind@authorgen.com"
+			 *     size: 379345
+			 *     tags: Array[1]
+			 *     type: "application/pdf"
+			 *     url: "https://boxcontent.s3.amazonaws.com/bad5990bee174609a36993f621e9d7ff"
+			 */
+
+			$anchor_lib.find('.content-lib-items ul').append(library_item);
+		}
+	}
 
 	function init_handlers () {
 		$('#widget-tabs').on('click', 'button.content-test-gen-url', handle_gen_url);

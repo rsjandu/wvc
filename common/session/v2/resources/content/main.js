@@ -63,7 +63,6 @@ content.command = function (vc_id, command, data) {
 
 		default :
 			_d.reject ('unknown command "' + command + '"');
-			return _d.promise();
 	}
 
 	return _d.promise ();
@@ -101,20 +100,20 @@ function get_past_content_list ( _d , data ) {
  *	Method used to send file to box conversion
  */
 function send_file_to_conversion (_d, info) {
-	if ( !info.name || !info.path || !info.type || !info.size || !info.url || !info.user_id  ) {
 
-		log.error({ info: info }, ' Send file to coversion.');
+	if ( !info.name || !info.path || !info.type || !info.size || !info.url || !info.user_id  ) {
+		log.error({ info: info }, 'Mandatory parameters for conversion not specified');
 		_d.reject ('Mandatory parameters for conversion not specified');
-		return  _d.promise ();
+		return;
 	}
 
 	var d = new Date();
 	info.conv_time = d.getTime();
 	conversion.start (info)
-	.then(
-		conversion_success_handler.bind (null, _d, info),
-		conversion_failure_handler.bind (_d)
-	);
+		.then(
+			conversion_success_handler.bind (null, _d, info),
+			conversion_failure_handler.bind (_d)
+		);
 }
 /*
  *	Send to conversion

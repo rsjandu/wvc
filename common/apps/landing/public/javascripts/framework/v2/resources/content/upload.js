@@ -4,8 +4,6 @@ define(function(require) {
 	window.jade     = require('jade');
 	var identity    = require('identity');
 	var log         = require('log')('upload', 'info');
-	var file_upload = require('./jquery-file-upload-9.11.2/js/for-vc/jquery.fileupload');
-	var jquery_ui   = require('./jquery-file-upload-9.11.2/js/for-vc/jquery.ui.widget');
 
 	var upload = {};
 	var f_handle_cached;
@@ -46,10 +44,10 @@ define(function(require) {
 			update_status (status_span, 'Requesting ...');
 
 			get_presigned_url (files[0])
-				.then (upload_start.bind(null, files, progress, status_span),     handle_error.bind(null, progress, upload_error))
-				.then (start_conversion.bind(null, files, anchor, status_span),   handle_error.bind(null, progress, upload_error))
-				.then (inform_library.bind(null, initial_data),                   handle_error.bind(null, progress, upload_error))
-				.then (finish.bind(null, status_span),                            handle_error.bind('conversion', progress, upload_error));
+				.then (upload_start.bind(null, files, progress, status_span),     handle_error.bind('Request Failed', status_span, progress, upload_error))
+				.then (start_conversion.bind(null, files, anchor, status_span),   handle_error.bind('Upload Failed', status_span, progress, upload_error))
+				.then (inform_library.bind(null, initial_data),                   handle_error.bind('Conversion Failed', status_span, progress, upload_error))
+				.then (finish.bind(null, status_span),                            handle_error.bind('Post Conversion Failed', status_span, progress, upload_error));
 		});
 	};
 
@@ -57,7 +55,16 @@ define(function(require) {
 		status_span.html(text);
 	}
 
-	function handle_error (progress, error_span, err) {
+	function handle_error (status_span, progress, error_span, err) {
+		/*
+		 * If, say, the 'get_presigned_url' fails, this handler will be called in 
+		 * a cascade, but thankfully with null error parametes the subsequent times */
+		if (!err)
+			return;
+
+		if (this)
+			update_status (status_span, this);
+
 		if (err && err.error_message)
 			err = err.error_message;
 
@@ -138,14 +145,14 @@ define(function(require) {
 
 		var key = 'start-conversion';
 		var value = {
+			name         	: file_obj.name,
+			path	        : '/',
+			type		    : file_obj.type,
+			size      	    : file_obj.size,
+			url             : data.access_url,
+			user_id		    : 'arvind@authorgen.com',
 			vc_id 		    : f_handle_cached.identity.vc_id,
 			u_name 		    : f_handle_cached.identity.id,
-			user_id		    : 'arvind@authorgen.com',
-			file_name 	    : data.file_name,
-			file_org_name	: file_obj.name,
-			file_size 	    : file_obj.size,
-			dir		        : '',
-			type		    : file_obj.type,
 			tags		    : 'content, pdf'
 		};
 
@@ -198,9 +205,9 @@ define(function(require) {
 	function get_presigned_url (file) {
 		var key = 'get-tmp-url';
 		var val = {
-			dir       : '',
-			file_name : file.name,
-			file_type : file.type ? file.type : file.name.replace(/^.*\./g, ''),
+			path      : '/',
+			name      : file.name,
+			type      : file.type ? file.type : file.name.replace(/^.*\./g, ''),
 			user_id   : 'avinash.bhatia@gmail.com'
 		};
 

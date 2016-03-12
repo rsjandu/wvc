@@ -76,9 +76,7 @@ content_api.get_past_content_list = function ( info ) {
 	}
 
 	var request_url = api_url+"content/v1/user/"+ info.user_id+"/list";
-	var _r = rest.get(request_url,{
-
-	});
+	var _r = rest.get(request_url, {/* No Body */});
 
 	_r.on('complete',function(data,response){
 		log.info( { data : data }, 'post complete.');
