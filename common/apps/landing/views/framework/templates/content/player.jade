@@ -1,5 +1,18 @@
-.content-player-outer
+.content-player-outer(class="content-" + mode)
   .content-area(id="#{content_area_id}")
+  .content-preview-menu
+    .navbar(role='navigation')
+      .nav-inner
+        .navbar-collapse.collapse
+          ul.nav.navbar-nav(data-content-area-id="#{content_area_id}")
+            li
+              span Preview
+            li.content-share
+              a(href="javascript:void(0)")
+                span.fa.fa-share-alt
+            li.content-preview-close
+              a(href="javascript:void(0)")
+                span.fa.fa-times
   .content-menu
     .navbar(role='navigation')
       .nav-inner

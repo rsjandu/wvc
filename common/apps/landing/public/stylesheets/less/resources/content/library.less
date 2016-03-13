@@ -49,61 +49,74 @@
 			height : 100%;
 			width : @ul-height * .75; // Approx A4 dimension
 			margin-right: 20px;
-			.content-item-container {
-				height : 100%;
-				padding-bottom : 30px;
 
-				.content-item-thumbnail {
-					height: 100%;
-					padding-top: 39px;
-					padding-bottom: 10px;
-					background: white;
-
-					svg {
-						display: block;
-						margin: auto auto;
-						margin-right: auto;
-						height: 60%;
-						width: 60%;
-					}
-				}
-				.content-item-type-icon {
-				    position: relative;
-				    top: -40px;
-				    left: 0;
-				    width: 40px;
-				    height: 40px;
-				    border-radius: 0%;
-
-					background-image: url('/landing/images/content-type-icons/unknown-2.png');
-					background-size : contain;
-					background-repeat : no-repeat;
-					background-position : center;
-
-					&[data-content-type="application/pdf"] {
-						background-image: url('/landing/images/content-type-icons/pdf.png');
-					}
-					&[data-content-type="text/csv"] {
-						background-image: url('/landing/images/content-type-icons/ms-excel.png');
-					}
-					&[data-content-type="application/vnd.ms-powerpoint"],
-					&[data-content-type="application/vnd.openxmlformats-officedocument.presentationml.presentation"] {
-						background-image: url('/landing/images/content-type-icons/ms-ppt.png');
-					}
-					&[data-content-type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
-					&[data-content-type="application/rtf"] {
-						background-image: url('/landing/images/content-type-icons/ms-word.png');
-					}
-				}
-
-				.content-item-name {
-				    position: relative;
-				    top: -40px;
-				    overflow-x: hidden;
-				    text-overflow: ellipsis;
-				    white-space: nowrap;
-				}
-			}
 		}
 	}
+}
+
+.content-item-container {
+	height : 100%;
+	padding-bottom : 30px;
+	padding-top : 5px;
+}
+
+.content-item-type-icon {
+	position: relative;
+	top: -40px;
+	left: 0;
+	width: 40px;
+	height: 40px;
+	border-radius: 0%;
+
+	background-image: url('/landing/images/content-type-icons/unknown-2.png');
+	background-size : contain;
+	background-repeat : no-repeat;
+	background-position : center;
+
+	&[data-content-type="application/pdf"] {
+		background-image: url('/landing/images/content-type-icons/pdf.png');
+	}
+	&[data-content-type="text/csv"] {
+		background-image: url('/landing/images/content-type-icons/ms-excel.png');
+	}
+	&[data-content-type="application/vnd.ms-powerpoint"],
+	&[data-content-type="application/vnd.openxmlformats-officedocument.presentationml.presentation"] {
+		background-image: url('/landing/images/content-type-icons/ms-ppt.png');
+	}
+	&[data-content-type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"] {
+		background-image: url('/landing/images/content-type-icons/ms-word.png');
+	}
+}
+
+.content-item-thumbnail {
+	height: 100%;
+	padding-top: 39px;
+	padding-bottom: 10px;
+	background: white;
+	border : 5px solid transparent;
+
+	&:hover, & svg:hover {
+		cursor : pointer;
+	}
+
+	.tab-pane.content-loading &:hover,
+	.tab-pane.content-loading & svg :hover {
+		cursor: default;
+	}
+
+	svg {
+		display: block;
+		margin: auto auto;
+		margin-right: auto;
+		height: 60%;
+		width: 60%;
+	}
+}
+
+.content-item-name {
+	position: relative;
+	top: -40px;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }

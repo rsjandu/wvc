@@ -172,12 +172,15 @@ function conversion_failure_handler (error){
 
 	log.error ( { error: error }, 'Conversion error.');
 
+	/*
 	if ( error.status_code !== undefined &&  error.status_code === 429) {
 		update_list_onerror (error.file_name, 'Request was throttled.' );
 	}
 	else{
 		update_list_onerror (error.name, error.error_message );
 	}
+   */
+
 	this.reject(error);
 }
 

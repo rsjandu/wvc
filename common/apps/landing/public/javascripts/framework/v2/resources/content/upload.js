@@ -206,7 +206,7 @@ define(function(require) {
 		var key = 'get-tmp-url';
 		var val = {
 			path      : '/',
-			name      : file.name,
+			name      : encodeURI(file.name),
 			type      : file.type ? file.type : file.name.replace(/^.*\./g, ''),
 			user_id   : 'avinash.bhatia@gmail.com'
 		};

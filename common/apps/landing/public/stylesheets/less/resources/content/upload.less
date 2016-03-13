@@ -9,6 +9,7 @@
 	width : 100%;
 	line-height : 30px;
 	height : calc(~'100% - @{library-height} - @{mystery-vertical-gap}');
+
 }
 
 .content-upload-control {
@@ -63,4 +64,25 @@ span.content-upload-error {
 
 span.content-conversion-busy {
 	font-size : 20px;
+}
+
+.content-lib-blanket {
+	display: none;
+	width : 100%;
+	position : absolute;
+	top : 0;
+	background: transparent;
+	text-align : center;
+	padding-top: 40%;
+	color : #aaa;
+	height : 100%;
+
+	& span {
+		top: -100%;
+		height : 20px;
+	}
+
+	.tab-pane.content-loading & {
+		display: block;
+	}
 }

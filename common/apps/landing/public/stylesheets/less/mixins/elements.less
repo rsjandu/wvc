@@ -108,6 +108,12 @@
 .scale(@ratio:1.5){
   .transform(scale(@ratio));
 }
+.transition-prop(@prop, @duration:0.2s, @ease:ease-out) {
+  -webkit-transition: @prop @duration @ease;
+  -moz-transition: @prop @duration @ease;
+  -o-transition: @prop @duration @ease;
+  transition: @prop @duration @ease;
+}
 .transition(@duration:0.2s, @ease:ease-out) {
   -webkit-transition: all @duration @ease;
   -moz-transition: all @duration @ease;

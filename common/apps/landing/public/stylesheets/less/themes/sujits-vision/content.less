@@ -2,7 +2,7 @@
 @import "../../mixins/elements";
 
 .content-player-outer {
-	.content-menu {
+	.content-menu, .content-preview-menu {
 		background : rgba(0, 0, 0, 0.7);
 		color : white;
 		span, svg {
@@ -50,4 +50,13 @@
 
 .content-item-thumbnail {
 	.drop-shadow(2px, 2px, 12px, .2);
+
+	.tab-pane &:hover {
+		border : 5px solid transparent;
+	}
+
+	&:hover {
+		border : 5px solid fadeout(@brand-warning, 50%);
+		.transition-prop(border-color, .4s);
+	}
 }

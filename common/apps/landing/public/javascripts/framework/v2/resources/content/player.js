@@ -1,7 +1,7 @@
 define(function(require) {
 	var $           = require('jquery');
 	window.jade     = require('jade');
-	var log         = require('log')('player', 'info');
+	var log         = require('log')('content-player', 'info');
 	var framework   = require('framework');
 	var croco       = require('./crocodoc.viewer.min');
 
@@ -18,16 +18,22 @@ define(function(require) {
 		return true;
 	};
 
-	player.start = function (anchor, content_uri) {
+	player.start = function (anchor, content_uri, mode) {
 		var viewer;
 		var anchor_id = $(anchor).attr('id');
 		var _d = $.Deferred ();
+
+		close_previous_viewer ($(anchor));
+		tab_set_mode($(anchor), 'loading');
 
 		/*
 		 * Load the player template */
 		var template = f_handle_cached.template('player');
 		var content_area_id = make_content_area_id (anchor_id);
-		$(anchor).append(template({ content_area_id : content_area_id }));
+		$(anchor).append(template({ 
+			content_area_id : content_area_id,
+			mode            : mode ? mode : ''
+		}));
 
 		var content_area = $(anchor).find('.content-area');
 
@@ -45,10 +51,25 @@ define(function(require) {
 			_d.reject (ev);
 		});
 
+		viewer.on('fail', function (ev) {
+			log.error ('content failed to load  = ', ev);
+			_d.reject (ev);
+		});
+
 		viewer.on('ready', function (ev) {
 			log.info ('viewer ready : data = ', ev.data);
 
-			viewer.setLayout(Crocodoc.LAYOUT_VERTICAL_SINGLE_COLUMN);
+			try {
+				/*
+				 * This will sometimes throw an exception. Catch it and move on */
+				viewer.setLayout(Crocodoc.LAYOUT_VERTICAL_SINGLE_COLUMN);
+			}
+			catch (e) {
+			}
+
+			/* add a class to the main tab container */
+			tab_set_mode ($(anchor), mode);
+
 			current_page = ev.data.page;
 			var data = {
 				current_page 	: current_page,
@@ -77,9 +98,8 @@ define(function(require) {
 		return 'content-area-' + anchor_id	;
 	}
 
-	function get_viewer_from_menu_click (ev) {
-		var ul = $(ev.currentTarget).closest('ul');
-		var content_area_id = ul.attr('data-content-area-id');
+	function get_viewer_from_ul ($ul) {
+		var content_area_id = $ul.attr('data-content-area-id');
 		var viewer = viewer_list[content_area_id];
 
 		if (!viewer) {
@@ -105,6 +125,13 @@ define(function(require) {
 		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li.content-page-nav', function (ev) {
 			handle_page_navigation (ev);
 		});
+
+		/*
+		 * Handlers for preview moode
+		 */
+		$('#widget-tabs').on('click', '.content-player-outer .content-preview-menu ul li.content-preview-close', function (ev) {
+			handle_preview_close (ev);
+		});
 	}
 
 	/*
@@ -121,7 +148,9 @@ define(function(require) {
 	var curr_layout_index = 0;
 
 	function handle_layout_change (ev) {
-		var viewer = get_viewer_from_menu_click (ev);
+		var curr = $(ev.currentTarget);
+		var $ul = curr.closest('ul');
+		var viewer = get_viewer_from_ul ($ul);
 
 		if (!viewer)
 			return;
@@ -130,7 +159,7 @@ define(function(require) {
 		viewer.handle.setLayout (layouts[curr_layout_index].layout);
 
 		/* Change tooltip */
-		$(ev.currentTarget).find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
+		curr.find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
 	}
 
 	/*
@@ -139,16 +168,76 @@ define(function(require) {
 	 * ----------------------------
 	 */
 	function handle_page_navigation (ev) {
-		var viewer = get_viewer_from_menu_click (ev);
+		var curr = $(ev.currentTarget);
+		var $ul = curr.closest('ul');
+		var viewer = get_viewer_from_ul ($ul);
 
 		if (!viewer)
 			return;
 
-		var dir = $(ev.currentTarget).attr('data-nav-direction');
+		var dir = curr.attr('data-nav-direction');
 		viewer.handle.scrollTo (dir === 'next' ? Crocodoc.SCROLL_NEXT : Crocodoc.SCROLL_PREVIOUS);
+	}
 
-		/* Change tooltip */
-		//$(ev.currentTarget).find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
+	/*
+	 * ----------------------------
+	 * Preview Close
+	 * ----------------------------
+	 */
+	function handle_preview_close (ev) {
+		var curr = $(ev.currentTarget);
+		var $ul = curr.closest('ul');
+		var viewer = get_viewer_from_ul ($ul);
+
+		if (!viewer)
+			return;
+
+		destroy_viewer (viewer, curr.closest('.tab-pane'));
+	}
+
+	function destroy_viewer (viewer, $tab_anchor) {
+		try {
+			viewer.handle.destroy();
+		}
+		catch(e) {
+			/* just continue - can't do much here */
+			log.info ('crocodoc destroy viewer exception ', e);
+		}
+
+		$tab_anchor.find('.content-player-outer').empty();
+		$tab_anchor.find('.content-player-outer').remove();
+
+		tab_set_mode ($tab_anchor, null);
+	}
+
+	function close_previous_viewer ($tab_anchor) {
+		var $player = $tab_anchor.find('.content-player-outer');
+
+		if ($player.length === 0)
+			return;
+
+		var $ul = $($player.find('ul.nav')[0]);
+		var viewer = get_viewer_from_ul ($ul);
+
+		destroy_viewer (viewer, $tab_anchor);
+	}
+
+	var modes = { 
+		'loading' : true,
+		'preview' : true,
+		'view' : true
+			/* and an un-named default view */
+	};
+
+	function tab_set_mode ($tab_anchor, mode) {
+		if (mode)
+			$tab_anchor.addClass('content-' + mode);
+
+		/* Remove other classes */
+		for (var _mode in modes) {
+			if (_mode != mode)
+				$tab_anchor.removeClass('content-' + _mode);
+		}
 	}
 
 	return player;
