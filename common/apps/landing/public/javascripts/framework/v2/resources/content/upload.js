@@ -17,7 +17,7 @@ define(function(require) {
 
 	/*
 	 * This is called upon the creation of a new tab */
-	upload.start = function (initial_data) {
+	upload.prepare = function (initial_data) {
 		var anchor       = initial_data.anchor;
 		var upload_span  = anchor.find ('.content-upload-label');
 		var upload_input = anchor.find ('.content-upload-input');
@@ -30,7 +30,7 @@ define(function(require) {
 		});
 
 		upload_input.on('click', function (ev) {
-			update_status (status_span, 'Select');
+			update_status (status_span, '');
 			upload_input.val(null);
 		});
 
@@ -73,7 +73,7 @@ define(function(require) {
 	}
 
 	function finish (status_span) {
-		update_status (status_span, 'Choose');
+		update_status (status_span, '');
 	}
 
 	function mark_error (error_span, err) {

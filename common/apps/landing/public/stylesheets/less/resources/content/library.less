@@ -31,18 +31,21 @@
 	}
 }
 
-@ul-height: @library-height - @library-header-height;
+@ul-height: @library-height - @library-header-height - @margin-lib-header-bottom - @padding-top - @padding-bottom;
 
 .content-lib-items {
-	height: @library-height - @library-header-height - @margin-lib-header-bottom;
+	height: @ul-height;
 	overflow-x: scroll;
+	padding: 0;
 
 	ul {
-		display: inline;
+		display: block;
 		overflow-y: hidden;
-		height: @ul-height;
+		height: @ul-height - 2px; // Height of the scroll bar
 		max-height: @ul-height;
 		white-space: nowrap;
+		margin: 0;
+		padding: 0;
 
 		li {
 			display: inline-block;

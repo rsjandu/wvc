@@ -33,7 +33,7 @@ define(function(require) {
 		var content_area_id = make_content_area_id (anchor_id);
 		$(anchor).append (template ({ tab_anchor_id : anchor_id }));
 
-		upload.start ({
+		upload.prepare ({
 			anchor : $(anchor).find('.content-lib-upload'),
 			tab_anchor : anchor
 		});
@@ -57,7 +57,7 @@ define(function(require) {
 
 	function finish () {
 		var $anchor_lib = this;
-		$anchor_lib.find('img.busy').css('display', 'none');
+		$anchor_lib.find('span.busy').fadeOut();
 	}
 	function handle_error (err) {
 		log.error ('TODO: handle this error');
@@ -147,7 +147,7 @@ define(function(require) {
 				var url    = data.conv_url;
 
 				/* remove the library from the anchor */
-				tab.empty ();
+				//tab.empty ();
 				player.start (tab, url);
 				break;
 

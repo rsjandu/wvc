@@ -13,49 +13,68 @@
 	top: 0;
 	width : 100%;
 	line-height : 30px;
-	height : calc(~'100% - @{library-height} - @{mystery-vertical-gap}');
+	height : calc(~'100% - @{library-height}');
 
 }
 
+.content-upload-input {
+	height : auto;
+}
+
+@label-height : 60px;
 .content-upload-control {
     width: 100%;
-    margin: 0px 0px 0px @upload-left-margin;
-    overflow-x: hidden;
+	height: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
-	& span.content-upload-label {
-		font-size: 50px;
+
+	span.fileinput-button {
+		position: relative;
+		top : calc(~'100% - @{library-height}');
+		transform: translateY(-50%);
+		display: block;
+		overflow: visible;
+		height : 120px;
+
+		span.content-upload-label {
+			display: block;
+			height: @label-height;
+			width: 200px;
+			font-weight: bold;
+			font-size: large;
+			text-align: center;
+			margin: auto auto;
+			padding-top : 16px;
+		}
 	}
-	vertical-align : middle;
-	display: inline-block;
 
 	& span.content-upload-status {
-		top : 0px;
-		left: 50px;
-		font-size : x-small;
 		font-style : italic;
 	}
 }
 
+.status-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
 .content-progress {
-	width : calc(~'100% - @{upload-control-width} - @{upload-left-margin} - @{upload-right-margin}');
-	margin : 0 @upload-right-margin 0 0;
-	height : calc(~'100% - @{library-height}');
-	max-height : calc(~'100% - @{library-height}');
-	display : inline-block;
-	position: relative;
-	left : 80px;
-	top  : 20px;
+	width : 100%;
+	margin : 0;
+	height : 40px;
+	max-height : 40px;
+	position: absolute;
+	bottom : calc(~'@{library-height}');
+	transform: translateY(-50%);
 	& span.content-upload-error {
 		font-size : normal;
 	}
 }
 
-.content-progress .progress {
+.progress {
 	position : absolute;
-	top : 0;
-	margin-left : -5px;
-	margin-top  : 4px;
+	bottom: 0;
+	height: 10px;
 }
 .content-progress .progress-bar {
     margin : 0;
