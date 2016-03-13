@@ -7,7 +7,8 @@
 @import "menu.less";
 
 .tab-pane.content-loading,
-.tab-pane.content-preview {
+.tab-pane.content-preview,
+.tab-pane.content-fullview-with-library {
 	.content-lib-upload {
 		opacity: 0;
 	}
@@ -17,3 +18,6 @@
 	}
 }
 
+.tab-pane.content-loading .content-player-outer {
+	display: none;
+}

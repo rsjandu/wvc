@@ -23,8 +23,8 @@ define(function(require) {
 		var anchor_id = $(anchor).attr('id');
 		var _d = $.Deferred ();
 
-		close_previous_viewer ($(anchor));
 		tab_set_mode($(anchor), 'loading');
+		close_previous_viewer ($(anchor));
 
 		/*
 		 * Load the player template */
@@ -68,7 +68,7 @@ define(function(require) {
 			}
 
 			/* add a class to the main tab container */
-			tab_set_mode ($(anchor), mode);
+			tab_set_mode ($(anchor), 'preview');
 
 			current_page = ev.data.page;
 			var data = {
@@ -127,10 +127,24 @@ define(function(require) {
 		});
 
 		/*
+		 * Handlers for share
+		 */
+		$('#widget-tabs').on('click', '.content-player-outer .content-preview-menu ul li.content-share', function (ev) {
+			handle_share (ev);
+		});
+
+		/*
 		 * Handlers for preview moode
 		 */
 		$('#widget-tabs').on('click', '.content-player-outer .content-preview-menu ul li.content-preview-close', function (ev) {
 			handle_preview_close (ev);
+		});
+
+		/*
+		 * Handler to show library in the fullview
+		 */
+		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li.content-library', function (ev) {
+			handle_show_library (ev);
 		});
 	}
 
@@ -192,10 +206,34 @@ define(function(require) {
 		if (!viewer)
 			return;
 
-		destroy_viewer (viewer, curr.closest('.tab-pane'));
+		destroy_viewer (viewer, curr.closest('.tab-pane'), true);
 	}
 
-	function destroy_viewer (viewer, $tab_anchor) {
+	/*
+	 * ----------------------------
+	 * Show library
+	 * ----------------------------
+	 */
+	function handle_show_library (ev) {
+		var curr = $(ev.currentTarget);
+		var $tab_anchor = curr.closest('.tab-pane');
+
+		tab_set_mode ($tab_anchor, 'fullview-with-library');
+	}
+
+	/*
+	 * ----------------------------
+	 * Share
+	 * ----------------------------
+	 */
+	function handle_share (ev) {
+		var curr = $(ev.currentTarget);
+		var $tab_anchor = curr.closest('.tab-pane');
+
+		tab_set_mode ($tab_anchor, 'fullview');
+	}
+
+	function destroy_viewer (viewer, $tab_anchor, change_mode) {
 		try {
 			viewer.handle.destroy();
 		}
@@ -207,7 +245,8 @@ define(function(require) {
 		$tab_anchor.find('.content-player-outer').empty();
 		$tab_anchor.find('.content-player-outer').remove();
 
-		tab_set_mode ($tab_anchor, null);
+		if (change_mode)
+			tab_set_mode ($tab_anchor, null);
 	}
 
 	function close_previous_viewer ($tab_anchor) {
@@ -219,13 +258,14 @@ define(function(require) {
 		var $ul = $($player.find('ul.nav')[0]);
 		var viewer = get_viewer_from_ul ($ul);
 
-		destroy_viewer (viewer, $tab_anchor);
+		destroy_viewer (viewer, $tab_anchor, false);
 	}
 
 	var modes = { 
-		'loading' : true,
-		'preview' : true,
-		'view' : true
+		'loading'               : true,
+		'preview'               : true,
+		'fullview'              : true,
+		'fullview-with-library' : true
 			/* and an un-named default view */
 	};
 
