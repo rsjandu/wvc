@@ -1,4 +1,3 @@
-
 var log		= require('common/log')  ,
 	content = require('core/content')  ;
 
@@ -20,7 +19,7 @@ core.add = function( req, res, next){
 		return;
 	}
 
-	log.info( JSON.stringify(info));
+	log.info({ info: info }, 'add');
 	
 	content.upload( info, function( err, url){
 		var obj = {};
