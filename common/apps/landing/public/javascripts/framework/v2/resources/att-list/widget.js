@@ -52,7 +52,6 @@ define( function(require){
 	};
 
 	widget_att.remove_user = function( vc_id){
-		console.log('remove: '+ vc_id );
 		$('#'+vc_id + my_namespace).remove();
 		search.update();			// is it needed? 
 	};

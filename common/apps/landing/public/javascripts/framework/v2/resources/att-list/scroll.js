@@ -12,7 +12,6 @@ define(function(require){
 	};
 	
 	function scroll_handler( evt){
-		console.log('scroll evt::'+ evt);
 		var $el = $(this),
 		scroll = $el.scrollTop(),
 		round = last_scroll < scroll ? Math.ceil : Math.floor;

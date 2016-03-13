@@ -81,7 +81,7 @@ define(function(require) {
 
 		log.error ('mark_error : err = ', err);
 		error_span.html (err_str);
-		error_span.css('display', 'inline-block');
+		error_span.css('display', 'block');
 	}
 
 	function clear_error (error_span) {
@@ -156,7 +156,7 @@ define(function(require) {
 			tags		    : 'content, pdf'
 		};
 
-		anchor.find('.content-conversion-busy').css('display', 'inline-block');
+		anchor.find('.content-conversion-busy').css('display', 'block');
 		f_handle_cached.send_command (null, key, value, 0)
 			.then (
 				function (arg) {
