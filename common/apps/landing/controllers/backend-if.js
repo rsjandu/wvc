@@ -88,22 +88,6 @@ function get_config_meghadoot (sess_id, callback) {
 				},
 			},
 			{
-				name: 'cube',
-				role: 'whitelabeling',
-				display_name : 'Cube',
-				req_sess_info : false,
-				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
-				/*
-				 * perms must be returned per user */
-				perms: { },
-				custom: {
-					small : {
-					},
-					center : {
-					}
-				},
-			},
-			{
 				name: 'av-tokbox-v2',
 				role: 'av',
 				display_name : 'Audio/Video',
@@ -163,7 +147,7 @@ function get_config_meghadoot (sess_id, callback) {
 				role: 'content',
 				display_name : 'Content',
 				req_sess_info : false,
-				display_spec: { widget: 'tabs', templates: [ "player", "library"], css: [ 'content.min' ] },
+				display_spec: { widget: 'tabs', templates: [ "player", "library", "library-item" ], css: [ 'content.min' ] },
 				custom: {
 				},
 			}

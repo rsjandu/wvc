@@ -10,6 +10,19 @@ content.init = function (info, log_){
 	content_api.init(info, log_);
 };
 /*
+ * Method to verify content is already uploaded
+ */
+content.get_content_info = function (info) {
+	var _d = $.Deferred();
+
+	content_api.get_content_info (info)
+		.then(
+			_d.resolve.bind (_d),
+			_d.reject.bind (_d)
+		);
+	return _d.promise();
+};
+/*
  *	Method make request to api to get temporary url for upload
  */ 
 content.get_presigned_url = function(info){
@@ -18,7 +31,7 @@ content.get_presigned_url = function(info){
 	content_api.get_presigned_url (info)
 		.then(
 			_d.resolve.bind (_d),
-		        _d.reject.bind (_d)
+			_d.reject.bind (_d)
 		);
 	return _d.promise();
 };

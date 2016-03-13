@@ -7,7 +7,7 @@ core.add = function( req, res, next){
 	/* parse body and get values */
 
 	var info = {};
-	info.dir	= req.body.dir , // '/',	__handled in store utility class
+	info.dir	= req.body.dir || '/',
 	info.name	= req.body.name ,
 	info.type	= req.body.type ,
 	info.flags	= req.body.flags || {} ,

@@ -31,23 +31,91 @@ define(function(require) {
 
 		var template = f_handle_cached.template('library');
 		var content_area_id = make_content_area_id (anchor_id);
-		$(anchor).append (template ({}));
+		$(anchor).append (template ({ tab_anchor_id : anchor_id }));
 
-		upload.start ({
+		upload.prepare ({
 			anchor : $(anchor).find('.content-lib-upload'),
 			tab_anchor : anchor
 		});
+
+		populate_library ($(anchor).find('.content-lib-main'));
 
 		_d.resolve ();
 		return _d.promise ();
 	};
 
+	function populate_library ($anchor_lib) {
+
+		get_content ()
+			.then (
+				__populate.bind($anchor_lib), handle_error.bind($anchor_lib)
+			)
+			.then(
+				finish.bind($anchor_lib)
+			);
+	}
+
+	function finish () {
+		var $anchor_lib = this;
+		$anchor_lib.find('span.busy').fadeOut();
+	}
+	function handle_error (err) {
+		log.error ('TODO: handle this error');
+	}
+
+	function get_content () {
+		var key = 'get-content';
+		var val = { user_id : 'arvind@authorgen.com' };
+
+		return f_handle_cached.send_command (null, key, val, 0);
+	}
+
+	function __populate (content_arr) {
+		var $anchor_lib = this;
+
+		log.info ('populating with ', content_arr);
+		for (var i = 0; i < content_arr.data.length; i++) {
+			var info = content_arr.data[i];
+			var template = f_handle_cached.template('library-item');
+			var library_item = template (info);
+
+			/*
+			 * The info looks like this:
+			 *     __v: 0
+			 *     _id: "56dada11117a43a0fda531bb"
+			 *     ctime: "2016-03-05T13:07:29.821Z"
+			 *     dir: "/"
+			 *     name: "gpM4Y2_1457183205532_aSes_1.pdf"
+			 *     owner: "arvind@authorgen.com"
+			 *     size: 379345
+			 *     tags: Array[1]
+			 *     type: "application/pdf"
+			 *     url: "https://boxcontent.s3.amazonaws.com/bad5990bee174609a36993f621e9d7ff"
+			 */
+
+			$anchor_lib.find('.content-lib-items ul').append(library_item);
+		}
+	}
+
 	function init_handlers () {
 		$('#widget-tabs').on('click', 'button.content-test-gen-url', handle_gen_url);
+		$('#widget-tabs').on('click', 'a.content-preview-trigger', show_preview);
 	}
 
 	function make_content_area_id (anchor_id) {
 		return 'content-area-' + anchor_id	;
+	}
+
+	function show_preview (ev) {
+		/* Get the parent tab */
+		var $anchor_lib = $(ev.currentTarget).closest('.content-lib-main');
+		var tab_anchor_id = $anchor_lib.attr('data-tab-anchor-id');
+		var tab = $anchor_lib.closest('#' + tab_anchor_id)[0];
+
+		/* Get the conent url */
+		var url = $(ev.currentTarget).attr('data-content-url');
+
+		player.start (tab, url, 'preview');
 	}
 
 	function handle_gen_url (ev) {
@@ -79,7 +147,7 @@ define(function(require) {
 				var url    = data.conv_url;
 
 				/* remove the library from the anchor */
-				tab.empty ();
+				//tab.empty ();
 				player.start (tab, url);
 				break;
 

@@ -1,8 +1,16 @@
 @import "./variables.less";
 @import "../../mixins/elements";
 
+.content-lib-outer {
+	.content-upload-label {
+		background: @brand-warning;
+		color : white;
+		.drop-shadow(2px, 2px, 12px, 0.4);
+	}
+}
+
 .content-player-outer {
-	.content-menu {
+	.content-menu, .content-preview-menu {
 		background : rgba(0, 0, 0, 0.7);
 		color : white;
 		span, svg {
@@ -46,4 +54,23 @@
 			left: 10px;     
 		}
 	}
+}
+
+.content-item-thumbnail {
+	.drop-shadow(2px, 2px, 12px, .2);
+
+	.tab-pane.content-loading &:hover {
+		border : 5px solid transparent;
+	}
+
+	&:hover {
+		border : 5px solid fadeout(@brand-warning, 50%);
+		.transition-prop(border-color, .4s);
+	}
+}
+
+.progress {
+	height : 10px;
+	border-radius: 0;
+	margin-bottom: 0;
 }

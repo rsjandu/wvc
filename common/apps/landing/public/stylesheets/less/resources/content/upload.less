@@ -1,56 +1,80 @@
-@upload-control-width : 100px;
-@upload-height : 50px;
-@upload-left-margin : 25px;
-@upload-right-margin : 25px;
+@import "variables.less";
 
-.content-lib-upload {
-	position: absolute;
-	width : 100%;
-	line-height : 30px;
+.content-lib-outer {
+	height : 100%;
+	display: block;
+
+	.tab-pane.content-fullview & {
+		display: none;
+	}
 }
 
+.content-lib-upload {
+	top: 0;
+	width : 100%;
+	line-height : 30px;
+	height : calc(~'100% - @{library-height}');
+
+}
+
+.content-upload-input {
+	height : auto;
+}
+
+@label-height : 60px;
 .content-upload-control {
     width: 100%;
-    margin: 0px 0px 0px @upload-left-margin;
-    overflow-x: hidden;
+	height: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
-	& span.content-upload-label {
-		font-size: 50px;
+
+	span.fileinput-button {
+		position: relative;
+		top : calc(~'100% - @{library-height}');
+		transform: translateY(-50%);
+		display: block;
+		overflow: visible;
+		height : 120px;
+
+		span.content-upload-label {
+			display: block;
+			height: @label-height;
+			width: 200px;
+			font-weight: bold;
+			font-size: large;
+			text-align: center;
+			margin: auto auto;
+			padding-top : 16px;
+		}
 	}
-	height : @upload-height;
-	vertical-align : middle;
-	display: inline-block;
-	position: absolute;
 
 	& span.content-upload-status {
-		position: absolute;
-		top : 0px;
-		left: 50px;
-		font-size : x-small;
 		font-style : italic;
 	}
 }
 
+.status-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
 .content-progress {
-	width : calc(~'100% - @{upload-control-width} - @{upload-left-margin} - @{upload-right-margin}');
-	margin : 0 @upload-right-margin 0 0;
-	height : @upload-height;
-	max-height : @upload-height;
-	display : inline-block;
-	position: relative;
-	left : 80px;
-	top  : 20px;
+	width : 100%;
+	margin : 0;
+	height : 40px;
+	max-height : 40px;
+	position: absolute;
+	bottom : calc(~'@{library-height}');
+	transform: translateY(-50%);
 	& span.content-upload-error {
 		font-size : normal;
 	}
 }
 
-.content-progress .progress {
+.progress {
 	position : absolute;
-	top : 0;
-	margin-left : -5px;
-	margin-top  : 4px;
+	bottom: 0;
+	height: 10px;
 }
 .content-progress .progress-bar {
     margin : 0;
@@ -64,4 +88,25 @@ span.content-upload-error {
 
 span.content-conversion-busy {
 	font-size : 20px;
+}
+
+.content-lib-blanket {
+	display: none;
+	width : 100%;
+	position : absolute;
+	top : 0;
+	background: transparent;
+	text-align : center;
+	padding-top: 40%;
+	color : #aaa;
+	height : 100%;
+
+	& span {
+		top: -100%;
+		height : 20px;
+	}
+
+	.tab-pane.content-loading & {
+		display: block;
+	}
 }

@@ -1,7 +1,7 @@
-var $ 			        = require('jquery-deferred');
+var $ 			    = require('jquery-deferred');
 var conversion 		    = require('./conversion');
-var queue 		        = require('./queue-conversion');
-var content_management 	= require('./content-management');
+var queue 		    = require('./queue-conversion');
+var content_management 	    = require('./content-management');
 
 var content_list = {};
 var log;
@@ -46,6 +46,10 @@ content.command = function (vc_id, command, data) {
 			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx Command');
 			get_presigned_url (_d, data);
 			break;
+		case 'upload_complete': 
+			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx Command');
+			addinfo_to_contentserver (_d, data);
+			break;
 
 		case 'start-conversion' :
 			log.info ({ command: command, data:data }, 'rx Command');
@@ -59,7 +63,6 @@ content.command = function (vc_id, command, data) {
 
 		default :
 			_d.reject ('unknown command "' + command + '"');
-			return _d.promise();
 	}
 
 	return _d.promise ();
@@ -69,23 +72,16 @@ content.info = function (from, id, info) {
 	coms.broadcast_info (id, info, from);
 };
 
+
 /* Method called from client to get the temporary url to upload file.*/
 function get_presigned_url (_d, info) {
-
 	content_management.get_presigned_url (info)
-		.then (
-			function (result) {
-				var data = {
-					access_url : result.data.access_url,
-					file_name  : result.data.filename,
-					status     : "get_temp_url"
-				};
-				content_list[result.data.filename] = data;
-
-				_d.resolve ({ upload_url: result.data.upload_url, file_name: result.data.filename, access_url: result.data.access_url });
-			},
-			_d.reject.bind(_d)
-		);
+	.then (
+		function (result) {
+			_d.resolve (result.data);
+		},
+		_d.reject.bind(_d)
+	);
 }
 /*
  *	Method to get past uploaded content.
@@ -94,10 +90,10 @@ function get_presigned_url (_d, info) {
 function get_past_content_list ( _d , data ) {
 
 	content_management.get_past_content_list(data)
-		.then(
-			_d.resolve.bind(_d),
-			_d.reject.bind(_d)
-		 );
+	.then(
+		_d.resolve.bind(_d),
+		_d.reject.bind(_d)
+	);
 }
 
 /* 
@@ -105,55 +101,48 @@ function get_past_content_list ( _d , data ) {
  */
 function send_file_to_conversion (_d, info) {
 
-	if ( !info.file_name ) {
-
-		log.error({ name: info.file_name, url : info.access_url}, ' Send file to coversion.');
+	if ( !info.name || !info.path || !info.type || !info.size || !info.url || !info.user_id  ) {
+		log.error({ info: info }, 'Mandatory parameters for conversion not specified');
 		_d.reject ('Mandatory parameters for conversion not specified');
-		return  _d.promise ();
+		return;
 	}
 
-	var content_info = update_contentinfo(info); // check for undefined.
-
-	if (content_info === undefined ) {
-
-		log.error({ content_info : content_info}, ' Send file to coversion.');
-		_d.reject ('Unable to store content information.');
-		return _d.promise ();
-	}
-	/* Start conversion process */
-	var data = {
-		file_name   :  content_info.file_name,
-	        access_url  :  content_info.access_url,
-	};
-	conversion.start (data)
-	 	.then(
-			conversion_success_handler.bind (_d),
+	var d = new Date();
+	info.conv_time = d.getTime();
+	conversion.start (info)
+		.then(
+			conversion_success_handler.bind (null, _d, info),
 			conversion_failure_handler.bind (_d)
 		);
 }
-
 /*
- *
+ *	Send to conversion
+ */ 
+function send_to_conversion (_d, info) {
+	var data = {
+		file_name   : info.file_name,
+		access_url  : info.access_url,
+	};
+	conversion.start (data)
+	.then(
+		conversion_success_handler.bind (null, _d, info),
+		conversion_failure_handler.bind (_d)
+	);
+
+}
+/*
  * Method called on conversion success.
- * Also pick next item from queue and send for conversion.
  */
-function conversion_success_handler (result) {
+function conversion_success_handler (_d, info , result) {
 
-	log.info ({ result : result }, ' <- Conversion complete ->');
+	var d = new Date();
+	info.conv_time = (d.getTime() - info.conv_time)/1000;
+	info.converted_url = bucket_url+result.id;
+	info.thumbnail_url = bucket_url+result.id+"/thumbnail-300x300.png"; 
 
-	/* update the list info  */
-	if (content_list [result.name] !== undefined) {
-		var data = content_list [ result.name ];
-
-		data.status = "conversion_complete";
-		data.converted_url = bucket_url+result.id;
-
-		content_list [result.name] = data; /* Add info of coverted content in local list */
-		
-		addinfo_to_contentserver(this,  content_list [result.name]);
-		result.converted_url = data.converted_url;
-		this.resolve (result);
-	}
+	log.info ({ info: info }, ' <- Conversion complete ->');
+	addinfo_to_contentserver (_d, info);
+	_d.resolve (info);
 }
 
 /*
@@ -161,15 +150,15 @@ function conversion_success_handler (result) {
  */
 function addinfo_to_contentserver (_d , info){
 	content_management.addinfo_to_contentserver ( info )
-		.then(
-			function (result) {
-				log.info ({ result : result }, ' <- ADDED TO SERVER->');
-			},
-			function (err) {
-				log.error ({ err : err }, ' <- ERROR ADDED TO SERVER ->');
-			}
-		
-		);
+	.then(
+		function (result) {
+			log.info ({ result : result }, ' <- ADDED TO SERVER->');
+		},
+		function (err) {
+			log.error ({ err : err }, ' <- ERROR ADDED TO SERVER ->');
+		}
+
+	);
 }
 
 /*
@@ -182,28 +171,18 @@ function addinfo_to_contentserver (_d , info){
 function conversion_failure_handler (error){
 
 	log.error ( { error: error }, 'Conversion error.');
+
+	/*
+	if ( error.status_code !== undefined &&  error.status_code === 429) {
+		update_list_onerror (error.file_name, 'Request was throttled.' );
+	}
+	else{
+		update_list_onerror (error.name, error.error_message );
+	}
+   */
+
 	this.reject(error);
 }
 
-/*
- *  UPDATE uploaded content info in list.
- */
-function update_contentinfo(info){
-	if( content_list [info.file_name] !== undefined ){
-		var data = content_list[info.file_name];
-
-		data.vc_id         = info.vc_id;
-		data.file_org_name = info.file_org_name;
-		data.status        = "upload_complete";
-		data.user_id       = info.user_id;
-		data.file_size	   = info.file_size;
-		data.type  	   = info.type;
-		data.dir           = info.dir;
-		data.tags	   = info.tags;
-
-		content_list[info.file_name] = data;
-		return data;
-	}	
-}
 
 module.exports = content;

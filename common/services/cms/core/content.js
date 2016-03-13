@@ -16,7 +16,7 @@ content.upload = function( info, cb){
 		storage_if.get_upload_url( 
 					info, 
 					function( err, url){
-						log.info('err::' + err + ' url::', url);
+						log.info('err::' + err + ' url::' + JSON.stringify( url) );
 						if( cb){
 							 err ? cb( err) :	cb( null, url);
 						}

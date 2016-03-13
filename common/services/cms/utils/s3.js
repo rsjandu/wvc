@@ -20,7 +20,7 @@ s3.get_upload_url = function(info){
 	var _d 		= $.Deferred() ,
 		params	= {
 			Bucket: BUCKET_NAME,
-			Key: KEY_NAME+'/'+ ( !info.dir ? '' : info.dir+'/' ) + info.name,
+			Key: KEY_NAME+'/'+ ( info.dir === '/' ? '' : info.dir+'/' ) + info.name,	//handle slashes in dirname
 			Expires: EXPIRE_TIMESTAMP,
 			ContentType: info.type,
 			ACL: 'public-read'
@@ -33,7 +33,7 @@ s3.get_upload_url = function(info){
 			else{
 				_d.resolve({
 					upload_url	: data,
-					access_url	: CONTENT_URL+ '/' + info.name,
+					access_url	: encodeURI( CONTENT_URL+ '/' + info.name ),
 					filename	: info.name
 				});
 			}

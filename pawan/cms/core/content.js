@@ -7,34 +7,26 @@ var content = {};
 
 content.upload = function( info, cb){
 
-	nodes.get_node( info, function( node){
-		if(node){
-			cb( 'NODE_ADD_ERR: Already Exists');
-			return;
-		}
-
 		storage_if.get_upload_url( 
-					info.store , 
-					info.name , 
+					info, 
 					function( err, url){
-						log.info('err::' + err + ' url::' + url);
+						log.info('err::' + err + ' url::' + JSON.stringify( url) );
 						if( cb){
 							 err ? cb( err) :	cb( null, url);
 						}
 						/* no need to store it, we keep our server stateless */
 					});
-	});
 };
 
 content.added = function( info, cb){
-	info.status = 'uploaded';
+	info.path = info.path;
 
 	var options = {};
 	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
 	options.node  =	{
 				owner	:	info.uid,	
 				name	:	info.name,	
-				dir		:	info.dir,	
+				path	:	info.path,	
 				url	 	:	info.url,
 				type	:	info.type,	
 				size	:	info.size,	
@@ -55,8 +47,8 @@ content.list = function(info , cb){			// info ==> uid email store
 	 * different methods will be called 
 	 * depending on which filter is to be used 
 	 */
-	if( info.dir){
-		nodes.get_by_dir( info , cb);	
+	if( info.path){
+		nodes.get_by_path( info , cb);	
 	}
 	else{
 		nodes.get( info.uid, cb);	
