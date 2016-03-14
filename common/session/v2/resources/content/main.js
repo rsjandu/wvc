@@ -1,6 +1,5 @@
 var $ 			    = require('jquery-deferred');
 var conversion 		    = require('./conversion');
-var queue 		    = require('./queue-conversion');
 var content_management 	    = require('./content-management');
 
 var content_list = {};
@@ -43,11 +42,11 @@ content.command = function (vc_id, command, data) {
 	switch (command) {
 
 		case 'get-tmp-url' : 
-			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx Command');
+			log.info ({ command: command, data:data }, 'rx Command');
 			get_presigned_url (_d, data);
 			break;
 		case 'upload_complete': 
-			log.info ({ vc_id : vc_id, command: command, data:data }, 'rx Command');
+			log.info ({ command: command, data:data }, 'rx Command');
 			addinfo_to_contentserver (_d, data);
 			break;
 
@@ -116,21 +115,6 @@ function send_file_to_conversion (_d, info) {
 		);
 }
 /*
- *	Send to conversion
- */ 
-function send_to_conversion (_d, info) {
-	var data = {
-		file_name   : info.file_name,
-		access_url  : info.access_url,
-	};
-	conversion.start (data)
-	.then(
-		conversion_success_handler.bind (null, _d, info),
-		conversion_failure_handler.bind (_d)
-	);
-
-}
-/*
  * Method called on conversion success.
  */
 function conversion_success_handler (_d, info , result) {
@@ -171,15 +155,6 @@ function addinfo_to_contentserver (_d , info){
 function conversion_failure_handler (error){
 
 	log.error ( { error: error }, 'Conversion error.');
-
-	/*
-	if ( error.status_code !== undefined &&  error.status_code === 429) {
-		update_list_onerror (error.file_name, 'Request was throttled.' );
-	}
-	else{
-		update_list_onerror (error.name, error.error_message );
-	}
-   */
 
 	this.reject(error);
 }

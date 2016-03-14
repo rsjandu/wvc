@@ -45,8 +45,6 @@ conversion.start = function(info){
 		return _d.promise ();
 	}
 
-	//store_contentinfo (info, start_time);
-
 	conversion_start(info)
 		.then(
 			conversion_success.bind(_df),
