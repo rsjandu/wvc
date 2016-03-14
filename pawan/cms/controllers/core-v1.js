@@ -15,7 +15,10 @@ core.add = function( req, res, next){
 	info.store	= req.store  ;
 
 	if( !info.path || !info.type ){
-		res.send( 'some fields are required..please consult api docs');
+		var obj = {};
+		obj.status = 'error';
+		obj.data =  'some fields are required..please consult api docs';
+		res.send( obj);
 		return;
 	}
 

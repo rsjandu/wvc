@@ -51,6 +51,7 @@ nodes.replace = function( info, cb){
 		node.size = info.size;	
 //		node.ctime = Date.now;	
 		node.tags = info.tags;
+		node.thumbnail = info.thumbnail;
 
 		node.save( function( err, node){
 			cb(err);

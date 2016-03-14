@@ -37,7 +37,8 @@ content.added = function( info, cb){
 				type	:	info.type,	
 				size	:	info.size,	
 				status	: 	info.status,
-				tags	:	info.tags
+				tags	:	info.tags,
+				thumbnail:	info.thumbnail
 	};	
 	log.debug( 'content to be added::'+ JSON.stringify(options));
 
