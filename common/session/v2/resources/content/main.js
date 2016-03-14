@@ -122,7 +122,7 @@ function conversion_success_handler (_d, info , result) {
 	var d = new Date();
 	info.conv_time = (d.getTime() - info.conv_time)/1000;
 	info.converted_url = bucket_url+result.id;
-	info.thumbnail_url = bucket_url+result.id+"/thumbnail-300x300.png"; 
+	info.thumbnail = bucket_url+result.id+"/thumbnail-300x300.png"; 
 
 	log.info ({ info: info }, ' <- Conversion complete ->');
 	addinfo_to_contentserver (_d, info);
