@@ -11,4 +11,5 @@ var schema = mongoose.Schema({
 	tags	: [String]
 });
 
+schema.index({ owner : 1, path : 1 }, { unique : true });
 module.exports = mongoose.model('node', schema);

@@ -18,6 +18,12 @@ content.upload = function( info, cb){
 					});
 };
 
+/* -----------------------------------------------------------------------------*
+ |  NOTE : for duplicate file upload requests we just overwrite the old ones	|
+ |			S3 automatically deletes prev file when we upload a duplicate file	*----------------------------------*
+ |			and we(in the local db) just replace the access urls etc. whenever they say duplicate content is added |
+ * ----------------------------------------------------------------------------------------------------------------*/
+
 content.added = function( info, cb){
 	info.path = info.path;
 
@@ -33,13 +39,21 @@ content.added = function( info, cb){
 				status	: 	info.status,
 				tags	:	info.tags
 	};	
-	
 	log.debug( 'content to be added::'+ JSON.stringify(options));
 
-	nodes.add( options,function(err){
-		cb(err);		//	__iska error is important
+	nodes.get_node( options.node, function( node){
+		log.debug(' node search returned:: ' + node);
+		if(node){
+			nodes.replace( options.node, function( err){
+				cb(err);
+			});
+		}
+		else{
+			nodes.add( options,function(err){
+				cb(err);		//	__iska error is important
+			});
+		}
 	});
-
 };
 
 content.list = function(info , cb){			// info ==> uid email store

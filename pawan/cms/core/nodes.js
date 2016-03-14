@@ -10,39 +10,52 @@ nodes.add = function( info, cb){
 		_node	= info.node || info  ;	
 	
 	_node.owner = info.uid;
-
-	get_node( _node, function( node){
-		if( node){
-			//_ack('NODE_ADD_ERROR : already exists');
-			//return;
+		
+	get_user( info, function( user){
+		if( !user){
+			_ack('USER_ERROR : not found');
+			return;
 		}
 		
-		get_user( info, function( user){
-			if( !user){
-				_ack('USER_ERROR : not found');
+		var node = new Node( _node);
+		log.debug('creating new node');
+		node.save( function( err, node){
+			log.debug(' done');
+			if( err){
+				_ack('IO_ERROR : could not save node');
 				return;
 			}
-			
-			var node = new Node( _node);
-			log.debug('creating new node');
-			node.save( function( err, node){
-				log.debug(' done');
+			user.nodes.push( node._id);
+			//__change quota etc.
+			user.save( function( err, user){
+				log.debug(' user save done');
 				if( err){
-					_ack('IO_ERROR : could not save node');
-					return;
+					_ack('IO_ERROR : could not save user');	
 				}
-				user.nodes.push( node._id);
-				//__change quota etc.
-				user.save( function( err, user){
-					log.debug(' user save done');
-					if( err){
-						_ack('IO_ERROR : could not save user');	
-					}
-					_ack(null);
-				});
+				_ack(null);
 			});
-		});	//get_user end
-	});	//get_node end
+		});
+	});	//get_user end
+};
+
+nodes.replace = function( info, cb){
+	// __just update the local db as it(the prev value) is already gone from the remote store, so no need to delete
+
+	get_node( info, function( node){
+		/* 
+		 * uid + path is being used as unique key and hence none of them can be updated 
+		 * they are same because otherwise the node would not have been found, which means a method like $.extend() can be used here
+		 */
+		node.url = info.url;
+		node.type = info.type;
+		node.size = info.size;	
+//		node.ctime = Date.now;	
+		node.tags = info.tags;
+
+		node.save( function( err, node){
+			cb(err);
+		});				
+	}); //get_node end
 };
 
 nodes.get_node = get_node;
@@ -75,13 +88,12 @@ nodes.get_by_path = function( info, cb){
 };
 
 nodes.remove = remove_node ;
-	//}).remove().exec();
 
 /* -----------------
  *  private methods
  * ----------------- */
 
-function remove_node( _node, cb){
+function remove_node( _node, cb){			// consider it not tested when using. not being used till now
 	_node.owner = _node.owner || _node.uid;
 	Node.findOne({
 		'owner' : _node.owner ,
@@ -111,8 +123,8 @@ function remove_node( _node, cb){
 					cb && cb(err);
 					return;
 				}
+				cb();
 			});
-			cb();
 		});
 	});
 }
