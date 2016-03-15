@@ -100,7 +100,8 @@ function remove_node( _node, cb){			// consider it not tested when using. not be
 		'owner' : _node.owner ,
 		'path'	: _node.path
 	}, function( err, node){
-		if( !err && !node){
+		if( !err && !node){	
+			log.warn('should never happen, check outside if node exists');
 			cb && cb();
 			return;
 		}

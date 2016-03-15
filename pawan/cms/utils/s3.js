@@ -43,5 +43,11 @@ s3.get_upload_url = function(info){
 	return _d.promise();
 };
 
+s3.remove = function(info){
+	var _d = $.Deferred();
+	_d.resolve('delete ho_jayega');
+	return _d.promise();
+};
+
 module.exports = s3;
 

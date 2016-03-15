@@ -5,20 +5,29 @@ var log	= require('common/log')  ,
 
 var _if = {};
 
-_if.get_upload_url = function( info, cb ){
+_if.call = function( method, info, cb){
 	var _s = {};
-
-	log.info('_if::' + info.store + info.path);
 	switch( info.store){
 		case 's3':
 			_s = s3;
 			break;
+		
 		default:
-			cb( null, 'store name not valid');	
+			cb( 'ARGS_ERR: store name not valid');
 			return ;	
 	}
-	_s.get_upload_url( info)
-	.then( cb.bind(null, null), cb) ;
+
+	var _m = {};
+	switch( method){
+		case 'get_upload_url':
+		case 'remove':
+			break;
+		default:	
+			cb( 'INTERNAL_ERR: method name not valid');
+			return;
+	}
+	_s[method]( info)
+	.then( cb.bind( null,null), cb) ;
 };
 
 module.exports = _if;

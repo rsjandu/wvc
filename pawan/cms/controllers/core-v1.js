@@ -82,7 +82,25 @@ core.list = function( req, res, next){
 };
 
 core.remove = function( req, res, next){
-	res.send('not_implemented_yet')
+	var info = {};
+
+	info.uid = req.email;
+	info.store = req.store;
+	info.path = req.query.path;
+	
+	log.info('info:' + JSON.stringify( info) );
+	content.remove( info, function( err, message){
+		var obj = {};
+		if( err){
+			obj.status = 'error';
+			obj.data = err;
+			res.send( obj);
+			return;
+		}
+		obj.status = 'success';
+		obj.data = message;
+		res.send( obj);	
+	});
 }
 
 core.update = function( req, res, next){

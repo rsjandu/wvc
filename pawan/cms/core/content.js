@@ -7,9 +7,7 @@ var content = {};
 
 content.upload = function( info, cb){
 
-		storage_if.get_upload_url( 
-					info, 
-					function( err, url){
+		storage_if.call( 'get_upload_url', info, function( err, url){
 						log.info('err::' + err + ' url::' + JSON.stringify( url) );
 						if( cb){
 							 err ? cb( err) :	cb( null, url);
@@ -25,7 +23,7 @@ content.upload = function( info, cb){
  * ----------------------------------------------------------------------------------------------------------------*/
 
 content.added = function( info, cb){
-	info.path = info.path;
+	//info.path = info.path;
 
 	var options = {};
 	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
@@ -57,7 +55,7 @@ content.added = function( info, cb){
 	});
 };
 
-content.list = function(info , cb){			// info ==> uid email store
+content.list = function(info , cb){			// info ==> uid path store
 	/*
 	 * different methods will be called 
 	 * depending on which filter is to be used 
@@ -70,8 +68,26 @@ content.list = function(info , cb){			// info ==> uid email store
 	}
 };
 
-content.remove = function(){
-	log.info('content remove called');
+content.remove = function( info, cb){		// info ==> uid path
+	/* 
+	 *  check: if present, can delete etc.
+	 *	delete from store
+	 *	and remove from db ( 'users' as well as 'nodes' )
+	 */
+	nodes.get_node( info, function( node){
+		if( !node){
+			cb('NODE_RM_ERROR: Does not exist');
+			return;
+		}
+		storage_if.call( 'remove', info, function(err, msg){
+			if( err){
+				cb(err);
+				return;
+			}
+			log.debug('message from st_if::'+ msg); 	// remove the arg as well with this stmt.
+			nodes.remove( info, cb);
+		});
+	});
 };
 
 module.exports = content;
