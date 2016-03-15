@@ -79,6 +79,7 @@ content.remove = function( info, cb){		// info ==> uid path
 			cb('NODE_RM_ERROR: Does not exist');
 			return;
 		}
+		// some info needed for delete will be added to 'info', here
 		storage_if.call( 'remove', info, function(err, msg){
 			if( err){
 				cb(err);

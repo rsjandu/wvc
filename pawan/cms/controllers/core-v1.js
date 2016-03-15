@@ -104,7 +104,7 @@ core.remove = function( req, res, next){
 }
 
 core.update = function( req, res, next){
-	res.send('not_implemented_yet')
+	res.send({'status':'error', 'data':'not_implemented_yet'});
 }
 
 module.exports = core;
