@@ -81,7 +81,8 @@ define(function(require) {
 	m.api = function (mod_name) {
 		return {
 			module_name : mod_name,
-			create : create,
+			create      : create,
+			get_by_uuid : get_by_uuid,
 			/*
 			 * implement later 
 			 destroy : destroy,
@@ -93,6 +94,11 @@ define(function(require) {
 		};
 	};
 
+	var uuid_array = {};
+	function get_by_uuid (uuid) {
+		return uuid_array [uuid];
+	}
+
 	function create (options) {
 		var mod_name = this.module_name;
 
@@ -100,6 +106,13 @@ define(function(require) {
 			log.error ('create: no registerd controller');
 			return;
 		}
+
+		if (!options)
+			options = {};
+		/*
+		 * If the caller provided a uuid,then do not override */
+		if (!options.uuid)
+			options.uuid = uuid();
 
 		var res = controller.handle.create (mod_name, options);
 
@@ -109,6 +122,7 @@ define(function(require) {
 			log.error ('create: improper return value ', res);
 		}
 
+		uuid_array [ options.uuid ] = res;
 		return res;
 	}
 
@@ -145,6 +159,19 @@ define(function(require) {
 			var err = 'undefined "' + method_name + '" method for "' + mod_name + '", required by tab-controller';
 			throw err;
 		}
+	}
+
+	function uuid () {
+		var d = new Date().getTime();
+		if(window.performance && typeof window.performance.now === "function"){
+			d += performance.now(); //use high-precision timer if available
+		}
+		var _u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return _u;
 	}
 
 	return m;

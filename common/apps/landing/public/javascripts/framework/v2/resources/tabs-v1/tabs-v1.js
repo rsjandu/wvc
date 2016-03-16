@@ -72,12 +72,13 @@ define(function(require) {
 		/*
 		 * Create the tab element */
 		content_top.append (
-			'<div role="tabpanel" class="tab-pane active fade in" id="' + id + '"></div>'
+			'<div role="tabpanel" class="tab-pane active fade in" id="' + id + '" data-tab-uuid="' + options.uuid + '"></div>'
 		);
 
 		var res = {
 			anchor : content_top.find('div.tab-pane#' + id)[0],
-			id     : id
+			id     : id,
+			uuid   : options.uuid
 		};
 
 		ul_top.find('li a#' + id).tab('show');

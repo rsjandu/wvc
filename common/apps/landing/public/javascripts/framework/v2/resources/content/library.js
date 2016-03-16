@@ -115,7 +115,10 @@ define(function(require) {
 		/* Get the conent url */
 		var url = $(ev.currentTarget).attr('data-content-url');
 
-		player.start (tab, url, 'preview');
+		player.start (tab, url, { 
+			show_library_icon : true,
+			mode : 'preview'
+	   	});
 	}
 
 	function handle_gen_url (ev) {
@@ -147,8 +150,10 @@ define(function(require) {
 				var url    = data.conv_url;
 
 				/* remove the library from the anchor */
-				//tab.empty ();
-				player.start (tab, url);
+				player.start (tab, url, { 
+					show_library_icon : true,
+					mode : 'preview'
+				});
 				break;
 
 			default :

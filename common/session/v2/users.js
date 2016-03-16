@@ -231,19 +231,6 @@ users.passive_attendees = function () {
 	return list_passive;
 };
 
-users.send_info = function (vc_id, from, to, info_id, info) {
-	var _u = list_active[vc_id];
-
-	if (!_u) {
-		/* Could happen due to early disconnection etc */
-		mylog.warn ({ vc_id: vc_id, from:from, to:to, info_id:info_id, info:info }, 'send_info: user not in active list');
-		return;
-	}
-
-	var conn = _u.conn;
-	conn.send_info (from, addr.prepend(to, 'user', vc_id), info_id, info);
-};
-
 /*
  * Used to forward a pre-formed user-to-user command */
 users.relay_command = function (from, to, message) {
@@ -272,12 +259,39 @@ users.relay_command = function (from, to, message) {
 	return _d.promise ();
 };
 
+users.send_info = function (vc_id, from, to, info_id, info) {
+	var _u = list_active[vc_id];
+
+	if (!_u) {
+		/* Could happen due to early disconnection etc */
+		mylog.warn ({ vc_id: vc_id, from:from, to:to, info_id:info_id, info:info }, 'send_info: user not in active list');
+		return;
+	}
+
+	var conn = _u.conn;
+	conn.send_info (from, addr.prepend(to, 'user', vc_id), info_id, info);
+};
+
+users.relay_info = function (from, to, message, log_) {
+
+	var from_vc_id = addr.user(from);
+
+	/* If the 'to' is a vc_id then just send the message to that user. If it 
+	 * is '*' send to all, except the sender of the message */
+
+	log_.debug ({ top : addr.inspect_top(to) }, 'inspect_top');
+
+	if (addr.inspect_top(to).instance == '*')
+		return users.broadcast_info (from, addr.pop(to), message.info_id, message.info, from_vc_id);
+};
+
 users.broadcast_info = function (from, to, info_id, info, except) {
 	var list = [];
 
 	for (var u in list_active) {
-		var _user = list_active[u].user;
-		var _conn = list_active[u].conn;
+		var _active = list_active[u];
+		var _user   = _active.user;
+		var _conn   = _active.conn;
 
 		if (except)
 			if (_user.vc_id == except)

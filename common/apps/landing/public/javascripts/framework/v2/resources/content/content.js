@@ -32,6 +32,18 @@ define(function(require) {
 		return _d.promise();
 	};
 
+	content.info = function (from, info_id, info, _instance) {
+
+		switch (info_id) {
+			case 'new-content' :
+				return handle_remote_new_content (info);
+
+			default :
+				log.error ('received unknown info_id (' + info_id + '). Ignoring.');
+				return;
+		}
+	};
+
 	content.start = function (sess_info) {
 		return;
 	};
@@ -42,22 +54,25 @@ define(function(require) {
 		var handle = f_handle.tabs.create (options);
 
 		return library.start (handle);
-
-		/*
-		 * Show the library and then open the specific content
-		 * clicked by the user */
-
-		player.start (handle.anchor)
-			.then (
-				function () {
-				},
-				function (err) {
-					log.error ('player start error = ' + err);
-				}
-			);
-
-		return;
 	};
+
+	function handle_remote_new_content (info) {
+		var options = {
+			uuid : info.uuid
+		};
+
+		var handle = f_handle.tabs.get_by_uuid (info.uuid);
+		if (!handle)
+			handle = f_handle.tabs.create (options);
+
+		/* reusing the options variable ... */
+		options = {
+			show_library_icon : false,
+			mode : 'fullview'
+		};
+
+		player.start (handle.anchor, info.content_uri, options);
+	}
 
 	return content;
 

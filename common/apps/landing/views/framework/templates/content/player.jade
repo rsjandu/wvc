@@ -1,4 +1,6 @@
-.content-player-outer(class="content-" + mode)
+.content-player-outer(data-content-url=content_uri)
+  .content-loading-label
+    span Loading Document ...
   .content-area(id="#{content_area_id}")
   .content-menu
     .navbar(role='navigation')
@@ -40,10 +42,11 @@
                 span.fa.fa-step-forward
                 div.tooltip-content Next
 
-            li.content-library
-              a.tooltip(href="javascript:void(0)")
-                include images/content-library.svg
-                div.tooltip-content Library
+            if show_library_icon
+              li.content-library
+                a.tooltip(href="javascript:void(0)")
+                  include images/content-library.svg
+                  div.tooltip-content Library
   .content-preview-menu
     .navbar(role='navigation')
       .nav-inner

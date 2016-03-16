@@ -106,6 +106,7 @@ define(function(require) {
 				return;
 			}
 
+			/* Add a call to inform the cluster of upload complete */
 			_d.resolve (data, file_obj);
 			vanish_progress_bar (progress, null);
 		};

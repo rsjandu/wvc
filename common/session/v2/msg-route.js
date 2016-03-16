@@ -44,11 +44,9 @@ route.route_info = function (conn, from, to, msg) {
 
 	switch (_to.resource) {
 		case 'user' :
-			log.error ('route.route_info: NOT IMPLEMENTED for \"user\"');
-			return;
-
+			/* Fall through */
 		case 'controller' :
-			log.error ('route.route_info: NOT IMPLEMENTED for \"controller\"');
+			controller.process_info (conn, from, to, msg);
 			return;
 
 		default:

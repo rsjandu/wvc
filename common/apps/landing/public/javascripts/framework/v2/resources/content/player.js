@@ -18,7 +18,7 @@ define(function(require) {
 		return true;
 	};
 
-	player.start = function (anchor, content_uri, mode) {
+	player.start = function (anchor, content_uri, options) {
 		var viewer;
 		var anchor_id = $(anchor).attr('id');
 		var _d = $.Deferred ();
@@ -31,8 +31,9 @@ define(function(require) {
 		var template = f_handle_cached.template('player');
 		var content_area_id = make_content_area_id (anchor_id);
 		$(anchor).append(template({ 
-			content_area_id : content_area_id,
-			mode            : mode ? mode : ''
+			content_area_id   : content_area_id,
+			content_uri       : content_uri,
+			show_library_icon : options.show_library_icon
 		}));
 
 		var content_area = $(anchor).find('.content-area');
@@ -67,8 +68,8 @@ define(function(require) {
 			catch (e) {
 			}
 
-			/* add a class to the main tab container */
-			tab_set_mode ($(anchor), 'preview');
+			var mode = options.mode ? options.mode : 'fullview';
+			tab_set_mode($(anchor), mode);
 
 			current_page = ev.data.page;
 			var data = {
@@ -98,8 +99,7 @@ define(function(require) {
 		return 'content-area-' + anchor_id	;
 	}
 
-	function get_viewer_from_ul ($ul) {
-		var content_area_id = $ul.attr('data-content-area-id');
+	function get_viewer_from_ul (content_area_id) {
 		var viewer = viewer_list[content_area_id];
 
 		if (!viewer) {
@@ -163,8 +163,8 @@ define(function(require) {
 
 	function handle_layout_change (ev) {
 		var curr = $(ev.currentTarget);
-		var $ul = curr.closest('ul');
-		var viewer = get_viewer_from_ul ($ul);
+		var content_area_id = curr.closest('ul').attr('data-content-area-id');
+		var viewer = get_viewer_from_ul (content_area_id);
 
 		if (!viewer)
 			return;
@@ -183,8 +183,8 @@ define(function(require) {
 	 */
 	function handle_page_navigation (ev) {
 		var curr = $(ev.currentTarget);
-		var $ul = curr.closest('ul');
-		var viewer = get_viewer_from_ul ($ul);
+		var content_area_id = curr.closest('ul').attr('data-content-area-id');
+		var viewer = get_viewer_from_ul (content_area_id);
 
 		if (!viewer)
 			return;
@@ -200,13 +200,13 @@ define(function(require) {
 	 */
 	function handle_preview_close (ev) {
 		var curr = $(ev.currentTarget);
-		var $ul = curr.closest('ul');
-		var viewer = get_viewer_from_ul ($ul);
+		var content_area_id = curr.closest('ul').attr('data-content-area-id');
+		var viewer = get_viewer_from_ul (content_area_id);
 
 		if (!viewer)
 			return;
 
-		destroy_viewer (viewer, curr.closest('.tab-pane'), true);
+		destroy_viewer (content_area_id, viewer, curr.closest('.tab-pane'), true);
 	}
 
 	/*
@@ -229,11 +229,20 @@ define(function(require) {
 	function handle_share (ev) {
 		var curr = $(ev.currentTarget);
 		var $tab_anchor = curr.closest('.tab-pane');
+		var $content_area = curr.closest('.content-player-outer');
 
+		/*
+		 * Send a open tab message to all participants */
+		var msg_data = {
+			uuid         : $tab_anchor.attr('data-tab-uuid'),
+			content_uri  : $content_area.attr('data-content-url')
+		};
+
+		f_handle_cached.send_info ('*', 'new-content', msg_data, 0);
 		tab_set_mode ($tab_anchor, 'fullview');
 	}
 
-	function destroy_viewer (viewer, $tab_anchor, change_mode) {
+	function destroy_viewer (content_area_id, viewer, $tab_anchor, change_mode) {
 		try {
 			viewer.handle.destroy();
 		}
@@ -241,6 +250,8 @@ define(function(require) {
 			/* just continue - can't do much here */
 			log.info ('crocodoc destroy viewer exception ', e);
 		}
+
+		delete viewer_list[content_area_id];
 
 		$tab_anchor.find('.content-player-outer').empty();
 		$tab_anchor.find('.content-player-outer').remove();
@@ -255,10 +266,10 @@ define(function(require) {
 		if ($player.length === 0)
 			return;
 
-		var $ul = $($player.find('ul.nav')[0]);
-		var viewer = get_viewer_from_ul ($ul);
+		var content_area_id = $($player.find('ul.nav')[0]).attr('data-content-area-id');
+		var viewer = get_viewer_from_ul (content_area_id);
 
-		destroy_viewer (viewer, $tab_anchor, false);
+		destroy_viewer (content_area_id, viewer, $tab_anchor, false);
 	}
 
 	var modes = { 

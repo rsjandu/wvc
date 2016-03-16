@@ -55,7 +55,7 @@ controller.process_req = function (conn, from, to, msg) {
 		case 'user' :
 			/* Handle inter-user communication */
 
-			handle_user_to_user_comms (_d, conn, from, to, msg, log_);
+			handle_user_to_user_req (_d, conn, from, to, msg, log_);
 			break;
 
 		default :
@@ -69,6 +69,39 @@ controller.process_req = function (conn, from, to, msg) {
 	}
 
 	return _d.promise ();
+};
+
+controller.process_info = function (conn, from, to, msg) {
+	var log_ = conn.c.log;
+	var log  = log_.child ({ module : 'controller' });
+
+	/*
+	 * format of addresses (from/to):
+	 * 		resourceA[:instanceA][resourceB[:instanceB]] ... */
+
+	var _to = addr.inspect_top(to);
+
+	switch (_to.resource) {
+
+		case 'controller' :
+
+			log.error ({ from:from, to:to, pdu:msg }, 'info addressed to controller: NOT IMPLEMENTED YET');
+			break;
+
+		case 'user' :
+			/* Handle inter-user communication */
+
+			handle_user_to_user_info (conn, from, to, msg, log_);
+			break;
+
+		default :
+			log.error ({ 
+				pdu : msg,
+				from : from,
+				to : to,
+			}, 'illegal to.resource');
+			return;
+	}
 };
 
 function handle_controller_req (_d, conn, from, to, msg, log_) {
@@ -122,7 +155,7 @@ function handle_new_user (_d, conn, from, msg, log_) {
 	}
 }
 
-function handle_user_to_user_comms (_d, conn, from, to, msg, log_) {
+function handle_user_to_user_req (_d, conn, from, to, msg, log_) {
 	/* 
 	 * 1. Check perms
 	 * 2. Give the message to the resource and get approval
@@ -140,6 +173,15 @@ function handle_user_to_user_comms (_d, conn, from, to, msg, log_) {
 					return _d.reject (err);
 				}
 			  );
+}
+
+function handle_user_to_user_info (conn, from, to, msg, log_) {
+	/* 
+	 * 1. Check perms
+	 * 2. Give the message to the resource and get approval
+	 * 3. Forward the message */
+
+	users.relay_info (from, to, msg, log_);
 }
 
 function actually_join_user (user) {

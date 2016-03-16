@@ -559,16 +559,23 @@ define(function(require) {
 	}
 
 	function deliver_info (from, to, id, data) {
-		if (!modules[to]) {
-			log.error ('deliver_info: unknown module \"' + to + '\"');
+		/*
+		 * The module maybe be addressed as <module-name>[:<instance>]. Strip the instance
+		 */
+		var _s = to.split(':');
+		var _to = _s[0];
+		var _instance = _s[1];
+
+		if (!modules[_to]) {
+			log.error ('deliver_info: unknown module \"' + _to + '\"');
 			return;
 		}
 
 		try {
-			modules[to].handle.info (from, id, data);
+			modules[_to].handle.info (from, id, data, _instance);
 		}
 		catch (e) {
-			log.error ('deliver_info: \"' + to + '\" err = ' + e);
+			log.error ('deliver_info: \"' + _to + '\" err = ' + e);
 		}
 	}
 
