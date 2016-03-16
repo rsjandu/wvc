@@ -10,7 +10,6 @@ define(function(require) {
 	var host;
 	var port;
 	var server;
-	var seq = 0;
 	var _d_auth_promise;
 	var _sess_config;
 	var _req_channel;
@@ -78,8 +77,6 @@ define(function(require) {
 		var from = 'user:-not-yet-authenticated-';
 		var message = protocol.auth_pdu ('controller.auth', from, identity.secret);
 
-		message.seq = seq++;
-
 		return send (message, true);
 	};
 
@@ -91,8 +88,6 @@ define(function(require) {
 			_d.reject ('protocol parse error');
 			return _d.promise ();
 		}
-
-		message.seq = seq++;
 
 		send (message, true)
 			.then (
@@ -109,8 +104,6 @@ define(function(require) {
 
 		if (!message)
 			return;
-
-		message.seq = seq++;
 
 		return send (message, false);
 	};
@@ -159,6 +152,13 @@ define(function(require) {
 			return;
 		}
 
+		/*
+		 * If the message is a 'pong' break off early before all other
+		 * checks follow */
+
+		if (message.type === 'pong')
+			return process_pong (message);
+
 		if (!authenticated) {
 			/* If we are not yet authenticated then we expect the first incoming
 			 * message to be an ACK to our auth request */
@@ -170,6 +170,7 @@ define(function(require) {
 			}
 
 			authenticated = true;
+			start_keepalive_timer ();
 		}
 		else {
 			/* Check if the message is addressed to me. Do this only for PDU
@@ -322,6 +323,28 @@ define(function(require) {
 		sock.send (JSON.stringify(message));
 
 		return;
+	}
+
+	var period = 10000; /* Which is 10 seconds */
+	function start_keepalive_timer () {
+		setInterval (ping_check, period);
+	}
+
+	var ping_last_sent = 0;
+	var ping_last_acked = 0;
+	function ping_check () {
+
+		if (ping_last_sent != ping_last_acked) {
+			log.error ('[ping] Websocket connection lost. IMPLEMENT re-connection');
+		}
+
+		var m = protocol.ping_pdu ();
+		ping_last_sent = m.seq;
+		send (m, false);
+	}
+
+	function process_pong (message) {
+		ping_last_acked = message.seq;
 	}
 
 	return cc;

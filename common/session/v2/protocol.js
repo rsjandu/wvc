@@ -11,7 +11,7 @@ prot.parse = function (e) {
 	if (message.v !== 1)
 		throw new Error ('illegal protocol');
 
-	if ((message.type != 'req') && (message.type != 'info') && (message.type != 'ack'))
+	if ((message.type != 'req') && (message.type != 'info') && (message.type != 'ack') && (message.type != 'ping'))
 		throw new Error ('illegal type');
 
 	return message;

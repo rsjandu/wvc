@@ -98,11 +98,14 @@ function handle_incoming (ws, message) {
 		return;
 	}
 
-	protocol.print(m, 'RX');
-
 	switch (m.type) {
 
+		case 'ping':
+			handle_ping (ws, m);
+			break;
+
 		case 'req':
+			protocol.print(m, 'RX');
 			upstream.route_req (ws, m.from, m.to, m.msg)
 				.then (
 					function (data) {
@@ -116,10 +119,12 @@ function handle_incoming (ws, message) {
 			break;
 
 		case 'info':
+			protocol.print(m, 'RX');
 			upstream.route_info (ws, m.from, m.to, m.msg);
 			break;
 
 		case 'ack':
+			protocol.print(m, 'RX');
 			process_ack (ws, m);
 			break;
 	}
@@ -152,6 +157,14 @@ function process_ack (ws, message) {
 	}
 
 	delete ws.pending_acks[seq];
+}
+
+function handle_ping (ws, m) {
+	m.type = 'pong';
+	ws.send(JSON.stringify(m), function (err) {
+		if (err)
+			log.error ({ err: err, 'conn #' : ws.conn_handle.c.id, m: m}, 'pong failure');
+	});
 }
 
 function ack (sock, _m, data) {

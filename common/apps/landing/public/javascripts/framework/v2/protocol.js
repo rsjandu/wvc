@@ -3,6 +3,7 @@ define(function(require) {
 	var identity = require('identity');
 
 	var prot = {};
+	var seq = 0;
 
 	prot.parse = function (e) {
 
@@ -11,16 +12,29 @@ define(function(require) {
 		if (message.v !== 1)
 			throw new Error ('illegal protocol v');
 
-		if (!message.to || !message.from)
-			throw new Error ('illegal protocol (from/to) address');
-
 		if ((message.type != 'auth') &&
 			(message.type != 'req') &&
 			(message.type != 'info') &&
+			(message.type != 'ping') &&
+			(message.type != 'pong') &&
 			(message.type != 'ack'))
 			throw new Error ('illegal protocol message type');
 
+		if (message.type != 'pong' && message.type != 'ping')
+			if (!message.to || !message.from)
+				throw new Error ('illegal protocol (from/to) address');
+
 		return message;
+	};
+
+	prot.ping_pdu = function () {
+		var m = {};
+
+		m.v     = 1;
+		m.seq   = seq++;
+		m.type  = 'ping';
+
+		return m;
 	};
 
 	prot.command_pdu = function (from, to, command, data) {
@@ -37,6 +51,7 @@ define(function(require) {
 		}
 
 		m.v     = 1;
+		m.seq   = seq++;
 		m.type  = 'req';
 
 		m.to    = to;
@@ -65,6 +80,7 @@ define(function(require) {
 		}
 
 		m.v     = 1;
+		m.seq   = seq++;
 		m.type  = 'info';
 
 		m.to    = to;
@@ -82,6 +98,7 @@ define(function(require) {
 		var m = {};
 
 		m.v = 1;
+		m.seq = seq++;
 		m.type = 'req';
 		m.to = to;
 		m.from = from;
