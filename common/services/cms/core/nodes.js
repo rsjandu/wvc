@@ -10,39 +10,53 @@ nodes.add = function( info, cb){
 		_node	= info.node || info  ;	
 	
 	_node.owner = info.uid;
-
-	get_node( _node, function( node){
-		if( node){
-			_ack('NODE_ADD_ERROR : already exists');
+		
+	get_user( info, function( user){
+		if( !user){
+			_ack('USER_ERROR : not found');
 			return;
 		}
 		
-		get_user( info, function( user){
-			if( !user){
-				_ack('USER_ERROR : not found');
+		var node = new Node( _node);
+		log.debug('creating new node');
+		node.save( function( err, node){
+			log.debug(' done');
+			if( err){
+				_ack('IO_ERROR : could not save node');
 				return;
 			}
-			
-			var node = new Node( _node);
-			log.debug('creating new node');
-			node.save( function( err, node){
-				log.debug(' done');
+			user.nodes.push( node._id);
+			//__change quota etc.
+			user.save( function( err, user){
+				log.debug(' user save done');
 				if( err){
-					_ack('IO_ERROR : could not save node');
-					return;
+					_ack('IO_ERROR : could not save user');	
 				}
-				user.nodes.push( node._id);
-				//__change quota etc.
-				user.save( function( err, user){
-					log.debug(' user save done');
-					if( err){
-						_ack('IO_ERROR : could not save user');	
-					}
-					_ack(null);
-				});
+				_ack(null);
 			});
-		});	//get_user end
-	});	//get_node end
+		});
+	});	//get_user end
+};
+
+nodes.replace = function( info, cb){
+	// __just update the local db as it(the prev value) is already gone from the remote store, so no need to delete
+
+	get_node( info, function( node){
+		/* 
+		 * uid + path is being used as unique key and hence none of them can be updated 
+		 * they are same because otherwise the node would not have been found, which means a method like $.extend() can be used here
+		 */
+		node.url = info.url;
+		node.type = info.type;
+		node.size = info.size;	
+//		node.ctime = Date.now;	
+		node.tags = info.tags;
+		node.thumbnail = info.thumbnail;
+
+		node.save( function( err, node){
+			cb(err);
+		});				
+	}); //get_node end
 };
 
 nodes.get_node = get_node;
@@ -59,14 +73,14 @@ nodes.get = function( id, cb){			//there should be a similar method in user sche
 	});
 };
 
-nodes.get_by_dir = function( info, cb){
-	log.debug(' get by dir : ' + info.dir);
+nodes.get_by_path = function( info, cb){
+	log.debug(' get by path : ' + info.path);
 	Node.find({ 
 		'owner' : info.uid, 
-		'dir' : new RegExp(info.dir,'i') 
+		'path' : new RegExp( '^' + info.path,'i')			//  '^' tells it is a "starts with" query rather than just 'contains'
 	}, function( err, nodes){
 		if( err){
-			log.warn('get_by_dir db error: ' + err);
+			log.warn('get_by_path db error: ' + err);
 			cb && cb(err);
 			return;
 		}
@@ -74,20 +88,48 @@ nodes.get_by_dir = function( info, cb){
 	});
 };
 
-nodes.remove = function( _node, cb){
-	/* remove from user as well */
-/*	Node.findOne({
-		'owner' : _node.owner,
-		'dir'	: _node.dir,
-		'name'	: _node.name,
-		'type'	: _node.type
-	}).remove().exec();
-*/
-};
+nodes.remove = remove_node ;
 
 /* -----------------
  *  private methods
  * ----------------- */
+
+function remove_node( _node, cb){			// consider it not tested when using. not being used till now
+	_node.owner = _node.owner || _node.uid;
+	Node.findOne({
+		'owner' : _node.owner ,
+		'path'	: _node.path
+	}, function( err, node){
+		if( !err && !node){	
+			log.warn('should never happen, check outside if node exists');
+			cb && cb();
+			return;
+		}
+		
+		if( err){
+			cb && cb( err);
+			return;
+		}
+		log.debug( 'removing node :: ' + node._id);
+		User.findOne({
+			'uid' : _node.owner
+		}, function( err, user){
+			if( err){
+				cb && cb( err);
+				return;
+			}
+			log.debug( 'of user :: ' + user.id );
+			user.remove_node( node._id);
+			node.remove( function( err){
+				if( err){
+					cb && cb(err);
+					return;
+				}
+				cb();
+			});
+		});
+	});
+}
 
 function ack( cb, err, data){
 	log.info('ack called with err: ' + err + ' and data: ' + data);
@@ -101,8 +143,7 @@ function get_node( _node, cb){
 	_node.owner = _node.owner || _node.uid;
 	Node.findOne({ 
 			'owner'	: _node.owner, 
-			'dir'	: _node.dir, 
-			'name'	: _node.name
+			'path'	: _node.path 
 	}, function( err, node){
 			log.debug('get node done');
 			if( err){

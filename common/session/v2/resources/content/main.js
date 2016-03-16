@@ -121,12 +121,11 @@ function conversion_success_handler (_d, info , result) {
 
 	var d = new Date();
 	info.conv_time = (d.getTime() - info.conv_time)/1000;
-	info.converted_url = bucket_url+result.id;
+	info.url = bucket_url+result.id;
 	info.thumbnail = bucket_url+result.id+"/thumbnail-300x300.png"; 
 
 	log.info ({ info: info }, ' <- Conversion complete ->');
 	addinfo_to_contentserver (_d, info);
-	_d.resolve (info);
 }
 
 /*
@@ -137,9 +136,11 @@ function addinfo_to_contentserver (_d , info){
 	.then(
 		function (result) {
 			log.info ({ result : result }, ' <- ADDED TO SERVER->');
+			_d.resolve (info);
 		},
 		function (err) {
 			log.error ({ err : err }, ' <- ERROR ADDED TO SERVER ->');
+			_d.reject(err);
 		}
 
 	);

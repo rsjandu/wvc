@@ -104,19 +104,20 @@ content_api.get_past_content_list = function ( info ) {
 content_api.addinfo_to_contentserver = function(info){
 	var _d =  $.Deferred();
 
-	if (!info.user_id || !info.path || !info.type || !info.name || !info.size || !info.converted_url) {
+	if (!info.user_id || !info.path || !info.type || !info.name || !info.size || !info.url) {
 		_d.reject ('some mandatory parameters not specified');
 		return _d.promise ();
 	}
 
 	var data = {	
-		path 	 : info.path, 
-		name     : info.name,
-		type 	 : info.type,
-		size 	 : Number(info.size),
-		url  	 : info.converted_url,
-		thumbnail: info.thumbnail,
-		tags 	 : info.tags
+		path 	    : info.path, 
+		name        : info.name,
+		type 	    : info.type,
+		size 	    : Number(info.size),
+		url  	    : info.url,
+		thumbnail   : info.thumbnail,
+		removeafter : info.removeafter,
+		tags 	    : info.tags
 	};
 
 	var request_url = api_url+"content/v1/user/"+ info.user_id+"/added";
