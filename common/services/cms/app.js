@@ -21,7 +21,7 @@ app.use('/content/v1', core);
 
 app.use( function(err, req, res, next){
 	res.status( err.status || 500);
-	res.send('error');
+	res.send({ 'status':'error', 'data': err });
 	log.err('No match found:: ' + err);
 });
 
