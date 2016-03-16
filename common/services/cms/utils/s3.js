@@ -17,10 +17,12 @@ aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY}
 var _s3 = new aws.S3();
 
 s3.get_upload_url = function(info){
+	var	unique_name = '/' + info.uid + info.path;		// the physical name i.e. name in storage (s3)
+
 	var _d 		= $.Deferred() ,
 		params	= {
 			Bucket: BUCKET_NAME,
-			Key: KEY_NAME+'/'+ ( info.dir === '/' ? '' : info.dir+'/' ) + info.name,	//handle slashes in dirname
+			Key: KEY_NAME + unique_name,	
 			Expires: EXPIRE_TIMESTAMP,
 			ContentType: info.type,
 			ACL: 'public-read'
@@ -33,11 +35,17 @@ s3.get_upload_url = function(info){
 			else{
 				_d.resolve({
 					upload_url	: data,
-					access_url	: encodeURI( CONTENT_URL+ '/' + info.name ),
+					access_url	: encodeURI( CONTENT_URL+ unique_name ),
 					filename	: info.name
 				});
 			}
 		});
+	return _d.promise();
+};
+
+s3.remove = function(info){
+	var _d = $.Deferred();
+	_d.resolve('delete ho_jayega');
 	return _d.promise();
 };
 

@@ -7,7 +7,11 @@ var router = express.Router()  ;
 router.param('email',function( req, res, next, email){
 	console.log('\n\n');		//  <--temp 
 	if( !email){
-		res.send('email is a necessary url field, please consult api docs');
+		res.send({ 'status':'error', 'data':'ARGS_ERR: email required'});
+		return;
+	}
+  	if( !( email.endsWith('@wiziq.com') || email.endsWith('@gmail.com') || email.endsWith('@facebook.com') || email.endsWith('@authorgen.com')) ){
+		res.send({ 'status':'error', 'data':'AUTH_ERR: not authorized'});
 		return;
 	}
 	req.email = email;

@@ -7,15 +7,18 @@ core.add = function( req, res, next){
 	/* parse body and get values */
 
 	var info = {};
-	info.dir	= req.body.dir || '/',
-	info.name	= req.body.name ,
+	info.path	= req.body.path ,
+	info.name	= req.body.name ,	// _optional
 	info.type	= req.body.type ,
-	info.flags	= req.body.flags || {} ,
+//	info.flags	= req.body.flags || {} ,
 	info.uid	= req.email  ,
 	info.store	= req.store  ;
 
-	if( !info.name || !info.type ){
-		res.send( 'some fields are required..please consult api docs');
+	if( !info.path || !info.type ){
+		var obj = {};
+		obj.status = 'error';
+		obj.data =  'some fields are required..please consult api docs';
+		res.send( obj);
 		return;
 	}
 
@@ -61,9 +64,9 @@ core.list = function( req, res, next){
 
 	info.uid	= req.email;
 	info.store	= req.store;
-	info.dir	= req.query.dir;
+	info.path	= req.query.path;
 	
-	log.info('email: '+ info.uid + ' parent:' + info.dir);
+	log.info('email: '+ info.uid + ' path:' + info.path);
 	content.list( info, function( err, list){
 		var obj = {};
 		if( err){
@@ -79,11 +82,29 @@ core.list = function( req, res, next){
 };
 
 core.remove = function( req, res, next){
-	res.send('not_implemented_yet')
+	var info = {};
+
+	info.uid = req.email;
+	info.store = req.store;
+	info.path = req.query.path;
+	
+	log.info('info:' + JSON.stringify( info) );
+	content.remove( info, function( err, message){
+		var obj = {};
+		if( err){
+			obj.status = 'error';
+			obj.data = err;
+			res.send( obj);
+			return;
+		}
+		obj.status = 'success';
+		obj.data = message;
+		res.send( obj);	
+	});
 }
 
 core.update = function( req, res, next){
-	res.send('not_implemented_yet')
+	res.send({'status':'error', 'data':'not_implemented_yet'});
 }
 
 module.exports = core;
