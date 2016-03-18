@@ -45,7 +45,28 @@ s3.get_upload_url = function(info){
 
 s3.remove = function(info){
 	var _d = $.Deferred();
-	_d.resolve('delete ho_jayega');
+	_d.resolve('delete code not tested');
+	return _d.promise();					// for now just don't touch s3
+	/* 
+	 * a good link, shows how to delete files as well as folders
+	 *	http://stackoverflow.com/questions/20207063/how-can-i-delete-folder-on-s3-with-node-js
+	 */
+	var unique_name = '/' + info.uid + info.path;				// _we should have some checks here
+
+	var _d		= $.Deferred() ,
+		params	= {	Bucket : BUCKET_NAME } ;
+
+	params.Delete = { Objects : [] }  ;
+	params.Delete.Objects.push( KEY_NAME + unique_name);
+
+	_s3.deleteObjects( params, function( err, data){
+		if( err){
+			_d.reject('node delete failed');
+			return;
+		}
+		_d.resolve('node deleted successfully');
+	});
+
 	return _d.promise();
 };
 
