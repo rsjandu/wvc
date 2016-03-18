@@ -1,5 +1,6 @@
 var $		= require('jquery-deferred')  ,
 	rest	= require('restler') ,
+	deamon	= require('./deamon') ,
 	log		= require('common/log') , 
 	db		= require('models/db') ;
 

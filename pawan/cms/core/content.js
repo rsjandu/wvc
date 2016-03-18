@@ -27,15 +27,19 @@ content.added = function( info, cb){
 
 	var options = {};
 	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
+	info.expiry = info.removeafter ? Date.now() + info.removeafter*1000 : info.removeafter;
+
 	options.node  =	{
 				owner	:	info.uid,	
 				name	:	info.name,	
 				path	:	info.path,	
+				store	:	info.store,
 				url	 	:	info.url,
 				type	:	info.type,	
 				size	:	info.size,	
 				status	: 	info.status,
 				tags	:	info.tags,
+				expiry	:	info.expiry,
 				thumbnail:	info.thumbnail
 	};	
 	log.debug( 'content to be added::'+ JSON.stringify(options));
@@ -68,7 +72,7 @@ content.list = function(info , cb){			// info ==> uid path store
 	}
 };
 
-content.remove = function( info, cb){		// info ==> uid path
+content.remove = function( info, cb){		// info ==> uid path store
 	/* 
 	 *  check: if present, can delete etc.
 	 *	delete from store

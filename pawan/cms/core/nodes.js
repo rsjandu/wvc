@@ -183,4 +183,8 @@ function add_user( info, cb){			/* will be handled differently */
 	});
 };
 
+nodes.get_expired = function get_expired( cb){
+	Node.find({ expiry : { $lt : Date.now()}}, cb).hint({ expiry : 1 });		// hint tells it to use the index
+};
+
 module.exports = nodes;

@@ -20,4 +20,7 @@ catch (e) {
 	process.exit (-1);
 }
 
+config.deamon = {};
+config.deamon.freq = 5;	// time in minutes //
+
 module.exports = config ;
