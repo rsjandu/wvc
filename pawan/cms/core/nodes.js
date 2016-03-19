@@ -94,7 +94,7 @@ nodes.remove = remove_node ;
  *  private methods
  * ----------------- */
 
-function remove_node( _node, cb){			// consider it not tested when using. not being used till now
+function remove_node( _node, cb){			
 	_node.owner = _node.owner || _node.uid;
 	Node.findOne({
 		'owner' : _node.owner ,
@@ -111,22 +111,16 @@ function remove_node( _node, cb){			// consider it not tested when using. not be
 			return;
 		}
 		log.debug( 'removing node :: ' + node._id);
-		User.findOne({
-			'uid' : _node.owner
-		}, function( err, user){
+		User.update({ 'uid' : _node.owner }, { $pullAll : { nodes : [ node._id] } }, function( err, data){
+			log.debug({ err : err, data : data}, 'user update');
+		});
+		
+		node.remove( function( err){
 			if( err){
-				cb && cb( err);
+				cb && cb(err);
 				return;
 			}
-			log.debug( 'of user :: ' + user.id );
-			user.remove_node( node._id);
-			node.remove( function( err){
-				if( err){
-					cb && cb(err);
-					return;
-				}
-				cb();
-			});
+			cb();
 		});
 	});
 }

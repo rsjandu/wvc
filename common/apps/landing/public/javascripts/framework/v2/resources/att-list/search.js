@@ -25,7 +25,10 @@ define( function(require){
 
 	function keyup_handler(){
 		var user;
-		var val = $(this).val(); 
+		var val = $(this).val();
+		if( val){
+			val = val.toLowerCase();
+		}
 
 		/* TODO: 
 		 * handle backspaces differently and 
