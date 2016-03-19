@@ -22,7 +22,7 @@ app.use('/content/v1', core);
 app.use( function(err, req, res, next){
 	res.status( err.status || 500);
 	res.send({ 'status':'error', 'data': err });
-	log.err('No match found:: ' + err);
+	log.warn({ 'status':'error', 'data': err }, 'app.js');
 });
 
 resources.init()
@@ -39,7 +39,7 @@ function start(){
 }
 
 function exit( msg){
-	log.err('App start err: ' + msg);
+	log.err({'exit message ' : msg },' Exiting app');
 	process.exit(1);
 }
 

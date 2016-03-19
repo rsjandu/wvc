@@ -6,21 +6,16 @@ var mongoose	= require('mongoose')  ,
 var nodes = {};
 
 nodes.add = function( info, cb){
-	var	_ack	= ack.bind(null, cb)  ,
-		_node	= info.node || info  ;	
-	
-	_node.owner = info.uid;
+	var	_ack	= ack.bind(null, cb);
 		
-	get_user( info, function( user){
+	get_user({ uid : info.owner} , function( user){
 		if( !user){
-			_ack('USER_ERROR : not found');
+			_ack('USER_ERROR : ' + info.owner +' not found');
 			return;
 		}
 		
-		var node = new Node( _node);
-		log.debug('creating new node');
+		var node = new Node( info);
 		node.save( function( err, node){
-			log.debug(' done');
 			if( err){
 				_ack('IO_ERROR : could not save node');
 				return;
@@ -28,7 +23,7 @@ nodes.add = function( info, cb){
 			user.nodes.push( node._id);
 			//__change quota etc.
 			user.save( function( err, user){
-				log.debug(' user save done');
+				log.debug({ user: user, node: node}, 'in new node save');
 				if( err){
 					_ack('IO_ERROR : could not save user');	
 				}
@@ -46,10 +41,11 @@ nodes.replace = function( info, cb){
 		 * uid + path is being used as unique key and hence none of them can be updated 
 		 * they are same because otherwise the node would not have been found, which means a method like $.extend() can be used here
 		 */
+//		Object.assign( node, info);
 		node.url = info.url;
 		node.type = info.type;
 		node.size = info.size;	
-//		node.ctime = Date.now;	
+//		node.ctime = Date.now();	
 		node.tags = info.tags;
 		node.thumbnail = info.thumbnail;
 
@@ -74,13 +70,11 @@ nodes.get = function( id, cb){			//there should be a similar method in user sche
 };
 
 nodes.get_by_path = function( info, cb){
-	log.debug(' get by path : ' + info.path);
 	Node.find({ 
 		'owner' : info.uid, 
 		'path' : new RegExp( '^' + info.path,'i')			//  '^' tells it is a "starts with" query rather than just 'contains'
 	}, function( err, nodes){
 		if( err){
-			log.warn('get_by_path db error: ' + err);
 			cb && cb(err);
 			return;
 		}
@@ -94,15 +88,15 @@ nodes.remove = remove_node ;
  *  private methods
  * ----------------- */
 
-function remove_node( _node, cb){			// consider it not tested when using. not being used till now
+function remove_node( _node, cb){			
 	_node.owner = _node.owner || _node.uid;
 	Node.findOne({
 		'owner' : _node.owner ,
 		'path'	: _node.path
 	}, function( err, node){
 		if( !err && !node){	
-			log.warn('should never happen, check outside if node exists');
-			cb && cb();
+			log.warn({ 'sanity_check' : 'should never happen, check outside if node exists'});
+			cb && cb('NODE_ERROR: does not exist');
 			return;
 		}
 		
@@ -110,29 +104,23 @@ function remove_node( _node, cb){			// consider it not tested when using. not be
 			cb && cb( err);
 			return;
 		}
-		log.debug( 'removing node :: ' + node._id);
-		User.findOne({
-			'uid' : _node.owner
-		}, function( err, user){
+		log.debug({ id: node._id}, 'removing node');
+		User.update({ 'uid' : _node.owner }, { $pullAll : { nodes : [ node._id] } }, function( err, data){
+			log.debug({ err : err, data : data}, 'user update');
+		});
+		
+		node.remove( function( err){
 			if( err){
-				cb && cb( err);
+				cb && cb(err);
 				return;
 			}
-			log.debug( 'of user :: ' + user.id );
-			user.remove_node( node._id);
-			node.remove( function( err){
-				if( err){
-					cb && cb(err);
-					return;
-				}
-				cb();
-			});
+			cb();
 		});
 	});
 }
 
 function ack( cb, err, data){
-	log.info('ack called with err: ' + err + ' and data: ' + data);
+	log.info({ err: err, data: data}, ' ack');
 	if( cb){
 		cb( err, data);
 	}
@@ -174,13 +162,17 @@ function get_user( info, cb){
 function add_user( info, cb){			/* will be handled differently */
 	var user = new User(info);
 	user.save( function( err, user){
+		log.debug({ err: err, user: user}, ' added user');
 		if(err){
 			cb && cb(null);
 			return;
 		}
-		log.debug('added::\n' + user);
 		cb && cb( user);
 	});
+};
+
+nodes.get_expired = function get_expired( cb){
+	Node.find({ expiry : { $lt : Date.now()}}, cb).hint({ expiry : 1 });		// hint tells it to use the index
 };
 
 module.exports = nodes;
