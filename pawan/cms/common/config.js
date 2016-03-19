@@ -1,7 +1,7 @@
 var log = require('common/log');
 var crypt = require('common/crypt');
 
-require('mongoose').set('debug', true);
+//require('mongoose').set('debug', true);			// <---to see the query details
 
 var config = {};
 var s3_acces_key_encrypted = '35d087d66e247bed98e0c5cbb0941ffbcb1bb8060d2f3b4d1c8c7b4a1235fb4a1044a8d8d9466060879930af6f67326a';

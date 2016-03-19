@@ -7,13 +7,17 @@ var content = {};
 
 content.upload = function( info, cb){
 
-		storage_if.call( 'get_upload_url', info, function( err, url){
-						log.info('err::' + err + ' url::' + JSON.stringify( url) );
-						if( cb){
-							 err ? cb( err) :	cb( null, url);
-						}
-						/* no need to store it, we keep our server stateless */
-					});
+	storage_if.call( 'get_upload_url', info, function( err, urls){	
+		log.info({ 
+			err: err, 
+			urls: urls 
+		}, 'get upload url');
+		
+		if( cb){
+			 err ? cb( err) :	cb( null, url);
+		}
+		/* no need to store it, we keep our server stateless */
+	});
 };
 
 /* -----------------------------------------------------------------------------*
@@ -22,37 +26,20 @@ content.upload = function( info, cb){
  |			and we(in the local db) just replace the access urls etc. whenever they say duplicate content is added |
  * ----------------------------------------------------------------------------------------------------------------*/
 
-content.added = function( info, cb){
-	//info.path = info.path;
-
-	var options = {};
-	options.uid	  =	info.uid;		// wiil not pass user info like this once user handling is done
+content.added = function( info, cb){	// info <-- uid, name, path, store, url, type, size, tags, thumbnail, removeafter
+	
+	info.owner = info.uid;
 	info.expiry = info.removeafter ? Date.now() + info.removeafter*1000 : info.removeafter;
 
-	options.node  =	{
-				owner	:	info.uid,	
-				name	:	info.name,	
-				path	:	info.path,	
-				store	:	info.store,
-				url	 	:	info.url,
-				type	:	info.type,	
-				size	:	info.size,	
-				status	: 	info.status,
-				tags	:	info.tags,
-				expiry	:	info.expiry,
-				thumbnail:	info.thumbnail
-	};	
-	log.debug( 'content to be added::'+ JSON.stringify(options));
-
-	nodes.get_node( options.node, function( node){
-		log.debug(' node search returned:: ' + node);
+	nodes.get_node( info, function( node){
+		log.debug({ node: node}, 'node exists check returned');
 		if(node){
-			nodes.replace( options.node, function( err){
+			nodes.replace( info, function( err){
 				cb(err);
 			});
 		}
 		else{
-			nodes.add( options,function(err){
+			nodes.add( info,function(err){
 				cb(err);		//	__iska error is important
 			});
 		}

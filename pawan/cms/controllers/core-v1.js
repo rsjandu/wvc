@@ -8,33 +8,26 @@ core.add = function( req, res, next){
 
 	var info = {};
 	info.path	= req.body.path ,
-	info.name	= req.body.name ,	// _optional
-	info.type	= req.body.type ,
-//	info.flags	= req.body.flags || {} ,
 	info.uid	= req.email  ,
-	info.store	= req.store  ;
+	info.store	= req.store  ,
+	info.type	= req.body.type ,
+	info.name	= req.body.name ,	// _optional
+	info.size	= req.body.size ;	// _optional for now, not being used yet
+
 
 	if( !info.path || !info.type ){
-		var obj = {};
-		obj.status = 'error';
-		obj.data =  'some fields are required..please consult api docs';
-		res.send( obj);
+		res.send({ status : 'error', data : 'some fields are required..please consult api docs'});
 		return;
 	}
 
-	log.info({ info: info }, 'add');
+	log.info({ info : info }, 'add');
 	
-	content.upload( info, function( err, url){
-		var obj = {};
+	content.upload( info, function( err, urls){
 		if( err){
-			obj.status = 'error';
-			obj.data = err;
-			res.send( obj);
+			res.send({ status : 'error', data : err});
 			return ;
 		}
-		obj.status = 'success';
-		obj.data = url;
-		res.send( obj);
+		res.send({ status : 'success', data : urls})
 	});
 };
 
@@ -43,68 +36,53 @@ core.added = function( req, res, next){
 	info.uid = req.email;
 	info.store = req.store;
 
-	log.debug('core.added called INFO::' + JSON.stringify(info));
+	log.info({ info : info}, 'added');
 
-	content.added(info,function(err){
-		var obj = {};
+	content.added( info,function( err, data){
 		if(err){
-			obj.status = 'error';
-			obj.data = err;
-			res.send( obj);
+			res.send({ status : 'error', data : err});
 			return ;
 		}
-		obj.status = 'success';
-		obj.data = {};
-		res.send( obj);
+		res.send({ status : 'success', data : data});
 	});
-}
+};
 
 core.list = function( req, res, next){
 	var info	= {} ;
-
 	info.uid	= req.email;
 	info.store	= req.store;
 	info.path	= req.query.path;
 	
-	log.info('email: '+ info.uid + ' path:' + info.path);
+	log.info({ info : info}, 'list');
+
 	content.list( info, function( err, list){
-		var obj = {};
 		if( err){
-			obj.status = 'error';
-			obj.data = err;
-			res.send( obj);
+			res.send({ status : 'error', data : err});
 			return;
 		}
-		obj.status = 'success';
-		obj.data = list;
-		res.send( obj);
+		res.send({ status : 'success', data : list});
 	});
 };
 
 core.remove = function( req, res, next){
 	var info = {};
-
 	info.uid = req.email;
 	info.store = req.store;
 	info.path = req.query.path;
 	
-	log.info('info:' + JSON.stringify( info) );
+	log.info({ info : info}, 'remove');
+
 	content.remove( info, function( err, message){
-		var obj = {};
 		if( err){
-			obj.status = 'error';
-			obj.data = err;
-			res.send( obj);
+			res.send({ status : 'error', data : err});
 			return;
 		}
-		obj.status = 'success';
-		obj.data = message;
-		res.send( obj);	
+		res.send({ status: 'success', data: message});
 	});
 }
 
 core.update = function( req, res, next){
-	res.send({'status':'error', 'data':'not_implemented_yet'});
+	res.send({ status: 'error', data: 'not_implemented_yet'});
 }
 
 module.exports = core;
