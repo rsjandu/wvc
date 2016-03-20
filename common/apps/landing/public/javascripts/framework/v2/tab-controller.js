@@ -4,9 +4,14 @@ define(function(require) {
 
 	var m = {};
 	var controller = null;
+	var f_handle_cached;
 	var controller_initizlied = false;
 	var pending_list = {};
 	var active_list = {};
+
+	m.init = function (sess_config, _framework) {
+		f_handle_cached = _framework.handle('tab-controller');
+	};
 
 	/*
 	 * This method just registers the controller */
@@ -45,7 +50,7 @@ define(function(require) {
 	/*
 	 * This method registers the tab-user modules. Note, that this 
 	 * method is not explicitly called by the module, but by the framework
-	 * on behalf of the module during layout attacm process, based upon the 
+	 * on behalf of the module during layout attach process, based upon the 
 	 * "display_spec" declaration of the module in the class_config. It will
 	 * be called before the registering module itself initializes. */
 	m.register = function (_module) {
@@ -67,7 +72,8 @@ define(function(require) {
 		}
 
 		var methods = {
-			create : _module.handle.create,
+			create  : _module.handle.create,
+			destroy : _module.handle.destroy,
 		};
 		var err = controller.handle.register (_module.name, _module.resource, methods);
 
@@ -78,11 +84,31 @@ define(function(require) {
 		return null;
 	};
 
+	m.info = function (from, to, info_id, info) {
+
+		switch (info_id) {
+
+			case 'tab-destroyed':
+				controller.handle.destroy (info);
+				break;
+
+			default :
+				log.error ('unknown info_id (' + info_id + ') recieved. ignoring.');
+				return;
+		}
+	};
+
 	m.api = function (mod_name) {
 		return {
 			module_name : mod_name,
+			/*
+			 * Generally called by the client resources */
 			create      : create,
 			get_by_uuid : get_by_uuid,
+			sync_remote : sync_remote,
+			/*
+			 * Generally called by the tab-controller resource */
+			destroyed   : destroyed,
 			/*
 			 * implement later 
 			 destroy : destroy,
@@ -96,7 +122,7 @@ define(function(require) {
 
 	var uuid_array = {};
 	function get_by_uuid (uuid) {
-		return uuid_array [uuid];
+		return uuid_array[uuid] ? uuid_array[uuid].handle : null;
 	}
 
 	function create (options) {
@@ -122,15 +148,52 @@ define(function(require) {
 			log.error ('create: improper return value ', res);
 		}
 
-		uuid_array [ options.uuid ] = res;
+		uuid_array [ options.uuid ] = {
+			handle      : res,
+			sync_remote : false
+		};
 		return res;
+	}
+
+	function destroyed (options) {
+		var uuid = options.uuid;
+
+		if (uuid_array[uuid]) {
+			if (uuid_array[uuid].sync_remote)
+				f_handle_cached.send_info ('*', 'tab-destroyed', { uuid : uuid }, 0);
+
+			delete uuid_array[uuid];
+		}
+	}
+
+	function sync_remote (options) {
+		var uuid = options.uuid;
+		var mod_name = this.module_name;
+
+		if (!uuid) {
+			log.error ('sync_remote: null uuid (' + mod_name + '). likley programmatic error.');
+			return false;
+		}
+
+		if (!uuid_array[uuid]) {
+			log.error ('sync_remote: no tab for uuid "' + uuid + '" (' + mod_name + '). likley programmatic error.');
+			return false;
+		}
+
+		uuid_array[uuid].sync_remote = true;
+		/*
+		 * Just inform the tab controller resource. The actual messages for sharing 
+		 * will still be handled by the this module */
+		controller.handle.sync_remote (options);
 	}
 
 	function check_controller_methods (_module) {
 
 		try {
-			__check(_module.name, 'register', _module.handle.register);
-			__check(_module.name, 'create', _module.handle.create);
+			__check(_module.name, 'register',    _module.handle.register);
+			__check(_module.name, 'create',      _module.handle.create);
+			__check(_module.name, 'destroy',     _module.handle.destroy);
+			__check(_module.name, 'sync_remote', _module.handle.sync_remote);
 		}
 		catch (err) {
 			log.error (err);
@@ -144,6 +207,7 @@ define(function(require) {
 
 		try {
 			__check(_module.name, 'create', _module.handle.create);
+			__check(_module.name, 'destroy', _module.handle.destroy);
 		}
 		catch (err) {
 			log.error (err);

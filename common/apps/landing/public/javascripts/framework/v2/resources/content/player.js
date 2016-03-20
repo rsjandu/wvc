@@ -24,7 +24,7 @@ define(function(require) {
 		var _d = $.Deferred ();
 
 		tab_set_mode($(anchor), 'loading');
-		close_previous_viewer ($(anchor));
+		player.destroy ($(anchor));
 
 		/*
 		 * Load the player template */
@@ -93,6 +93,18 @@ define(function(require) {
 		});
 
 		return _d.promise ();
+	};
+
+	player.destroy = function ($tab_anchor) {
+		var $player = $tab_anchor.find('.content-player-outer');
+
+		if ($player.length === 0)
+			return;
+
+		var content_area_id = $($player.find('ul.nav')[0]).attr('data-content-area-id');
+		var viewer = get_viewer_from_ul (content_area_id);
+
+		destroy_viewer (content_area_id, viewer, $tab_anchor, false);
 	};
 
 	function make_content_area_id (anchor_id) {
@@ -229,6 +241,7 @@ define(function(require) {
 	function handle_share (ev) {
 		var curr = $(ev.currentTarget);
 		var $tab_anchor = curr.closest('.tab-pane');
+		var uuid = $tab_anchor.attr('data-tab-uuid');
 		var $content_area = curr.closest('.content-player-outer');
 
 		/*
@@ -238,7 +251,14 @@ define(function(require) {
 			content_uri  : $content_area.attr('data-content-url')
 		};
 
+		/*
+		 * Send info to all remote end-points to open this document */
 		f_handle_cached.send_info ('*', 'new-content', msg_data, 0);
+
+		/*
+		 * Instruct the framework to keep this tab in sync with it's remote counterparts */
+		f_handle_cached.tabs.sync_remote ({ uuid : uuid });
+
 		tab_set_mode ($tab_anchor, 'fullview');
 	}
 
@@ -258,18 +278,6 @@ define(function(require) {
 
 		if (change_mode)
 			tab_set_mode ($tab_anchor, null);
-	}
-
-	function close_previous_viewer ($tab_anchor) {
-		var $player = $tab_anchor.find('.content-player-outer');
-
-		if ($player.length === 0)
-			return;
-
-		var content_area_id = $($player.find('ul.nav')[0]).attr('data-content-area-id');
-		var viewer = get_viewer_from_ul (content_area_id);
-
-		destroy_viewer (content_area_id, viewer, $tab_anchor, false);
 	}
 
 	var modes = { 

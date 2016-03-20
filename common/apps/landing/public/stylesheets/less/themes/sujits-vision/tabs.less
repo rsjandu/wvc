@@ -5,6 +5,31 @@
 	background-color: transparent;
 	.drop-shadow(2px, 2px, 12px, 0.4);
 
+	.nav-tabs > li.add:hover {
+		a.dropdown-toggle {
+			color : @brand-primary;
+			cursor : pointer;
+		}
+
+		ul.dropdown-menu > li > a:focus,
+		ul.dropdown-menu > li > a:hover {
+			color : @brand-primary;
+		}
+	}
+
+	.nav-tabs li {
+		span.fa:hover {
+			color : @brand-warning;
+		}
+	}
+
+	.nav-tabs > li.tab-is-shared {
+		color : @brand-danger;
+		a {
+			color : @brand-danger;
+		}
+	}
+
 	.tab-content {
 		#empty {
 			background-image : url('https://i.stack.imgur.com/q8Mym.png');

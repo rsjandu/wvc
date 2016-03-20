@@ -1,20 +1,10 @@
-// Navbar
-//div.tabs-nav-outer
-//	nav.navbar.navbar-default
-//		div.container-fluid
-//			div.collapse.navbar-collapse
-//				ul.nav.navbar-nav
-//					li
-//						a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") New
-//							span.caret
-//						ul.dropdown-menu
-
 // Content area
 div.tabs-container-outer
 	div.tabs-container
 		ul.nav.nav-tabs(role="tablist")
-			li.add
-				a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") New
+			li.add.active
+				a.tab-name(href='#empty', aria-controls="empty", role="tab", data-toggle="tab", style="display:none")
+				a.dropdown-toggle(href="#", data-toggle="dropdown", aria-controls="empty", role="button", aria-haspopup="true", aria-expanded="false") New
 					span.caret
 				ul.dropdown-menu
 		div.tab-content

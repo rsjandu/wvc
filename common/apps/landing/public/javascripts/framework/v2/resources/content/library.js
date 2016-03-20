@@ -44,6 +44,10 @@ define(function(require) {
 		return _d.promise ();
 	};
 
+	library.destroy = function ($tab_anchor) {
+		$tab_anchor.empty();
+	};
+
 	function populate_library ($anchor_lib) {
 
 		get_content ()
@@ -60,7 +64,7 @@ define(function(require) {
 		$anchor_lib.find('span.busy').fadeOut();
 	}
 	function handle_error (err) {
-		log.error ('TODO: handle this error');
+		log.error (err, 'TODO: handle this error');
 	}
 
 	function get_content () {

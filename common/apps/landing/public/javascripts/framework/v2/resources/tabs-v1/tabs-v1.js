@@ -9,17 +9,19 @@ define(function(require) {
 	var tabs = {};
 	var f_handle = framework.handle ('tabs-v1');
 	var anchor, dropdown_menu, ul_top, content_top;
+	var li_template, tabpanel_template;
 	var apps = {};
 
 	tabs.init = function (display_spec, custom, perms) {
-		var t_name = "tabs";
 		var _d = $.Deferred();
 
 		anchor = display_spec.anchor;
-		var template = f_handle.template(t_name);
+		var template = f_handle.template("tabs");
+		li_template = f_handle.template("tabs-li");
+		tabpanel_template = f_handle.template("tabs-tabpanel");
 
-		if (!template) {
-			_d.reject ('tabs-v1: template "' + t_name + '" not found');
+		if (!template || !li_template || !tabpanel_template) {
+			_d.reject ('tabs-v1: one or more templates not found');
 			return _d.promise ();
 		}
 
@@ -65,15 +67,19 @@ define(function(require) {
 		 * Create the li element */
 		ul_top.find('li.active').removeClass('active');
 		content_top.find('div.active').removeClass('active');
-		ul_top.append (
-			'<li role="presentation" class="active"><a href="#' + id + '" aria-controls="' + id + '" role="tab" data-toggle="tab">' + display_name + '</a></li>'
-		);
+		ul_top.append (li_template({
+			id : id,
+			display_name : display_name,
+			uuid : options.uuid,
+			module_name : module_name
+		}));
 
 		/*
 		 * Create the tab element */
-		content_top.append (
-			'<div role="tabpanel" class="tab-pane active fade in" id="' + id + '" data-tab-uuid="' + options.uuid + '"></div>'
-		);
+		content_top.append (tabpanel_template({
+			id : id,
+			uuid : options.uuid
+		}));
 
 		var res = {
 			anchor : content_top.find('div.tab-pane#' + id)[0],
@@ -86,8 +92,24 @@ define(function(require) {
 		return res;
 	};
 
+	tabs.destroy = function (options) {
+		var uuid = options.uuid;
+
+		destroy_tab (uuid);
+	};
+
+	tabs.sync_remote = function (options) {
+		var uuid = options.uuid;
+
+		var li = ul_top.find('li[data-tab-uuid=' + uuid + ']');
+		li.addClass('tab-is-shared');
+	};
+
 	function init_handlers () {
-		dropdown_menu.on('click', 'a', function (ev) {
+
+		/*
+		 * Menu for new tab handler */
+		dropdown_menu.on('click', 'a.tab-menu', function (ev) {
 			var target = $(ev.currentTarget).attr('href');
 			var mod_name = target.replace(/^#tab-menu-/g, '');
 
@@ -96,18 +118,70 @@ define(function(require) {
 		});
 
 		/*
-		ul_top.on('click', 'a', function (e) {
-			log.info ('showing ', e.target);
+		 * Tab close handler */
+		ul_top.on('click', 'span.fa.fa-times-circle', function (ev) {
+			var li = $(ev.currentTarget).closest ('li');
+			var uuid = li.attr('data-tab-uuid');
+
+			destroy_tab (uuid);
+			return true;
 		});
-		ul_top.on('shown.bs.tab', 'a', function (e) {
-			log.info ('showing ', e.target);
-		});
-	   */
+	}
+
+	function destroy_tab (uuid) {
+		var li       = ul_top.find('li[data-tab-uuid=' + uuid + ']');
+
+		if (!li || !li.length) {
+			log.error ('destroy_tab: no link for uuid: ' + uuid);
+			return;
+		}
+
+		var mod_name = li.attr('data-mod-name');
+		var tab_id   = li.find('a.tab-name').attr('aria-controls');
+
+		var $anchor = content_top.find('div#' + tab_id + '.tab-pane');
+
+		/*
+		 * Mark another tab active since this will be closed */
+		mark_active_next (li);
+		li.remove();
+
+		/*
+		 * For some reason, this only works if a sufficient timeout if 
+		 * provided. It doesn't seem to work on smaller timeouts as well.
+		 * I am not sure what the reason is, at this time. */
+		setTimeout (function () {
+
+			/*
+			 * Call module specific destroy */
+			if (apps[mod_name] && apps[mod_name].methods)
+				apps[mod_name].methods.destroy ($anchor, uuid);
+
+			$anchor.empty();
+			$anchor.remove();
+
+		}, 1000);
+
+		/*
+		 * Inform the framework */
+		f_handle.tabs.destroyed ({ uuid : uuid });
+
+		return;
+	}
+
+	function mark_active_next (li) {
+		var next = li.next ();
+
+		if (!next || !next.length)
+			next = li.prev ();
+
+		if (!li.hasClass('add'))
+			next.find('a[data-toggle="tab"]').trigger('click');
 	}
 
 	function add_to_dropdown_menu (mod_name, mod_resource) {
 		dropdown_menu.append('<li>' + 
-							 	'<a href="#tab-menu-' + mod_name + '">' + mod_name + '</a>' +
+							 	'<a class="tab-menu" href="#tab-menu-' + mod_name + '">' + mod_name + '</a>' +
 							 '</li>');
 	}
 

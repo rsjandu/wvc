@@ -110,7 +110,7 @@ function get_config_meghadoot (sess_id, callback) {
 				role: 'tab-controller',
 				display_name : 'Application Controller',
 				req_sess_info : false,
-				display_spec: { widget: "tabs", templates: [ "tabs" ], css: [ "tabs.min" ] },
+				display_spec: { widget: "tabs", templates: [ "tabs", "tabs-li", "tabs-tabpanel" ], css: [ "tabs.min" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },

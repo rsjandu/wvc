@@ -56,6 +56,12 @@ define(function(require) {
 		return library.start (handle);
 	};
 
+	content.destroy = function ($tab_anchor, uuid) {
+		log.info ('content.destroy: $tab_anchor', $tab_anchor, 'uuid = ' + uuid);
+		library.destroy ($tab_anchor);
+		player.destroy ($tab_anchor);
+	};
+
 	function handle_remote_new_content (info) {
 		var options = {
 			uuid : info.uuid

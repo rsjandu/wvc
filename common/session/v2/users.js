@@ -279,8 +279,6 @@ users.relay_info = function (from, to, message, log_) {
 	/* If the 'to' is a vc_id then just send the message to that user. If it 
 	 * is '*' send to all, except the sender of the message */
 
-	log_.debug ({ top : addr.inspect_top(to) }, 'inspect_top');
-
 	if (addr.inspect_top(to).instance == '*')
 		return users.broadcast_info (from, addr.pop(to), message.info_id, message.info, from_vc_id);
 };

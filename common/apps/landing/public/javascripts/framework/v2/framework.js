@@ -20,8 +20,9 @@ define(function(require) {
 
 		log.log ('init called with ', sess_config);
 
-		lc.init(sess_config, framework);
-		lc.probe_layout();
+		tab_controller.init (sess_config, framework);
+		lc.init (sess_config, framework);
+		lc.probe_layout ();
 
 		_d.resolve(sess_config);
 
@@ -250,8 +251,10 @@ define(function(require) {
 	};
 
 	framework.rx_info = function (from, to, id, data) {
+		var _s = to.split(':');
+		var _to = _s[0];
 
-		switch (to) {
+		switch (_to) {
 			case 'framework' :
 				switch (id) {
 
@@ -275,6 +278,10 @@ define(function(require) {
 					default :
 						log.error ('handler for info \"' + id + '\" NOT IMPLEMENTED (to: ' + to + ')');
 				}
+				break;
+
+			case 'tab-controller' :
+				tab_controller.info (from, to, id, data);
 				break;
 
 			default :
@@ -438,7 +445,8 @@ define(function(require) {
 		 * if user is null or empty, the intended recipient is
 		 * the server counterpart of the module. */
 
-		addr.to   = (!user || user.length === 0) ?  'controller.' + mod : 'user:' + user + module_suffix;
+		addr.to   = (!user || user.length === 0) ?  'controller' : 'user:' + user;
+		addr.to   = addr.to + '.' + mod;
 		addr.from = 'user:' + identity.vc_id + module_suffix;
 
 		return addr;
@@ -475,7 +483,7 @@ define(function(require) {
 
 	function send_info (user, info_id, data, from_instance) {
 
-		var addrs = make_addresses (user, this.role ? this.role : this.module_name, from_instance);
+		var addrs = make_addresses (user, this.module_name, from_instance);
 		cc.send_info (addrs.from, addrs.to, info_id, data);
 
 		return;
@@ -567,7 +575,7 @@ define(function(require) {
 		var _instance = _s[1];
 
 		if (!modules[_to]) {
-			log.error ('deliver_info: unknown module \"' + _to + '\"');
+			log.error ('deliver_info: unknown module \"' + _to + '("' + to + '")\"');
 			return;
 		}
 
