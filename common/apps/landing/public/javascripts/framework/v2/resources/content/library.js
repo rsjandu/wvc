@@ -116,11 +116,11 @@ define(function(require) {
 		var tab_anchor_id = $anchor_lib.attr('data-tab-anchor-id');
 		var tab = $anchor_lib.closest('#' + tab_anchor_id)[0];
 
-		/* Get the conent url */
+		/* Get the content url */
 		var url = $(ev.currentTarget).attr('data-content-url');
 
 		player.start (tab, url, { 
-			show_library_icon : true,
+			show_menu : true,
 			mode : 'preview'
 	   	});
 	}

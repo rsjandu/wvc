@@ -38,6 +38,9 @@ define(function(require) {
 			case 'new-content' :
 				return handle_remote_new_content (info);
 
+			case 'navigate-to' :
+				return handle_remote_page_navigation (info);
+
 			default :
 				log.error ('received unknown info_id (' + info_id + '). Ignoring.');
 				return;
@@ -64,7 +67,8 @@ define(function(require) {
 
 	function handle_remote_new_content (info) {
 		var options = {
-			uuid : info.uuid
+			uuid : info.uuid,
+			remote_slave : true
 		};
 
 		var handle = f_handle.tabs.get_by_uuid (info.uuid);
@@ -73,11 +77,22 @@ define(function(require) {
 
 		/* reusing the options variable ... */
 		options = {
-			show_library_icon : false,
+			show_menu : false,
 			mode : 'fullview'
 		};
 
 		player.start (handle.anchor, info.content_uri, options);
+	}
+
+	function handle_remote_page_navigation (info) {
+
+		var handle = f_handle.tabs.get_by_uuid (info.uuid);
+		if (!handle) {
+			log.error ('rx remote navigation for non-existent tab : uuid = ' + info.uuid);
+			return;
+		}
+
+		player.navigate (handle.anchor, info);
 	}
 
 	return content;

@@ -71,6 +71,7 @@ define(function(require) {
 			id : id,
 			display_name : display_name,
 			uuid : options.uuid,
+			disable_close : (options.remote_slave ? true : false),
 			module_name : module_name
 		}));
 

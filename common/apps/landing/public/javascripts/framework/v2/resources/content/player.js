@@ -33,7 +33,7 @@ define(function(require) {
 		$(anchor).append(template({ 
 			content_area_id   : content_area_id,
 			content_uri       : content_uri,
-			show_library_icon : options.show_library_icon
+			show_menu         : options.show_menu
 		}));
 
 		var content_area = $(anchor).find('.content-area');
@@ -63,7 +63,7 @@ define(function(require) {
 			try {
 				/*
 				 * This will sometimes throw an exception. Catch it and move on */
-				viewer.setLayout(Crocodoc.LAYOUT_VERTICAL_SINGLE_COLUMN);
+				viewer.setLayout(Crocodoc.LAYOUT_PRESENTATION);
 			}
 			catch (e) {
 			}
@@ -102,16 +102,24 @@ define(function(require) {
 			return;
 
 		var content_area_id = $($player.find('ul.nav')[0]).attr('data-content-area-id');
-		var viewer = get_viewer_from_ul (content_area_id);
+		var viewer = get_viewer (content_area_id);
 
 		destroy_viewer (content_area_id, viewer, $tab_anchor, false);
+	};
+
+	player.navigate = function (anchor, info) {
+		var content_area_id = $(anchor).find('.content-area').attr('id');
+		var viewer = get_viewer (content_area_id);
+
+		log.info ('scrolling ...' + info.dir);
+		viewer.handle.scrollTo (info.dir);
 	};
 
 	function make_content_area_id (anchor_id) {
 		return 'content-area-' + anchor_id	;
 	}
 
-	function get_viewer_from_ul (content_area_id) {
+	function get_viewer (content_area_id) {
 		var viewer = viewer_list[content_area_id];
 
 		if (!viewer) {
@@ -123,13 +131,6 @@ define(function(require) {
 	}
 
 	function init_handlers () {
-
-		/*
-		 * Handler to change layout
-		 */
-		$('#widget-tabs').on('click', '.content-player-outer .content-menu ul li.content-layout-toggle', function (ev) {
-			handle_layout_change (ev);
-		});
 
 		/*
 		 * Handler for page navigation
@@ -162,47 +163,33 @@ define(function(require) {
 
 	/*
 	 * ----------------------------
-	 * Layout Handling
-	 * ----------------------------
-	 */
-	var layouts = [
-		{ layout : Crocodoc.LAYOUT_VERTICAL_SINGLE_COLUMN, tooltip : 'Vertical, Single Column, Scrollable' },
-		{ layout : Crocodoc.LAYOUT_HORIZONTAL,             tooltip : 'Horizontal, Single Row, Scrollable' },
-		{ layout : Crocodoc.LAYOUT_PRESENTATION,           tooltip : 'Presentation, One page at a time' },
-		{ layout : Crocodoc.LAYOUT_PRESENTATION_TWO_PAGE,  tooltip : 'Presentation, Two pages at a time' }
-	];
-	var curr_layout_index = 0;
-
-	function handle_layout_change (ev) {
-		var curr = $(ev.currentTarget);
-		var content_area_id = curr.closest('ul').attr('data-content-area-id');
-		var viewer = get_viewer_from_ul (content_area_id);
-
-		if (!viewer)
-			return;
-
-		curr_layout_index = (curr_layout_index + 1) % (layouts.length);
-		viewer.handle.setLayout (layouts[curr_layout_index].layout);
-
-		/* Change tooltip */
-		curr.find('span.tooltip-text').html(layouts[curr_layout_index].tooltip);
-	}
-
-	/*
-	 * ----------------------------
 	 * Page Navigation Handling
 	 * ----------------------------
 	 */
 	function handle_page_navigation (ev) {
 		var curr = $(ev.currentTarget);
 		var content_area_id = curr.closest('ul').attr('data-content-area-id');
-		var viewer = get_viewer_from_ul (content_area_id);
+		var $content_area = curr.closest('.content-player-outer');
+		var viewer = get_viewer (content_area_id);
 
 		if (!viewer)
 			return;
 
 		var dir = curr.attr('data-nav-direction');
-		viewer.handle.scrollTo (dir === 'next' ? Crocodoc.SCROLL_NEXT : Crocodoc.SCROLL_PREVIOUS);
+		dir = (dir === 'next' ? Crocodoc.SCROLL_NEXT : Crocodoc.SCROLL_PREVIOUS);
+		viewer.handle.scrollTo (dir);
+
+		if ($content_area.attr('data-is-shared')) {
+			var $tab_anchor = curr.closest('.tab-pane');
+			var uuid = $tab_anchor.attr('data-tab-uuid');
+
+			var msg_data = {
+				uuid : uuid,
+				dir : dir
+			};
+
+			f_handle_cached.send_info ('*', 'navigate-to', msg_data, 0);
+		}
 	}
 
 	/*
@@ -213,7 +200,7 @@ define(function(require) {
 	function handle_preview_close (ev) {
 		var curr = $(ev.currentTarget);
 		var content_area_id = curr.closest('ul').attr('data-content-area-id');
-		var viewer = get_viewer_from_ul (content_area_id);
+		var viewer = get_viewer (content_area_id);
 
 		if (!viewer)
 			return;
@@ -251,15 +238,15 @@ define(function(require) {
 			content_uri  : $content_area.attr('data-content-url')
 		};
 
-		/*
-		 * Send info to all remote end-points to open this document */
 		f_handle_cached.send_info ('*', 'new-content', msg_data, 0);
+
 
 		/*
 		 * Instruct the framework to keep this tab in sync with it's remote counterparts */
 		f_handle_cached.tabs.sync_remote ({ uuid : uuid });
 
 		tab_set_mode ($tab_anchor, 'fullview');
+		$content_area.attr('data-is-shared', true);
 	}
 
 	function destroy_viewer (content_area_id, viewer, $tab_anchor, change_mode) {
