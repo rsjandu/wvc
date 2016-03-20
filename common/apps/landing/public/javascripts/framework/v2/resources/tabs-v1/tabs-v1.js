@@ -106,6 +106,12 @@ define(function(require) {
 		li.addClass('tab-is-shared');
 	};
 
+	tabs.show = function (options) {
+		var uuid = options.uuid;
+
+		ul_top.find('li[data-tab-uuid=' + uuid + '] a[data-toggle="tab"]').trigger('click');
+	};
+
 	function init_handlers () {
 
 		/*
@@ -126,6 +132,15 @@ define(function(require) {
 
 			destroy_tab (uuid);
 			return true;
+		});
+
+		/*
+		 * Handle tab shown */
+		ul_top.on('shown.bs.tab', 'a[data-toggle="tab"]', function (ev) {
+			var uuid = $(ev.target).closest('li').attr('data-tab-uuid');
+			/*
+			 * Inform the framework */
+			f_handle.tabs.now_showing ({ uuid : uuid });
 		});
 	}
 

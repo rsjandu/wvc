@@ -92,6 +92,10 @@ define(function(require) {
 				controller.handle.destroy (info);
 				break;
 
+			case 'tab-now-showing':
+				controller.handle.show (info);
+				break;
+
 			default :
 				log.error ('unknown info_id (' + info_id + ') recieved. ignoring.');
 				return;
@@ -106,13 +110,15 @@ define(function(require) {
 			create      : create,
 			get_by_uuid : get_by_uuid,
 			sync_remote : sync_remote,
+
 			/*
 			 * Generally called by the tab-controller resource */
 			destroyed   : destroyed,
+			now_showing : now_showing,
+
 			/*
 			 * implement later 
 			 destroy : destroy,
-			 show : show,
 			 enable : enable,
 			 disable : disable,
 			 save : save,
@@ -166,6 +172,15 @@ define(function(require) {
 		}
 	}
 
+	function now_showing (options) {
+		var uuid = options.uuid;
+
+		if (uuid_array[uuid]) {
+			if (uuid_array[uuid].sync_remote)
+				f_handle_cached.send_info ('*', 'tab-now-showing', { uuid : uuid }, 0);
+		}
+	}
+
 	function sync_remote (options) {
 		var uuid = options.uuid;
 		var mod_name = this.module_name;
@@ -194,6 +209,7 @@ define(function(require) {
 			__check(_module.name, 'create',      _module.handle.create);
 			__check(_module.name, 'destroy',     _module.handle.destroy);
 			__check(_module.name, 'sync_remote', _module.handle.sync_remote);
+			__check(_module.name, 'show',        _module.handle.show);
 		}
 		catch (err) {
 			log.error (err);
