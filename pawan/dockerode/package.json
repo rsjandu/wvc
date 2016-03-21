@@ -1,0 +1,12 @@
+{
+  "name": "dockerautomatic",
+  "version": "0.0.1",
+  "description": "Docker Manager Module",
+  "scripts": {
+    "start": "sudo node app.js"
+  },
+  "dependencies": {
+    "dockerode": "file:dockerode",
+    "express": "^4.13.3"
+  }
+}
