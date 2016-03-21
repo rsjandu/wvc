@@ -14,7 +14,7 @@ content.upload = function( info, cb){
 		}, 'get upload url');
 		
 		if( cb){
-			 err ? cb( err) :	cb( null, url);
+			 err ? cb( err) :	cb( null, urls);
 		}
 		/* no need to store it, we keep our server stateless */
 	});

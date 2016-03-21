@@ -10,7 +10,7 @@ var config	= require('common/config') ,
 	content	= require('core/content') ,
 	nodes	= require('core/nodes') ;
 
-setInterval( sweep, config.deamon.freq * 1000 * 60 );		// change it to minutes //
+setInterval( sweep, config.deamon.freq * 1000 * 60 );
 
 function sweep(){
 	nodes.get_expired( function( err, data){
