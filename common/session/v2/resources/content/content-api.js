@@ -78,13 +78,13 @@ content_api.get_past_content_list = function ( info ) {
 	var request_url = api_url+"content/v1/user/"+ info.user_id+"/list";
 	var _r = rest.get(request_url, {/* No Body */});
 
-	_r.on('complete',function(data,response){
-		log.info( { data : data },  ' get content post complete.');
-		if(data.status === 'error'){
-			_d.reject(data);
-		}else{
-			_d.resolve(data);
-		}
+	_r.on('complete',function(data,response) {
+		log.info( { data : data }, 'get content post complete');
+
+		if (data.status === 'error')
+			return _d.reject(data);
+
+		return _d.resolve(data);
 	});
 
 	_r.on ('error', function (err, response) {
@@ -96,6 +96,7 @@ content_api.get_past_content_list = function ( info ) {
 		log.error ({ ms: ms }, 'post timedout');
 		_d.reject (ms);
 	});
+
 	return _d.promise();
 };
 /*

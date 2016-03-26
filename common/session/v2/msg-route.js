@@ -28,8 +28,8 @@ route.route_req = function (conn, from, to, msg) {
 			break;
 
 		default:
-			_d.reject ('bad address', 'msg-route');
-			return _d.promise ();
+			var log_ = conn.c.log;
+			resources.route_command (_d, conn, from, to, msg, log_);
 	}
 
 	return _d.promise ();

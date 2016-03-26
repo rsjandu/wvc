@@ -146,7 +146,7 @@ function get_config_meghadoot (sess_id, callback) {
 				name: 'content',
 				role: 'content',
 				display_name : 'Content',
-				req_sess_info : false,
+				req_sess_info : true,
 				display_spec: { widget: 'tabs', templates: [ "player", "library", "library-item" ], css: [ 'content.min' ] },
 				custom: {
 				},

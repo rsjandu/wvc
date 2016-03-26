@@ -19,7 +19,7 @@ app.use('/user/v1', account);
 
 app.use('/content/v1', core);
 
-app.use( function(err, req, res, next){
+app.use( function(err, req, res, next) {
 	res.status( err.status || 500);
 	res.send({ 'status':'error', 'data': err });
 	log.warn({ 'status':'error', 'data': err }, 'app.js');

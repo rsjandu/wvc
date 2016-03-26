@@ -30,7 +30,7 @@ content.init_user = function (user) {
 	var _d = $.Deferred ();
 
 	_d.resolve ({
-		background : 'white'
+		shared : doc_map_get_all (user)
 	});
 
 	return _d.promise ();
@@ -68,9 +68,51 @@ content.command = function (vc_id, command, data) {
 };
 
 content.info = function (from, id, info) {
-	coms.broadcast_info (id, info, from);
 };
 
+content.relay_info = function (from, to, id, info) {
+
+	log.debug ({ from: from, to: to, id: id, info: info }, 'in relay_info');
+	switch (id) {
+		case 'new-content':
+			return doc_map_add (from, to, info);
+
+		case 'navigate-to':
+			return doc_map_navigate_to (from, to, info);
+
+		default :
+			log.error ({ from: from, id: id, info: info }, 'unknown info id');
+			return false;
+	}
+
+	return false;
+};
+
+var shared_docs_map = {};
+function doc_map_add (from, to, info) {
+	shared_docs_map[info.uuid] = {
+		owner : from,
+		content_uri : info.content_uri,
+		creation_ts : Date.now()
+	};
+
+	return true;
+}
+
+function doc_map_navigate_to (from, to, info) {
+	if (!shared_docs_map[info.uuid]) {
+		log.error ({ from: from, to: to, info: info, method: 'doc_map_navigate_to '}, 'non-existent uuid');
+		return false;
+	}
+
+	log.info ({ page : info.page, uuid : info.uuid }, 'set current page');
+	shared_docs_map[info.uuid].page = info.page;
+	return true;
+}
+
+function doc_map_get_all (user) {
+	return shared_docs_map;
+}
 
 /* Method called from client to get the temporary url to upload file.*/
 function get_presigned_url (_d, info) {

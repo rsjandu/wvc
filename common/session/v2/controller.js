@@ -181,7 +181,8 @@ function handle_user_to_user_info (conn, from, to, msg, log_) {
 	 * 2. Give the message to the resource and get approval
 	 * 3. Forward the message */
 
-	users.relay_info (from, to, msg, log_);
+	if (resources.relay_info (from, to, msg))
+		users.relay_info (from, to, msg, log_);
 }
 
 function actually_join_user (user) {

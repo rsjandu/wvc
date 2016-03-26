@@ -36,6 +36,9 @@ define(function(require) {
 
 		switch (info_id) {
 			case 'new-content' :
+				info.remote_slave = true;
+				info.show_menu = false;
+				info.shared = false;
 				return handle_remote_new_content (info);
 
 			case 'navigate-to' :
@@ -48,11 +51,39 @@ define(function(require) {
 	};
 
 	content.start = function (sess_info) {
+		log.info ('sess_info = ', sess_info);
+
+		for (var uuid in sess_info.shared) {
+			var i_am = f_handle.identity.vc_id;
+			var remote_slave = sess_info.shared[uuid].owner === i_am ? false : true;
+
+			/*
+			 * If this content was originally shared by me, then create a library 'behind'
+			 * the content first */
+			if (!remote_slave) {
+				content.create({
+					uuid : uuid,
+					remote_slave : remote_slave
+				});
+
+				f_handle.tabs.sync_remote ({ uuid : uuid });
+			}
+
+			handle_remote_new_content ({
+				uuid : uuid,
+				content_uri : sess_info.shared[uuid].content_uri,
+				remote_slave : remote_slave,
+				show_menu : remote_slave ? false : true,
+				shared : remote_slave ? false : true,
+				page : sess_info.shared[uuid].page,
+			});
+		}
+
 		return;
 	};
 
-	content.create = function () {
-		var options = {};
+	content.create = function (_options) {
+		var options = _options || {};
 
 		var handle = f_handle.tabs.create (options);
 
@@ -68,7 +99,7 @@ define(function(require) {
 	function handle_remote_new_content (info) {
 		var options = {
 			uuid : info.uuid,
-			remote_slave : true
+			remote_slave : info.remote_slave
 		};
 
 		var handle = f_handle.tabs.get_by_uuid (info.uuid);
@@ -77,8 +108,10 @@ define(function(require) {
 
 		/* reusing the options variable ... */
 		options = {
-			show_menu : false,
-			mode : 'fullview'
+			shared : info.shared,
+			show_menu : info.show_menu,
+			mode : 'fullview',
+			page : info.page || 1
 		};
 
 		player.start (handle.anchor, info.content_uri, options);

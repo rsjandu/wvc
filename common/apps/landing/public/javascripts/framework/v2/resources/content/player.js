@@ -33,7 +33,8 @@ define(function(require) {
 		$(anchor).append(template({ 
 			content_area_id   : content_area_id,
 			content_uri       : content_uri,
-			show_menu         : options.show_menu
+			show_menu         : options.show_menu,
+			shared            : options.shared && (options.shared ? 'yes' : 'no' )|| 'no'
 		}));
 
 		var content_area = $(anchor).find('.content-area');
@@ -71,6 +72,15 @@ define(function(require) {
 			var mode = options.mode ? options.mode : 'fullview';
 			tab_set_mode($(anchor), mode);
 
+			try {
+				log.info ('scrolling to ' + options.page);
+				viewer.scrollTo (options.page || 1);
+			}
+			catch (e) {
+				/* Ignore - some documents result in scroll errors */
+				log.info ('unable to scroll [' + content_uri + ']: reason : ', e);
+			}
+
 			current_page = ev.data.page;
 			var data = {
 				current_page 	: current_page,
@@ -79,17 +89,8 @@ define(function(require) {
 			_d.resolve(data);
 		});
 
-		viewer.on('resize', function(ev){
-			console.log('Document width: ' + ev.data.width + ' heght: '+ev.data.height );
-		});
-
-		viewer.on('zoom',function(ev){
-			zoomVal = ev.data.zoom;
-		});
-
-		viewer.on('pagefocus', function(evt){
-			current_page = evt.data.page;
-			$('#pageInput').val(current_page);
+		viewer.on('pagefocus', function (ev) {
+			handle_page_focus ($(anchor), ev);
 		});
 
 		return _d.promise ();
@@ -111,8 +112,7 @@ define(function(require) {
 		var content_area_id = $(anchor).find('.content-area').attr('id');
 		var viewer = get_viewer (content_area_id);
 
-		log.info ('scrolling ...' + info.dir);
-		viewer.handle.scrollTo (info.dir);
+		viewer.handle.scrollTo (info.page);
 	};
 
 	function make_content_area_id (anchor_id) {
@@ -179,13 +179,20 @@ define(function(require) {
 		dir = (dir === 'next' ? Crocodoc.SCROLL_NEXT : Crocodoc.SCROLL_PREVIOUS);
 		viewer.handle.scrollTo (dir);
 
-		if ($content_area.attr('data-is-shared')) {
-			var $tab_anchor = curr.closest('.tab-pane');
+		/*
+		 * This will eventually trigger "handle_page_focus" below */
+	}
+
+	function handle_page_focus ($tab_anchor, ev) {
+		var $content_area = $tab_anchor.find('.content-player-outer');
+		var current_page = ev.data.page;
+
+		if ($content_area.attr('data-is-shared') === 'yes') {
 			var uuid = $tab_anchor.attr('data-tab-uuid');
 
 			var msg_data = {
 				uuid : uuid,
-				dir : dir
+				page : current_page
 			};
 
 			f_handle_cached.send_info ('*', 'navigate-to', msg_data, 0);
@@ -246,7 +253,7 @@ define(function(require) {
 		f_handle_cached.tabs.sync_remote ({ uuid : uuid });
 
 		tab_set_mode ($tab_anchor, 'fullview');
-		$content_area.attr('data-is-shared', true);
+		$content_area.attr('data-is-shared', 'yes');
 	}
 
 	function destroy_viewer (content_area_id, viewer, $tab_anchor, change_mode) {

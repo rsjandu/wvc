@@ -23,10 +23,25 @@
 		}
 	}
 
+	/*
 	.nav-tabs > li.tab-is-shared {
 		color : @brand-danger;
 		a {
 			color : @brand-danger;
+		}
+	}
+	*/
+	.nav-tabs > li.tab-is-shared {
+		a {
+			background-color : fadeout(@brand-primary, 70%);
+			color : white;
+		}
+	}
+
+	.nav-tabs > li.tab-is-shared.active {
+		a {
+			background-color : white;
+			color : @brand-primary;
 		}
 	}
 
