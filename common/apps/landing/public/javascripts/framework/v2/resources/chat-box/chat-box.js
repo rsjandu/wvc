@@ -76,6 +76,9 @@ define(function(require){
 			events.bind('framework:layout', layout_changed, 'chat-box');
 			$('#widget-chat .lcb-room-header svg').on('click', handle_click);
 
+			/* Set the audio volume level fot message notification */
+			$('.lcb-room-chat audio').get(0).volume = 0.3;
+
 			_d.resolve();
 			return _d.promise();
 	};
@@ -264,11 +267,12 @@ define(function(require){
 		var $message = msgTemplate( messageObj);
 
 		format_message( $message, function( html){
-						$messages.append(/*'<li>' +*/ html);
+			$messages.append(/*'<li>' +*/ html);
+			if( scroll_lock === false || messageObj.owner.id === users.me.id ){
+				scrollTo( $messages[0] );
+			}
 
-						if( scroll_lock === false || messageObj.owner.id === users.me.id ){
-							scrollTo( $messages[0] );
-						}
+			$('.lcb-room-chat audio').get(0).play();
 		});
 	}
 
