@@ -2,7 +2,10 @@ li
   .content-item-container
     .content-item-thumbnail
       a.content-preview-trigger(href="javascript:void(0)", data-content-url=url)
-        include images/paper.svg
+        if thumbnail
+          img(src=thumbnail)
+        else
+          include images/paper.svg
     .content-item-type-icon(data-content-type=type)
     .content-item-name
       span #{name}

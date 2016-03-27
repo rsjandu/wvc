@@ -27,18 +27,32 @@ define(function(require) {
 		var _d = $.Deferred ();
 
 		/*
+		 * Get my identity.
+		 * If this is an anonymous login, set a public account. Else ... */
+		log.info ('identity - ', f_handle_cached.identity);
+		var email = f_handle_cached.identity.email || 'test@wiziq.com';
+		/*
+		 * A hack - clean this later */
+		if (f_handle_cached.identity.email === '-----')
+			email = 'test@wiziq.com';
+
+		/*
 		 * Load the library template */
 
 		var template = f_handle_cached.template('library');
 		var content_area_id = make_content_area_id (anchor_id);
-		$(anchor).append (template ({ tab_anchor_id : anchor_id }));
+		$(anchor).append (template ({ 
+			tab_anchor_id : anchor_id,
+			email : email
+		}));
 
 		upload.prepare ({
 			anchor : $(anchor).find('.content-lib-upload'),
-			tab_anchor : anchor
+			tab_anchor : anchor,
+			email : email
 		});
 
-		populate_library ($(anchor).find('.content-lib-main'));
+		populate_library (email, $(anchor).find('.content-lib-main'));
 
 		_d.resolve ();
 		return _d.promise ();
@@ -48,9 +62,9 @@ define(function(require) {
 		$tab_anchor.empty();
 	};
 
-	function populate_library ($anchor_lib) {
+	function populate_library (email, $anchor_lib) {
 
-		get_content ()
+		get_content (email)
 			.then (
 				__populate.bind($anchor_lib), handle_error.bind($anchor_lib)
 			)
@@ -67,9 +81,9 @@ define(function(require) {
 		log.error (err, 'TODO: handle this error');
 	}
 
-	function get_content () {
+	function get_content (email) {
 		var key = 'get-content';
-		var val = { user_id : 'arvind@authorgen.com' };
+		var val = { user_id : email };
 
 		return f_handle_cached.send_command (null, key, val, 0);
 	}
@@ -77,32 +91,36 @@ define(function(require) {
 	function __populate (content_arr) {
 		var $anchor_lib = this;
 
-		log.info ('populating with ', content_arr);
 		for (var i = 0; i < content_arr.data.length; i++) {
 			var info = content_arr.data[i];
-			var template = f_handle_cached.template('library-item');
-			var library_item = template (info);
-
-			/*
-			 * The info looks like this:
-			 *     __v: 0
-			 *     _id: "56dada11117a43a0fda531bb"
-			 *     ctime: "2016-03-05T13:07:29.821Z"
-			 *     dir: "/"
-			 *     name: "gpM4Y2_1457183205532_aSes_1.pdf"
-			 *     owner: "arvind@authorgen.com"
-			 *     size: 379345
-			 *     tags: Array[1]
-			 *     type: "application/pdf"
-			 *     url: "https://boxcontent.s3.amazonaws.com/bad5990bee174609a36993f621e9d7ff"
-			 */
-
-			$anchor_lib.find('.content-lib-items ul').append(library_item);
+			add_to_lib ($anchor_lib, info);
 		}
 	}
 
+	function add_to_lib ($anchor_lib, info) {
+		var template = f_handle_cached.template('library-item');
+		var library_item = template (info);
+
+		/*
+		 * The info must look like this:
+		 *     __v: 0
+		 *     _id: "56dada11117a43a0fda531bb"
+		 *     ctime: "2016-03-05T13:07:29.821Z"
+		 *     dir: "/"
+		 *     name: "gpM4Y2_1457183205532_aSes_1.pdf" (MANDATORY)
+		 *     owner: "arvind@authorgen.com"
+		 *     size: 379345
+		 *     tags: Array[1]
+		 *     type: "application/pdf" (MANDATORY)
+		 *     url: "https://boxcontent.s3.amazonaws.com/bad5990bee174609a36993f621e9d7ff" (MANDATORY)
+		 *     thumbnail : ...
+		 */
+
+		log.info ('adding ', info);
+		$anchor_lib.find('.content-lib-items ul').append(library_item);
+	}
+
 	function init_handlers () {
-		$('#widget-tabs').on('click', 'button.content-test-gen-url', handle_gen_url);
 		$('#widget-tabs').on('click', 'a.content-preview-trigger', show_preview);
 	}
 
@@ -125,36 +143,27 @@ define(function(require) {
 	   	});
 	}
 
-	function handle_gen_url (ev) {
-		var key = 'get-tmp-url';
-		var val = {
-			dir       : '',
-			file_name : 'abc.txt',
-			file_type : 'txt',
-			user_id   : 'avinash.bhatia@gmail.com'
-		};
-
-		log.info ('handle_gen_url handler');
-
-		f_handle_cached.send_command (null, key, val, 0)
-			.then(
-					function () {
-						log.info ('remote command "' + key + '->' + val + '" ok');
-					},
-					function (err) {
-						log.error ('remote command "' + key +  '->' + val + '" failed: reason: ' + err);
-					}
-			     );
-	}
-
 	function handle_new_content (ev, data) {
 		switch (ev) {
 			case 'content-added' : 
 				var tab    = $(data.tab);
 				var url    = data.conv_url;
 
-				/* remove the library from the anchor */
+				/* add to all open libraries */
+				var lib_instances = $('#widget-tabs').find('.content-lib-main');
+				for (var i = 0; i < lib_instances.length; i++) {
+					var $anchor_lib = $(lib_instances[i]);
+
+					add_to_lib ($anchor_lib, {
+						name : data.name,
+						url  : data.conv_url,
+						type : data.type,
+						thumbnail : data.thumbnail
+					});
+				}
+
 				player.start (tab, url, { 
+					show_menu : true,
 					show_library_icon : true,
 					mode : 'preview'
 				});

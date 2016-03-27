@@ -75,11 +75,11 @@ content_api.get_past_content_list = function ( info ) {
 		return _d.promise ();
 	}
 
-	var request_url = api_url+"content/v1/user/"+ info.user_id+"/list";
+	var request_url = api_url + "content/v1/user/" + info.user_id + "/list";
 	var _r = rest.get(request_url, {/* No Body */});
 
 	_r.on('complete',function(data,response) {
-		log.info( { data : data }, 'get content post complete');
+		log.info( { url : request_url, data : data }, 'get content complete');
 
 		if (data.status === 'error')
 			return _d.reject(data);
@@ -88,12 +88,12 @@ content_api.get_past_content_list = function ( info ) {
 	});
 
 	_r.on ('error', function (err, response) {
-		log.error ({ err: err }, 'post error');
+		log.error ({ url: request_url, err: err }, 'get content error');
 		_d.reject (err);
 	});
 
 	_r.on ('timeout', function (ms) {
-		log.error ({ ms: ms }, 'post timedout');
+		log.error ({ url: request_url, ms: ms }, 'get content timedout');
 		_d.reject (ms);
 	});
 

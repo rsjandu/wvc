@@ -19,6 +19,7 @@ define(function(require) {
 	 * This is called upon the creation of a new tab */
 	upload.prepare = function (initial_data) {
 		var anchor       = initial_data.anchor;
+		var email        = initial_data.email;
 		var upload_span  = anchor.find ('.content-upload-label');
 		var upload_input = anchor.find ('.content-upload-input');
 		var upload_error = anchor.find ('.content-upload-error');
@@ -43,9 +44,11 @@ define(function(require) {
 			init_progress_bar (progress);
 			update_status (status_span, 'Requesting ...');
 
-			get_presigned_url (files[0])
+			get_presigned_url (email, files[0])
 				.then (upload_start.bind(null, files, progress, status_span),     handle_error.bind('Request Failed', status_span, progress, upload_error))
-				.then (start_conversion.bind(null, files, anchor, status_span),   handle_error.bind('Upload Failed', status_span, progress, upload_error))
+				.then (upload_complete.bind(null, files, anchor, status_span),    handle_error.bind('Upload Failed', status_span, progress, upload_error))
+				.then (start_conversion.bind(null, email, files, anchor, status_span),
+					                                                              handle_error.bind('Upload Failed', status_span, progress, upload_error))
 				.then (inform_library.bind(null, initial_data),                   handle_error.bind('Conversion Failed', status_span, progress, upload_error))
 				.then (finish.bind(null, status_span),                            handle_error.bind('Post Conversion Failed', status_span, progress, upload_error));
 		});
@@ -106,7 +109,6 @@ define(function(require) {
 				return;
 			}
 
-			/* Add a call to inform the cluster of upload complete */
 			_d.resolve (data, file_obj);
 			vanish_progress_bar (progress, null);
 		};
@@ -140,18 +142,51 @@ define(function(require) {
 		}
 	}
 
-	function start_conversion (files, anchor, status_span, data, file_obj){
+	function upload_complete (files, anchor, status_span, data, file_obj){
 		var _d = $.Deferred ();
-		update_status (status_span, 'Converting ...');
+		update_status (status_span, 'Finalizing upload ...');
+
+		var key = 'upload_complete';
+		var value = {
+			name            : file_obj.name,
+			path            : '/vctemp/'+ encodeURI(file_obj.name),
+			type            : file_obj.type,
+			size            : file_obj.size,
+			url             : data.access_url,
+			user_id         : 'arvind@authorgen.com',
+			vc_id           : f_handle_cached.identity.vc_id,
+			u_name          : f_handle_cached.identity.id,
+			removeafter     : 3600,
+			tags            : 'content, pdf'
+		};
+
+		anchor.find('.content-conversion-busy').css('display', 'block');
+		f_handle_cached.send_command (null, key, value, 0)
+		.then (
+			function (arg) {
+				_d.resolve (data, arg);
+			},
+			function (err) {
+				_d.reject (err);
+				update_status (status_span, 'Upload Complete Info Error.');
+			}
+		);
+
+		return _d.promise ();
+	}
+
+	function start_conversion (email, files, anchor, status_span, data, file_obj){
+		var _d = $.Deferred ();
+		update_status (status_span, 'Processing ...');
 
 		var key = 'start-conversion';
 		var value = {
 			name         	: file_obj.name,
-			path	        : '/',
+			path	        : '/' + encodeURI (file_obj.name),
 			type		    : file_obj.type,
 			size      	    : file_obj.size,
 			url             : data.access_url,
-			user_id		    : 'arvind@authorgen.com',
+			user_id		    : email,
 			vc_id 		    : f_handle_cached.identity.vc_id,
 			u_name 		    : f_handle_cached.identity.id,
 			tags		    : 'content, pdf'
@@ -182,13 +217,14 @@ define(function(require) {
 		var _d = $.Deferred ();
 
 		emitter.emit ('content-added', {
-			tab        : initial_data.tab_anchor,
-			name       : other.name,
-			type       : other.type,
-			created_at : other.created_at,
-			id         : other.id,
-			orign_url  : data.access_url,
-			conv_url   : other.converted_url
+			tab           : initial_data.tab_anchor,
+			name          : other.name,
+			type          : other.type,
+			created_at    : other.created_at,
+			id            : other.id,
+			raw_file_url  : data.access_url,
+			conv_url      : other.url,
+			thumbnail     : other.thumbnail
 		});
 
 		_d.resolve (data);
@@ -203,13 +239,13 @@ define(function(require) {
 		return 'content-area-' + anchor_id	;
 	}
 
-	function get_presigned_url (file) {
+	function get_presigned_url (email, file) {
 		var key = 'get-tmp-url';
 		var val = {
-			path      : '/',
-			name      : encodeURI(file.name),
+			path      : '/vctemp/' + encodeURI (file.name),
+			name      : file.name,
 			type      : file.type ? file.type : file.name.replace(/^.*\./g, ''),
-			user_id   : 'avinash.bhatia@gmail.com'
+			user_id   : email
 		};
 
 		log.info ('get_presigned_url: sending ', val);

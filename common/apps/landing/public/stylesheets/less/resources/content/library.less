@@ -24,6 +24,7 @@
 		font-weight: bold;
 		color: #666;
 	}
+	span.content-lib-header-email,
 	span.content-lib-header-subtitle {
 		font-size : x-small;
 		font-weight: lighter;
@@ -86,6 +87,7 @@
 	&[data-content-type="application/vnd.openxmlformats-officedocument.presentationml.presentation"] {
 		background-image: url('/landing/images/content-type-icons/ms-ppt.png');
 	}
+	&[data-content-type="application/msword"],
 	&[data-content-type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"] {
 		background-image: url('/landing/images/content-type-icons/ms-word.png');
 	}
@@ -105,6 +107,11 @@
 	.tab-pane.content-loading &:hover,
 	.tab-pane.content-loading & svg :hover {
 		cursor: default;
+	}
+
+	img {
+		height : 100%;
+		width : 100%;
 	}
 
 	svg {

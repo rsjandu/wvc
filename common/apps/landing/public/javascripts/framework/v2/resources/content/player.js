@@ -39,8 +39,10 @@ define(function(require) {
 
 		var content_area = $(anchor).find('.content-area');
 
-		if (!content_uri)
+		if (!content_uri) {
+			log.error ('null content_uri');
 			content_uri = default_content_uri;
+		}
 
 		viewer = Crocodoc.createViewer (content_area, { url: content_uri });
 		viewer.load();
