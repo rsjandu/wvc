@@ -118,14 +118,6 @@ function get_config_meghadoot (sess_id, callback) {
 				},
 			},
 			{
-				name: 'webpage',
-				role: 'app',
-				display_name : 'WizIQ Home Page',
-				display_spec: { widget: 'tabs', templates: [ ], css: [ "webpage.min" ]  },
-				custom: {
-				},
-			},
-			{
 				name: 'chat-box',
 				role: 'chat',
 				display_name : 'Chat',

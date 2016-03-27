@@ -63,7 +63,8 @@ define(function(require) {
 			if (!remote_slave) {
 				content.create({
 					uuid : uuid,
-					remote_slave : remote_slave
+					remote_slave : remote_slave,
+					startup : true
 				});
 
 				f_handle.tabs.sync_remote ({ uuid : uuid });
@@ -76,6 +77,7 @@ define(function(require) {
 				show_menu : remote_slave ? false : true,
 				shared : remote_slave ? false : true,
 				page : sess_info.shared[uuid].page,
+				startup : true
 			});
 		}
 
@@ -92,14 +94,15 @@ define(function(require) {
 
 	content.destroy = function ($tab_anchor, uuid) {
 		log.info ('content.destroy: $tab_anchor', $tab_anchor, 'uuid = ' + uuid);
-		library.destroy ($tab_anchor);
 		player.destroy ($tab_anchor);
+		library.destroy ($tab_anchor);
 	};
 
 	function handle_remote_new_content (info) {
 		var options = {
 			uuid : info.uuid,
-			remote_slave : info.remote_slave
+			remote_slave : info.remote_slave,
+			startup : info.startup || false
 		};
 
 		var handle = f_handle.tabs.get_by_uuid (info.uuid);

@@ -84,6 +84,11 @@ define(function(require) {
 		return null;
 	};
 
+	var session_wide_active_tab;
+	m.set_active = function (sess_info) {
+		session_wide_active_tab = sess_info.uuid || null;
+	};
+
 	m.info = function (from, to, info_id, info) {
 
 		switch (info_id) {
@@ -133,9 +138,10 @@ define(function(require) {
 
 	function create (options) {
 		var mod_name = this.module_name;
+		log.info ('options create = ', options);
 
 		if (!controller) {
-			log.error ('create: no registerd controller');
+			log.error ('create: no registerd controller', options);
 			return;
 		}
 
@@ -146,6 +152,13 @@ define(function(require) {
 		if (!options.uuid)
 			options.uuid = uuid();
 
+		options.active = true;
+		if (options.startup) {
+			if (session_wide_active_tab != options.uuid)
+				options.active = false;
+		}
+
+		log.info ('options = ', options);
 		var res = controller.handle.create (mod_name, options);
 
 		/* Ensure that "res" contains the required fields */
@@ -158,6 +171,7 @@ define(function(require) {
 			handle      : res,
 			sync_remote : false
 		};
+
 		return res;
 	}
 
@@ -198,8 +212,11 @@ define(function(require) {
 		uuid_array[uuid].sync_remote = true;
 		/*
 		 * Just inform the tab controller resource. The actual messages for sharing 
-		 * will still be handled by the this module */
+		 * will still be handled by that module */
 		controller.handle.sync_remote (options);
+
+		now_showing ({ uuid : uuid });
+
 	}
 
 	function check_controller_methods (_module) {

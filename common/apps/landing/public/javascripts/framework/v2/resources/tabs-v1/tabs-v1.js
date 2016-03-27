@@ -64,22 +64,28 @@ define(function(require) {
 		id_seed++;
 
 		/*
-		 * Create the li element */
-		ul_top.find('li.active').removeClass('active');
-		content_top.find('div.active').removeClass('active');
+		 * Create the li element and if this is supposed to be an active tab, 
+		 * remove the active class from the existing ones */
+		if (options.active) {
+			ul_top.find('li.active').removeClass('active');
+			content_top.find('div.active').removeClass('active');
+		}
+
 		ul_top.append (li_template({
 			id : id,
 			display_name : display_name,
 			uuid : options.uuid,
 			disable_close : (options.remote_slave ? true : false),
-			module_name : module_name
+			module_name : module_name,
+			active : options.active
 		}));
 
 		/*
 		 * Create the tab element */
 		content_top.append (tabpanel_template({
 			id : id,
-			uuid : options.uuid
+			uuid : options.uuid,
+			active : options.active
 		}));
 
 		var res = {

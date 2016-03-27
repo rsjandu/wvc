@@ -7,6 +7,7 @@ var protocol        = require("./protocol");
 var users           = require("./users");
 var addr            = require("./addr");
 var connection      = require('./connection');
+var tab_controller  = require('./tab-controller');
 
 connection.events.on ('closed', function (vc_id) {
 	handle_user_remove (vc_id);
@@ -181,7 +182,20 @@ function handle_user_to_user_info (conn, from, to, msg, log_) {
 	 * 2. Give the message to the resource and get approval
 	 * 3. Forward the message */
 
-	if (resources.relay_info (from, to, msg))
+	var relay = false;
+	var to_module = addr.pop(to).split(':')[0];
+
+	switch (to_module) {
+
+		case 'tab-controller':
+			relay = tab_controller.relay_info (from, to, msg, log_);
+			break;
+
+		default :
+			relay = resources.relay_info (from, to, msg);
+	}
+
+	if (relay)
 		users.relay_info (from, to, msg, log_);
 }
 
@@ -191,6 +205,7 @@ function actually_join_user (user) {
 
 	var sess_info = {
 		attendees : users.get_publishable_info (null, user.vc_id),
+		tab_controller : tab_controller.get_active_tab ()
 	};
 
 	users.send_info (user.vc_id, 'controller', 'framework', 'session-info', sess_info);

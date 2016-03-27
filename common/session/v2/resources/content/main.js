@@ -80,6 +80,9 @@ content.relay_info = function (from, to, id, info) {
 		case 'navigate-to':
 			return doc_map_navigate_to (from, to, info);
 
+		case 'content-destroyed':
+			return doc_map_remove (from, to, info);
+
 		default :
 			log.error ({ from: from, id: id, info: info }, 'unknown info id');
 			return false;
@@ -108,6 +111,17 @@ function doc_map_navigate_to (from, to, info) {
 	log.info ({ page : info.page, uuid : info.uuid }, 'set current page');
 	shared_docs_map[info.uuid].page = info.page;
 	return true;
+}
+
+function doc_map_remove (from, to, info) {
+	if (!shared_docs_map[info.uuid]) {
+		log.error ({ from: from, to: to, info: info, method: 'doc_map_remove '}, 'non-existent uuid');
+		return false;
+	}
+
+	delete shared_docs_map[info.uuid];
+	/* No need to forward this to all, since everyone will know via the tab-controller anyways */
+	return false;
 }
 
 function doc_map_get_all (user) {

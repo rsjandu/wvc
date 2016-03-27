@@ -106,6 +106,11 @@ define(function(require) {
 		var viewer = get_viewer (content_area_id);
 
 		destroy_viewer (content_area_id, viewer, $tab_anchor, false);
+
+		if ($player.attr('data-is-shared') === 'yes') {
+			var uuid = $tab_anchor.attr('data-tab-uuid');
+			f_handle_cached.send_info ('*', 'content-destroyed', { uuid : uuid }, 0);
+		}
 	};
 
 	player.navigate = function (anchor, info) {

@@ -179,6 +179,9 @@ define(function(require) {
 		log.info ('class started : ', sess_info);
 		progress_ev.emit ('session cluster responded with session info');
 
+		attendees.fill_users (sess_info.attendees);
+		tab_controller.set_active (sess_info.tab_controller);
+
 		/* Start modules which do not require any server side session info */
 		for (var mod in modules) {
 
@@ -259,7 +262,6 @@ define(function(require) {
 				switch (id) {
 
 					case 'session-info': 
-						attendees.fill_users (data.attendees);
 						started (data); 
 						break;
 
@@ -511,6 +513,7 @@ define(function(require) {
 				tab_controller.flush_pending_registrations ();
 				break;
 
+			case 'content':
 			case 'whitelabeling':
 				break;
 
