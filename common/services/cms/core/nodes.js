@@ -50,7 +50,7 @@ nodes.replace = function( info, cb){
 		node.thumbnail = info.thumbnail;
 
 		node.save( function( err, node){
-			cb(err);
+			cb( err, node);
 		});				
 	}); //get_node end
 };
