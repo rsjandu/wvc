@@ -19,6 +19,9 @@ app.use('/user/v1', account);
 
 app.use('/content/v1', core);
 
+app.use( log.req_logger);
+app.use( log.err_logger);
+
 app.use( function(err, req, res, next) {
 	res.status( err.status || 500);
 	res.send({ 'status':'error', 'data': err });
@@ -32,9 +35,9 @@ resources.init()
 );
 
 function start(){
-	log.log('\n**************************');
+	log.info('**************************');
 	log.info('Started, listening on: '+ _port);
-	log.log('**************************\n');
+	log.info('**************************');
 	app.listen(_port);
 }
 

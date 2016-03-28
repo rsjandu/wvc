@@ -1,5 +1,5 @@
 
-var log	= require('common/log')  ,
+var log	= require('common/log').child({ module : 'core/storage-if'})  ,
 	s3	= require('utils/s3')  ;
 	/* require all others here */
 

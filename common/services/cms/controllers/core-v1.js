@@ -1,4 +1,4 @@
-var log		= require('common/log')  ,
+var log		= require('common/log').child({ module : 'controllers/core-v1'}) ,
 	content = require('core/content')  ;
 
 var core = {};

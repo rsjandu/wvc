@@ -1,5 +1,5 @@
 
-var log 		= require('common/log')  ,
+var log 		= require('common/log').child({ module : 'core/content'}) ,
 	nodes		= require('core/nodes')  ,
 	storage_if	= require('core/storage-if')  ;
 

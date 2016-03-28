@@ -1,5 +1,5 @@
 var mongoose	= require('mongoose')  ,
-	log			= require('common/log')  ,
+	log			= require('common/log').child({ module : 'core/nodes'}) ,
 	Node		= require('models/node') , 
 	User		= require('models/user')  ;
 

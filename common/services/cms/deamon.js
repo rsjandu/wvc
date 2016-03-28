@@ -6,7 +6,7 @@
  * */
 
 var config	= require('common/config') ,
-	log		= require('common/log') ,
+	log		= require('common/log').child({ module : 'deamon'}) ,
 	content	= require('core/content') ,
 	nodes	= require('core/nodes') ;
 
