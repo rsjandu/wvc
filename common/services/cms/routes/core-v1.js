@@ -4,18 +4,31 @@ var express = require('express')  ,
 
 var router = express.Router()  ;
 
+if (!String.prototype.endsWith) {
+	log.info('endswith polyfill used');
+  String.prototype.endsWith = function(searchString, position) {
+        var subjectString = this.toString();
+        if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+		        position = subjectString.length;
+		      }
+        position -= searchString.length;
+        var lastIndex = subjectString.indexOf(searchString, position);
+        return lastIndex !== -1 && lastIndex === position;
+    };
+}
+
 router.param('email',function( req, res, next, email){
 	if( !email){
 		res.send({ 'status':'error', 'data':'ARGS_ERR: email required'});
 		return;
 	}
 
-/*
+
   	if( !( email.endsWith('@wiziq.com') || email.endsWith('@gmail.com') || email.endsWith('@facebook.com') || email.endsWith('@authorgen.com')) ){
 		res.send({ 'status':'error', 'data':'AUTH_ERR: not authorized'});
 		return;
 	}
-*/
+
 
 	req.email = email;
 	req.store = 's3';
