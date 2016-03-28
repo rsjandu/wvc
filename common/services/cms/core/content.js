@@ -34,13 +34,13 @@ content.added = function( info, cb){	// info <-- uid, name, path, store, url, ty
 	nodes.get_node( info, function( node){
 		log.debug({ node: node}, 'node exists check returned');
 		if(node){
-			nodes.replace( info, function( err){
-				cb(err);
+			nodes.replace( info, function( err, data){
+				cb( err, data);
 			});
 		}
 		else{
-			nodes.add( info,function(err){
-				cb(err);		//	__iska error is important
+			nodes.add( info,function( err, data){
+				cb( err, data);		//	__iska error is important
 			});
 		}
 	});

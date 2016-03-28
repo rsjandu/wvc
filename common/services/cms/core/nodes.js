@@ -27,7 +27,7 @@ nodes.add = function( info, cb){
 				if( err){
 					_ack('IO_ERROR : could not save user');	
 				}
-				_ack(null);
+				_ack(null, node);
 			});
 		});
 	});	//get_user end
@@ -109,12 +109,8 @@ function remove_node( _node, cb){
 			log.debug({ err : err, data : data}, 'user update');
 		});
 		
-		node.remove( function( err){
-			if( err){
-				cb && cb(err);
-				return;
-			}
-			cb();
+		node.remove( function( err, data){
+			cb && cb( err, data);
 		});
 	});
 }

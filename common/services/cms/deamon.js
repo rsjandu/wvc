@@ -15,7 +15,6 @@ setInterval( sweep, config.deamon.freq * 1000 * 60 );
 function sweep(){
 	nodes.get_expired( function( err, data){
 		data = data || [];
-		console.log( 'expired fields: ' + data.length);
 		data.forEach( function( node){
 			content.remove({
 				uid : node.owner,

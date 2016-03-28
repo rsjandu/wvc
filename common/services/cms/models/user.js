@@ -1,4 +1,5 @@
-var mongoose	= require('mongoose')  ;
+var mongoose	= require('mongoose')  ,
+	log			= require('common/log') ;
 
 var schema = mongoose.Schema({
 	uid 	: { type : String, unique : true },
@@ -7,13 +8,12 @@ var schema = mongoose.Schema({
 });
 
 schema.methods.remove_node = function( id){
+	/* extra code, not being used */
 	var arr = this.nodes ,
 		len = arr.length ;
-	console.log('number of nodes: ' + len + ' id: ' + id );
 	while( len--){
-		console.log( arr[len]);
 		if( arr[len].equals( id) ){
-			console.log('len:: ' + len );
+			log.info({ id: arr[len]}, 'removed from user.nodes');
 			delete arr[len];
 			return true;
 		}
