@@ -10,7 +10,7 @@ define( function(require){
 
 	var store	= {}, 					/* vc_id : { identity : {}, meta : {}, rs_info : {} } */	
 		att 	= {},
-		people_ev = _events.emitter('framework:attendees', 'framework');
+		people_ev = _events.emitter('framework:attendees', 'attendees');
 
 
 	att.fill_users = function( users){			/* to add users already present__before I joined */
@@ -25,7 +25,9 @@ define( function(require){
 
 	att.user_join = function( data){
 		log.info('user_join called');			/* can be removed after 1st run */
-		add_to_map( data[0] );
+		data.forEach( function(user){
+			add_to_map( user);
+		});
 		people_ev.emit('in', data);
 		return;
 	};
@@ -36,7 +38,7 @@ define( function(require){
 			store[ vc_id ].meta.isActive = false;		
 		}
 		else{
-			log.error ('this needs attention: user who left was not in attendees store::' + user);
+			log.error ('this needs attention: user who left was not in attendees store::' + vc_id);
 		}
 		people_ev.emit('out',vc_id);
 	};
@@ -86,14 +88,14 @@ define( function(require){
 		 *     - a number between 0 & 1 for 'audio-volume'
 		 */
 		if( !store[vc_id]){
-			log.info('invalid vc_id::' + vc_id);
+			log.error('invalid vc_id::' + vc_id);
 			return false;
 		}
 
 		switch( _key){
 			case 'audio-control':
 				if(!( value >= 0 && value <= 1)){
-					log.info('invalid value:: ' + value);
+					log.error('invalid value:: ' + value);
 					return false;
 				}
 				/* else fall down __don't break just yet */
@@ -103,9 +105,9 @@ define( function(require){
 			case 'speaker'	 	:
 			case 'microphone'	:
 			case 'write-control':
-				if( is_req){
+				if( is_req){		  /* _key shouldn't be audio-control as it is view only */
 					/* just shout: 'someone set state of this device' and the duty is done. */
-					people_ev.emit('set_device_state',{ vc_id : vc_id, key : _key, value : value });	
+					people_ev.emit('av',{ vc_id : vc_id, key : _key, value : value });	
 				}
 				else{
 					/* somehow tell 'skin' about the change as skin is the one who maintains 'the state' of controls */
@@ -116,7 +118,7 @@ define( function(require){
 				break;
 
 			default:
-				log.info('unknown key::' + _key);
+				log.error('unknown key::' + _key);
 				return false;
 		}
 		return true;

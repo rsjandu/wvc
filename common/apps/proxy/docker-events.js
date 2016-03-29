@@ -1,4 +1,4 @@
-var docker_monitor  = require('node-docker-monitor');
+var docker_monitor  = require('wiziq-node-docker');
 var log             = require('./common/log').child ({'sub-module' : 'proxy-docker-monitor'});
 var route_cache     = require('./route-cache');
 
@@ -34,6 +34,11 @@ function dockermonitor () {
 
 			route_cache.remove_route (key);
 			log.info ({ key : key }, 'route removed');
+		},
+
+		onContainerError: function (err, msg){
+			log.error(err, msg);
+			process.exit(1);
 		}
 
 	});

@@ -17,13 +17,10 @@ route.route_req = function (conn, from, to, msg) {
 	var _to = addr.inspect_top (to);
 
 	switch (_to.resource) {
-		case 'user' :
-			_d.reject ('not implemented', 'msg-route');
-			return;
-
 		case 'controller' :
-
-			controller.process (conn, from, addr.pop(to), msg)
+			/* Fall through */
+		case 'user' :
+			controller.process_req (conn, from, to, msg)
 				.then (
 					_d.resolve.bind(_d),
 					_d.reject.bind(_d)
@@ -31,8 +28,8 @@ route.route_req = function (conn, from, to, msg) {
 			break;
 
 		default:
-			_d.reject ('bad address', 'msg-route');
-			return;
+			var log_ = conn.c.log;
+			resources.route_command (_d, conn, from, to, msg, log_);
 	}
 
 	return _d.promise ();
@@ -47,11 +44,9 @@ route.route_info = function (conn, from, to, msg) {
 
 	switch (_to.resource) {
 		case 'user' :
-			log.error ('route.route_info: NOT IMPLEMENTED for \"user\"');
-			return;
-
+			/* Fall through */
 		case 'controller' :
-			log.error ('route.route_info: NOT IMPLEMENTED for \"controller\"');
+			controller.process_info (conn, from, to, msg);
 			return;
 
 		default:

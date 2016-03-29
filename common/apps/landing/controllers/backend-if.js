@@ -78,6 +78,7 @@ function get_config_meghadoot (sess_id, callback) {
 			{
 				name: 'menu-sidepush-classic',
 				role: 'menu',
+				display_name : 'Menu',
 				req_sess_info : false,
 				display_spec: { widget: "nav", templates: [ 'demo' ], css: [ 'jquery.mmenu.all' ] },
 				perms: { },
@@ -87,23 +88,9 @@ function get_config_meghadoot (sess_id, callback) {
 				},
 			},
 			{
-				name: 'cube',
-				role: 'whitelabeling',
-				req_sess_info : false,
-				display_spec: { widget: "none", templates: [ 'cube' ], css: [ 'cube2' ] },
-				/*
-				 * perms must be returned per user */
-				perms: { },
-				custom: {
-					small : {
-					},
-					center : {
-					}
-				},
-			},
-			{
 				name: 'av-tokbox-v2',
 				role: 'av',
+				display_name : 'Audio/Video',
 				display_spec: { widget: 'av', templates: [ 'av-tokbox' ], css: [ 'classic-1.min' ] },
 				/*
 				 * perms must be returned per user */
@@ -119,9 +106,11 @@ function get_config_meghadoot (sess_id, callback) {
 				},
 			},
 			{
-				name: 'flipboard-v1',
+				name: 'tabs-v1',
+				role: 'tab-controller',
+				display_name : 'Application Controller',
 				req_sess_info : false,
-				display_spec: { widget: "tabs", templates: [ "v1" ], css: [ 'bookblock', 'flipboard' ] },
+				display_spec: { widget: "tabs", templates: [ "tabs", "tabs-li", "tabs-tabpanel" ], css: [ "tabs.min" ] },
 				/*
 				 * perms must be returned per user */
 				perms: { },
@@ -130,14 +119,27 @@ function get_config_meghadoot (sess_id, callback) {
 			},
 			{
 				name: 'chat-box',
+				role: 'chat',
+				display_name : 'Chat',
 				display_spec: { widget: 'chat', templates: [ "chat-v1","message" ], css: [ 'chat-box.min']  },
 				custom: {
 				},
 			},
 			{
 				name: 'att-list',
+				role: 'attendees',
+				display_name : 'People',
 				req_sess_info : false,
 				display_spec: { widget: 'attendees', templates: [ "main", "user"], css: [ 'main.min'] },
+				custom: {
+				},
+			},
+			{
+				name: 'content',
+				role: 'content',
+				display_name : 'Content',
+				req_sess_info : true,
+				display_spec: { widget: 'tabs', templates: [ "player", "library", "library-item" ], css: [ 'content.min' ] },
 				custom: {
 				},
 			}

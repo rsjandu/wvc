@@ -1,7 +1,7 @@
 define(
 	[ 
 		'require', 
-		'//static.opentok.com/v2/js/opentok.min.js', 
+		'//tokbox.com/v2/js/opentok.min.js', 
 		'log', 
 		'jquery' 
 	], 
@@ -40,10 +40,11 @@ function (require, ot, _log, $) {
 			/*
 			 * Session related hanclers
 			 */
-			sessionConnected    : handlers.sessionConnected,
-			sessionDisconnected : handlers.sessionDisconnected,
-			sessionReconnecting : handlers.sessionReconnecting,
-			sessionReconnected  : handlers.sessionReconnected,
+			sessionConnected     : handlers.sessionConnected,
+			sessionConnectFailed : handlers.sessionConnectFailed,
+			sessionDisconnected  : handlers.sessionDisconnected,
+			sessionReconnecting  : handlers.sessionReconnecting,
+			sessionReconnected   : handlers.sessionReconnected,
 
 			/*
 			 * Connection related hanclers

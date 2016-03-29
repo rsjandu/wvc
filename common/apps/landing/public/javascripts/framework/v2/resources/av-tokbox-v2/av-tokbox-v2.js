@@ -6,7 +6,9 @@ define(function(require) {
 	var session     = require('./session');
 	var layout      = require('./layout');
 	var screenshare = require('./screenshare');
+	var local       = require('./local-media');
 	var menu        = require('./menu');
+	var events      = require('./av-events');
 	var cpool       = require('./container-pool');
 
 	var av = {};
@@ -32,6 +34,7 @@ define(function(require) {
 		}
 
 		menu.init (f_handle, custom);
+		events.init (f_handle, custom);
 		cpool.init (f_handle, display_spec, custom, perms);
 
 		/*
@@ -51,6 +54,34 @@ define(function(require) {
 	};
 
 	av.info = function (from, id, data) {
+	};
+
+	av.remote_req = function (message, instance) {
+		var _d = $.Deferred ();
+
+		if (message.data !== 'mute' && message.data !== 'unmute') {
+			_d.reject ('incorrect data');
+			return _d.promise ();
+		}
+
+		switch (message.command) {
+
+			case 'microphone':
+				local.publisher_controls ('audio', message.data);
+				_d.resolve('done');
+				break;
+
+			case 'camera':
+				local.publisher_controls ('video', message.data);
+				_d.resolve('done');
+				break;
+
+			default:
+				_d.reject ('unrecognized command "' + message.command + '"');
+				break;
+		};
+
+		return _d.promise ();
 	};
 
 	return av;

@@ -21,6 +21,7 @@
 		"widget-attendees" :  "../../widget-attendees",
 		"events" :  "../../events",
 		"notify" :  "../../notify",
+		"tab-controller" :  "../../tab-controller",
 
 		"jquery" :        "../../../../ext/jquery-1.11.3.min",
 		"jquery_drag" :   "../../../../ext/jquery.event.drag-2.2/jquery.event.drag-2.2",
@@ -50,6 +51,7 @@
 		"widget-attendees",
 		"events",
 		"notify",
+		"tab-controller",
 
 		"jquery",
 		"jquery_drag",

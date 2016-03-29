@@ -1,0 +1,114 @@
+@import "variables.less";
+
+.content-lib-outer {
+	height : 100%;
+	display: block;
+
+	.tab-pane.content-fullview & {
+		display: none;
+	}
+}
+
+.content-lib-upload {
+	top: 0;
+	width : 100%;
+	line-height : 30px;
+	height : calc(~'100% - @{library-height}');
+
+}
+
+.content-upload-input {
+	height : auto;
+}
+
+@label-height : 60px;
+.content-upload-control {
+    width: 100%;
+	height: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+	span.fileinput-button {
+		position: relative;
+		top : calc(~'100% - @{library-height}');
+		transform: translateY(-50%);
+		display: block;
+		overflow: visible;
+		height : 120px;
+
+		span.content-upload-label {
+			display: block;
+			height: @label-height;
+			width: 200px;
+			font-weight: bold;
+			font-size: large;
+			text-align: center;
+			margin: auto auto;
+			padding-top : 16px;
+		}
+	}
+
+	& span.content-upload-status {
+		font-style : italic;
+	}
+}
+
+.status-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.content-progress {
+	width : 100%;
+	margin : 0;
+	height : 40px;
+	max-height : 40px;
+	position: absolute;
+	bottom : @library-height;
+	& span.content-upload-error {
+		font-size : normal;
+	}
+}
+
+.progress {
+	position : absolute;
+	bottom: 0;
+	height: 10px;
+}
+.content-progress .progress-bar {
+    margin : 0;
+}
+
+span.content-upload-error {
+	&::before {
+		margin-right : 10px;
+	}
+}
+
+span.content-conversion-busy {
+	font-size : 20px;
+}
+
+.content-lib-blanket {
+	display: none;
+	width : 100%;
+	position : absolute;
+	top : 0;
+	background: transparent;
+	text-align : center;
+	height : 100%;
+
+	& span {
+		height: 20px;
+		display: block;
+		text-align: center;
+		position: absolute;
+		bottom: 250px;
+		width: 100%;
+		padding-bottom : 50px;
+	}
+
+	.tab-pane.content-loading & {
+		display: block;
+	}
+}

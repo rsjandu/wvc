@@ -102,25 +102,78 @@ function publish_res_info (user, mod, status, info) {
 	});
 }
 
+res.route_command = function (_d, conn, from, to, msg, log_) {
+
+	if (!list[to]) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'to non-existent module');
+		return _d.reject ('module "' + to + '" not found');
+	}
+
+	if (!list[to].handle.command) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'undefined "command" method');
+		return _d.reject ('module "' + to + '": undefined "command" method');
+	}
+
+	var user = addr.user(from);
+
+	if (!user) {
+		log_.error ({ from: from, to: to, msg: msg, method: 'route_command' }, 'unacceptable from address');
+		return _d.reject ('unacceptable "from" address');
+	}
+
+	list[to].handle.command (user, msg.command, msg.data)
+		.then (
+			_d.resolve.bind(_d),
+			_d.reject.bind(_d)
+		);
+};
+
 res.route_info = function (from, to, msg) {
 	if (!list[to]) {
-		mylog.error ({ from: from, to: to, msg: msg }, 'route_info: to non-existent module');
+		mylog.error ({ from: from, to: to, msg: msg, method : 'route_info' }, 'to non-existent module');
 		return;
 	}
 
 	if (!list[to].handle.info) {
-		mylog.error ({ from: from, to: to, msg: msg }, 'route_info: undefined info method');
+		mylog.error ({ from: from, to: to, msg: msg, method : 'route-info' }, 'undefined info method');
 		return;
 	}
 
 	var user = addr.user(from);
 
 	if (!user) {
-		mylog.error ({ from: from, to: to, msg: msg }, 'route_info: unacceptable from address');
+		mylog.error ({ from: from, to: to, msg: msg, method: 'route-info' }, 'unacceptable from address');
 		return;
 	}
 
 	list[to].handle.info (user, msg.info_id, msg.info);
+};
+
+/*
+ * Is called for a user-user message. Must return true or false, indicating whether 
+ * this message should be relayed */
+res.relay_info = function (from, to, msg) {
+
+	var user = addr.user(from);
+	var res  = addr.pop(to).split(':')[0];
+
+	if (!list[res]) {
+		mylog.error ({ res: res, from: from, to: to, msg: msg, method: 'relay-info' }, 'to non-existent module');
+		return true;
+	}
+
+	if (!list[res].handle.relay_info) {
+		mylog.error ({ res: res, from: from, to: to, msg: msg, method: 'relay-info' }, 'undefined relay_info method');
+		return true;
+	}
+
+	if (!user) {
+		mylog.error ({ from: from, to: to, msg: msg, method: 'relay-info' }, 'unacceptable from address');
+		return true;
+	}
+
+	return list[res].handle.relay_info (user, to, msg.info_id, msg.info);
+
 };
 
 module.exports = res;

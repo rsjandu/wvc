@@ -24,16 +24,19 @@ define(function(require){
 		
 		switch( evt){
 			case 'in':
-				user = data[0];
-				widget.add_user( user);
+				data.forEach( function(user){
+					widget.add_user( user);
+				});
 				break;
 
 			case 'out':
 				widget.remove_user(data);
+				controls.forget(data);
 				break;
 
 			case 'control_changed':
 				controls.change( data.vc_id, data.known_key, data.value);
+				break;
 
 			default:
 				log.info('some event: ' + evt +' @atl_skin, not my problem');

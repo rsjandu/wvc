@@ -4,47 +4,66 @@
 
 #atl-header {
 	width: 100%;
+	height: 8%;
+	background: #222;
 	text-align : center;
+	span {
+		color : white;
+		font-size : x-large;
+	}
 }
 
 #atl-search {
+	@size : 6%;
 	width : 100%;
-
+	height: @size;
 	svg {
-	    height: 25px;
-	    width: 25px;
+		fill: white;
+	    height: calc( ~'@{size} - 10px');
+	    width: calc( ~'@{size} - 10px');
 	    padding-top: 5px;
 		margin-right : 5px;
 	}
 
 	input {
-		height : 30px;
+		height : 100%;
 		border: none;
+		background: inherit;
+		color : whitesmoke;
+		outline: none;
 		padding : 0;
-		width : calc(~'90% - 30px');
+		width : calc(~'100% - @{size}');
 	}
+	.border-bottom;
 }
 
-#atl-list-wrap,
-#atl-list-wrap ul {
+#atl-list-wrap{
+	height : calc(~'100% - 8% - 6% - 50px');
+	overflow: scroll;
 	width : 100%;
-	padding : 0;
-	margin: 0;
-
-	& li {
-		list-style-type: none;
+	& ul{
+		padding : 0;
+		margin : 0;
+		& li{
+			list-style-type: none;
+		}
 	}
 }
 
-@avatar-width : 6em;
+@avatar-width : 3em;
 @margin-side : 10px;
 
+.atl-me{
+	border-bottom : 1px solid black;
+	min-height : 50px;
+	height : 50px;
+}
 .atl-me,
 .atl-list-item {
 	display : block;
 	position : relative;
 	top : 8px;
-	margin-right  : @margin-side;
+	//margin-right  : @margin-side;
 	margin-left  : @margin-side;
 
 	.atl-avatar-wrap {
@@ -53,6 +72,7 @@
 		display : inline-block;
 		border-radius : 50%;
 		overflow : hidden;
+		float : left;
 
 		img.atl-avatar {
 			height : 100%;
@@ -71,10 +91,10 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 2em;
+		height : 1.3em;
 
 		span.atl-username {
-			font-size : 1.2em;
+			font-size : 1.1em;
 			float: left;
 		}
 
@@ -89,15 +109,16 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 2em;
+		overflow: hidden;
+		height : 1.5em;
 
 		span.atl-useremail {
-			font-size : 1.2em;
+			font-size : 0.8em;
 			float: left;
 		}
 
 		span.atl-authvia {
-			font-size : .8em;
+			font-size : .7em;
 			float: right;
 		}
 	}
@@ -107,13 +128,29 @@
 		padding : 0;
 		margin : 0;
 		display : block;
-		height : 4em;
+		height : 2em;
 
+		#vu-meter{
+			height : 1em;
+			width  : 100px;
+			background: rgba(167,152,152,0.35);
+			border-radius:10px;
+			#audio-control{
+				height : inherit;
+				width : 0;
+				position: absolute;
+				background: #3a505e;
+				border-radius: 10px;
+			}
+		}
+		
 		.atl-control {
 			display : inline-block;
-
-			& , & svg {
-				height : 2em;
+			z-index : 0;
+			fill : grey;
+	
+			& svg {
+				height : 1.3em;
 				width : 2em;
 			}
 			margin : 00;
@@ -123,5 +160,5 @@
 }
 
 .border-bottom {
-	border-bottom : 1px solid white;
+	border-bottom : 1px solid grey; 
 }

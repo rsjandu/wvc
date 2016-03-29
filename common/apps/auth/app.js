@@ -15,6 +15,7 @@ var config              = require( 'auth/routes/config' );
 var authentication      = require( 'auth/routes/app_soc' );
 var config_views        = require( 'auth/routes/config_views' );
 var proxy               = require( 'common/proxy' );
+var cache               = require( 'common/cache' ).init( 'auth' );
 
 /* configure Express */
 app.set( 'views', __dirname + '/views' );
@@ -26,15 +27,13 @@ app.use( body_parser.urlencoded({
 	})
 );
 
-
 app.use( session({ 
 		secret: '$#@&*This_is!@#$Secret)(*&WizIQAuth)',
 		name:   'vc_auth',
-		store:  new redis ({
-			host: '127.0.0.1',
-			port: 6379
+		store:  new redis ({ 
+			client: cache.redis
 		}),
-		proxy:  true,
+	    proxy:  true,
 		resave: true,
 		saveUninitialized: true
 	})
@@ -47,8 +46,7 @@ proxy.add_route ('/auth', 'http://localhost:2178/auth');
 
 app.get( '/', function(req, res){
 	/*
-	 * Nobody has any business hitting our root.
-	 * Return with 403 */
+	 * Nobody has any business hitting our root.	 * Return with 403 */
 	res.status(403).send('forbidden');
 });
 
@@ -69,7 +67,7 @@ app.use( '/auth', authentication );
 
 /*
  * This is the route which gets hit in case an HTML page  
- * has to be loaded eg: form to enter data to db*/
+ * has to be loaded eg: form to enter data to db */
 app.use( '/views', config_views );
 
 module.exports = app;

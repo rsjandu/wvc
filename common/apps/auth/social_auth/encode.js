@@ -1,6 +1,9 @@
+var encryption     = require ( 'auth/common/encryption' );
+var log            = require ( 'auth/common/log' ).child({ 'sub-module' : 'auth/encode' } );
+
 var exports = module.exports = {};
 
-function getUserDetails ( User )
+function get_user_details ( User )
 {
 	identity.vc_auth_ts     = (new Date()).toISOString();
 	identity.id             = User.id || identity_defaultValues.id;
@@ -15,12 +18,23 @@ function getUserDetails ( User )
 	identity.photos         = User.photos || identity_defaultValues.photos;
 	identity.addresses      = User.addresses || identity_defaultValues.addresses;
 	identity.phoneNumbers   = User.phoneNumbers || identity_defaultValues.phoneNumbers;
+
+	/* set primary attribute , if not set already */
 	setPrimaryAttribute(identity.emails);
 	setPrimaryAttribute(identity.photos);
 	setPrimaryAttribute(identity.addresses);
 	setPrimaryAttribute(identity.phoneNumbers);
+    
+	/* encrypt identity and return */
+	var MAX_SIZE_COOKIE = 4096;
+	var auth_string = JSON.stringify ( identity );
+	if( Buffer.byteLength( auth_string ) > MAX_SIZE_COOKIE ){
+		auth_string = "error: size_limit_exceeded";
+	}
+	/* encrypt user_info */
+	auth_string = encryption.encrypt ( log, auth_string );
 
-	return identity;
+	return auth_string;
 }
 
 /* explicitly setting primary attribute for composite array type values
@@ -108,37 +122,37 @@ var identity_defaultValues = {
 	utcOffset   : 'aj4',
 	emails      : [
 		{
-			value   : 'ny',
-			type    : 'ny',    /* work, home or other */
+			value   : '--none-yet',
+			type    : '--none-yet',    /* work, home or other */
 			primary : true
 		},
 	],
 	phoneNumbers: [
 		{
-			value   : 'ny',
-			type    : 'ny',    /* work, home or other */
+			value   : '--none-yet',
+			type    : '--none-yet',    /* work, home or other */
 			primary : true
 		},
 	],
 	photos      : [
 		{
-			value   : 'ny',
-			type    : 'ny',    /* work, home or other */
+			value   : '--none-yet',
+			type    : '--none-yet',    /* work, home or other */
 			primary : true
 		},
 	],
 	addresses   : [
 		{
-			formatted     : 'ny',
-			streetAddress : 'ny',
-			locality      : 'ny',
-			region        : 'ny',
-			postalCode    : 'ny',
-			country       : 'ny',
+			formatted     : '--none-yet',
+			streetAddress : '--none-yet',
+			locality      : '--none-yet',
+			region        : '--none-yet',
+			postalCode    : '--none-yet',
+			country       : '--none-yet',
 		},
 	],
 
 };
 
-exports.getUserDetails = getUserDetails;
+exports.get_user_details = get_user_details;
 

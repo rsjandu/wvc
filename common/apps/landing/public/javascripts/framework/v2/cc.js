@@ -10,7 +10,6 @@ define(function(require) {
 	var host;
 	var port;
 	var server;
-	var seq = 0;
 	var _d_auth_promise;
 	var _sess_config;
 	var _req_channel;
@@ -78,22 +77,17 @@ define(function(require) {
 		var from = 'user:-not-yet-authenticated-';
 		var message = protocol.auth_pdu ('controller.auth', from, identity.secret);
 
-		message.seq = seq++;
-
 		return send (message, true);
 	};
 
-	cc.send_command = function (to, sub_resource, op, from_module) {
+	cc.send_command = function (from, to, command, data) {
 		var _d = $.Deferred ();
-		var from = 'user:' + identity.vc_id + 'resource:' + from_module;
 
-		var message = prot.command_pdu (to, sub_resource, op, from);
+		var message = protocol.command_pdu (from, to, command, data);
 		if (!message) {
 			_d.reject ('protocol parse error');
 			return _d.promise ();
 		}
-
-		message.seq = ++seq;
 
 		send (message, true)
 			.then (
@@ -111,8 +105,6 @@ define(function(require) {
 		if (!message)
 			return;
 
-		message.seq = seq++;
-
 		return send (message, false);
 	};
 
@@ -129,10 +121,11 @@ define(function(require) {
 			 * If an ACk is required then create and store
 			 * a deferred, indexed by the sequence number of
 			 * the message */
+			var seq = message.seq.toString();
 
 			_d = $.Deferred ();
-			msg_q[message.seq] = {};
-			msg_q[message.seq]._d = _d;
+			msg_q[seq] = {};
+			msg_q[seq]._d = _d;
 		}
 
 		sock.send (JSON.stringify(message));
@@ -159,6 +152,13 @@ define(function(require) {
 			return;
 		}
 
+		/*
+		 * If the message is a 'pong' break off early before all other
+		 * checks follow */
+
+		if (message.type === 'pong')
+			return process_pong (message);
+
 		if (!authenticated) {
 			/* If we are not yet authenticated then we expect the first incoming
 			 * message to be an ACK to our auth request */
@@ -170,6 +170,7 @@ define(function(require) {
 			}
 
 			authenticated = true;
+			start_keepalive_timer ();
 		}
 		else {
 			/* Check if the message is addressed to me. Do this only for PDU
@@ -256,7 +257,7 @@ define(function(require) {
 	}
 
 	function process_ack (message) {
-		var seq = message.seq;
+		var seq = message.seq.toString();
 		var msg = message.msg;
 
 		if (!msg_q[seq] || !msg_q[seq]._d) {
@@ -264,19 +265,21 @@ define(function(require) {
 			return;
 		}
 
+		var _d = msg_q[seq]._d;
+
 		switch (msg.status) {
 			case 'ok':
-				msg_q[seq]._d.resolve(msg.data);
+				_d.resolve(msg.data);
 				break;
 
 			case 'not-ok':
 			case 'error':
-				msg_q[seq]._d.reject(msg.data);
+				_d.reject(msg.data);
 				break;
 
 			default :
 				log.error ('RX: ACK: illegal status (' + msg.status + '): message = ', message);
-				msg_q[seq]._d.reject(msg.data);
+				_d.reject(msg.data);
 				break;
 		}
 
@@ -313,13 +316,35 @@ define(function(require) {
 	}
 
 	function ack (m, status, data) {
-		var message = protocol.ack_pdu (message, status, data);
+		var message = protocol.ack_pdu (m, status, data);
 
 		message.seq = m.seq;
 
 		sock.send (JSON.stringify(message));
 
 		return;
+	}
+
+	var period = 10000; /* Which is 10 seconds */
+	function start_keepalive_timer () {
+		setInterval (ping_check, period);
+	}
+
+	var ping_last_sent = 0;
+	var ping_last_acked = 0;
+	function ping_check () {
+
+		if (ping_last_sent != ping_last_acked) {
+			log.error ('[ping] Websocket connection lost. IMPLEMENT re-connection');
+		}
+
+		var m = protocol.ping_pdu ();
+		ping_last_sent = m.seq;
+		send (m, false);
+	}
+
+	function process_pong (message) {
+		ping_last_acked = message.seq;
 	}
 
 	return cc;

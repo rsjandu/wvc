@@ -57,15 +57,6 @@ av_tokbox.init = function (myinfo, common, handles) {
 av_tokbox.init_user = function (user, prev_info, log) {
     var _d = $.Deferred ();
 
-	/*
-	 * If we allocated something for this user the previous
-	 * time, let's just reuse this */
-	if (prev_info) {
-		log.info ({ prev_info : prev_info }, 'reusing');
-		_d.resolve(prev_info);
-		return _d.promise();
-	}
-
     createToken (user, log, function (err, res) {
         return ( err ) ? _d.reject (err) : _d.resolve (res);
     });
@@ -106,7 +97,7 @@ function createToken (user, log, cb) {
     var tokenid;
     try {
         tokenid = opentok.generateToken(sessionid, p);
-		log.info ({ token : tokenid }, 'token created');
+		log.info ({ token_input : p, token : tokenid }, 'token created');
     } catch ( e ) {
         log.error({ err : e }, 'token generation error');
         return cb(e, null);
@@ -128,7 +119,7 @@ function createToken (user, log, cb) {
 }
 
 
-var activeSessionTime = 48*60*60;
+var activeSessionTime = 1*60*60;
 var getTokenExpiry = function getTokenExpiry() {
     return (new Date().getTime() / 1000) + activeSessionTime;
 };

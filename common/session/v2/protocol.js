@@ -2,6 +2,7 @@ var log = require("./common/log").sub_module('protocol');
 var config = require("./config");
 
 var prot = {};
+var seq = 1;
 
 prot.parse = function (e) {
 
@@ -10,61 +11,36 @@ prot.parse = function (e) {
 	if (message.v !== 1)
 		throw new Error ('illegal protocol');
 
-	if ((message.type != 'req') && (message.type != 'info'))
+	if ((message.type != 'req') && (message.type != 'info') && (message.type != 'ack') && (message.type != 'ping'))
 		throw new Error ('illegal type');
 
 	return message;
 };
 
-prot.command_pdu = function (to_user, module, from_user, target, op) {
+prot.command_pdu = function (from, to, command, data) {
 	var m = {};
 
-	if (!to_user || !from_user || !target || !op) {
+	if (!from || !to || !command) {
 		log.error ({
-			to: (to_user ? to_user : 'null'),
-			from: (from_user ? from_user : 'null'),
-			target: (target ? target : 'null'),
-			op: (op ? op : 'null')}, 'command_pdu: null argument(s)');
+			to: (to ? to : 'null'),
+			from: (from ? from : 'null'),
+			command: (command ? command : 'null'),
+			data: (data ? data : 'null'),
+		},'protocol.command_pdu: null arguments(s)');
+
 		return null;
 	}
 
-	m.v     = '1';
+	m.v     = 1;
 	m.type  = 'req';
+	m.seq   = seq++;
 
-	/*
-	 * "to" is of the form:
-	 * 		{
-	 * 			ep:	{
-	 * 					t : type ==> 'user' | 'server'
-	 * 					i : identifier (NA in case of 'server' and is an array:
-	 * 							- [ name1, name2 .. ]
-	 * 							- [ * ]
-	 * 				}
-	 * 			res : resource-name
-	 * 		}
-	 */
-
-	m.to     = {};
-	m.to.ep  = { t : 'user', i : [] };
-	m.to.res = module;
-
-	if (to_user instanceof Array)
-		for (i = 0; i < to_user.length; i++)
-	m.to.ep.i.push(to_user[i]);
-	else
-		m.to.ep.i.push(to_user);
-
-	m.from = {
-		ep : {
-			t : 'user',
-			i : from_user
-		},
-		res : module
-	};
+	m.to    = to;
+	m.from  = from;
 
 	m.msg  = {
-		target : target,
-		op     : op
+		command : command,
+		data    : data
 	};
 
 	return m;
@@ -85,8 +61,11 @@ prot.info_pdu = function (from, to, info_id, info) {
 
 	m.v     = 1;
 	m.type  = 'info';
+	m.seq   = seq++;
+
 	m.to    = to;
 	m.from  = from;
+
 	m.msg  = {
 		info_id : info_id,
 		info    : info
@@ -122,8 +101,11 @@ prot.ack_pdu = function (message, status, data, from) {
 
 	m.v = 1;
 	m.type = 'ack';
+	m.seq  = message.seq;
+
 	m.to   = message.from;
 	m.from = (from ? from : message.to);
+
 	m.msg  = {
 		status : status,
 		data   : data
@@ -132,17 +114,38 @@ prot.ack_pdu = function (message, status, data, from) {
 	return m;
 };
 
-prot.print = function (m) {
+prot.print = function (m, dir) {
+	var compact = true;
+
 	if (m.type === 'info')
-		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.info_id + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+		print_info_pdu (compact, m, dir);
+	else if (m.type === 'req')
+		print_req_pdu (compact, m, dir);
 	else if (m.type === 'ack')
-		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.status + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+		log.debug ('PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.status + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
 	else
-		log.debug ('PDU: v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
-	/*
-	log.debug ('     ' + JSON.stringify(m.msg));
-	*/
+		log.debug (compact ? '' : { m:m }, 'PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' (' + m.from + ' -> ' + m.to + ')');
 };
+
+function print_info_pdu (compact, m, dir) {
+
+	if (compact) {
+		log.debug ('PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.info_id + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+		return;
+	}
+
+	log.debug ({ m:m }, 'PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.info_id + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+}
+
+function print_req_pdu (compact, m, dir) {
+
+	if (compact) {
+		log.debug ('PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.command + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+		return;
+	}
+
+	log.debug ({ m:m }, 'PDU:' + dir + ': v' + m.v + ' ' + m.type + '.' + m.seq + ' \"' + m.msg.command + '\"' + ' (' + m.from + ' -> ' + m.to + ')');
+}
 
 prot.make_addr = function (user, resource, instance) {
 	if (!user) {

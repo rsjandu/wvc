@@ -1,0 +1,11 @@
+// Content area
+div.tabs-container-outer
+	div.tabs-container
+		ul.nav.nav-tabs(role="tablist")
+			li.add.active
+				a.tab-name(href='#empty', aria-controls="empty", role="tab", data-toggle="tab", style="display:none")
+				a.dropdown-toggle(href="#", data-toggle="dropdown", aria-controls="empty", role="button", aria-haspopup="true", aria-expanded="false") New
+					span.caret
+				ul.dropdown-menu
+		div.tab-content
+			div#empty.tab-pane.active.fade.in(role="tabpanel")

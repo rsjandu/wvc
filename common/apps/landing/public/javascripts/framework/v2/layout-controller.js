@@ -61,7 +61,7 @@ define(function(require) {
 			case 'none'   		: return null;
 			case 'av'     		: return av.attach (layout.av, _module);
 			case 'notify' 		: return notify.attach (layout.notify, _module);
-			case 'tabs' 		: return tabs.attach (layout.notify, _module);
+			case 'tabs' 		: return tabs.attach (layout.tabs, _module);
 			case 'nav'    		: return nav.attach (layout.nav, _module);
 			case 'chat'		  	: return chat.attach (layout.chat, _module);
 			case 'attendees'	: return attendees.attach (layout.attendees, _module);

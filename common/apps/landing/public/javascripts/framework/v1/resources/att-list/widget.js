@@ -17,7 +17,8 @@ define( function(require){
 		var wrapper_tpt = templates[0];
 		format(identity);				/* make fit for template */
 		$anchor.append( wrapper_tpt( identity) );
-		
+		$('#atl-search input').attr("placeholder",'No One To Search..');	
+
 		user_tpt = templates[1];
 		
 		_d.resolve();

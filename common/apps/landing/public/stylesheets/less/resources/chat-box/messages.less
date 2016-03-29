@@ -82,6 +82,17 @@
     .transform(translate3d(0,0,0));
 }
 
+@keyframes jump {
+	0% {
+		margin-top : 35px;
+		margin-bottom : 15px;
+	}
+	100% {
+		margin-top : 0px;
+		margin-bottom : 0px;
+	}
+}
+
 .lcb-message, .lcb-message-own {
     min-height: 20px;
 	padding-top: 1px;
@@ -92,6 +103,11 @@
     margin: 0;
     display: block;
     position: relative;
+
+	animation-name: jump;
+	animation-timing-function: linear;
+	animation-iteration-count: 1;
+	animation-duration: 0.5s;
 }
 
 .lcb-message, .lcb-message-own {

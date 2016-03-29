@@ -27,7 +27,7 @@ function get ( auth_type ) {
 	/* if no user in db corresponding to host
 	 * and auth_type */
 	if (!_user_credentials) {
-		return _d.reject('No entry found');
+		return _d.reject('No entry found for '+host);
 	}
 
 	log.info({Info : _user_credentials },'user successfully fetched');

@@ -1,11 +1,27 @@
 .atl-controls-bar
-	//.atl-control.vu-meter
-		include images/vu-meter.svg
+	.atl-control#vu-meter
+		//meter( low='0.2', high='0.9', optimum='0.5', value='0.8')
+		#audio-control
+		img(src="/landing/images/vu-meter.png", style="position:absolute; z-index=2")
+
 	.atl-control#microphone
 		include images/mic.svg
 	.atl-control#microphone-slashed(style="display:none")
 		include images/mic-slashed.svg
+
 	.atl-control#camera
 		include images/camera.svg
 	.atl-control#camera-slashed(style="display:none")
 		include images/camera-slashed.svg
+
+	.atl-control#speaker
+		include images/speaker.svg
+
+	.atl-control#play
+		include images/play.svg
+
+	.atl-control#writing-control
+		include images/writiing-disabled.svg
+	
+	.atl-control#kickout
+		include images/kickout.svg

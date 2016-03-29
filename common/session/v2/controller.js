@@ -7,6 +7,7 @@ var protocol        = require("./protocol");
 var users           = require("./users");
 var addr            = require("./addr");
 var connection      = require('./connection');
+var tab_controller  = require('./tab-controller');
 
 connection.events.on ('closed', function (vc_id) {
 	handle_user_remove (vc_id);
@@ -34,7 +35,7 @@ controller.init = function (sess_info) {
 	class_.init (sess_info);
 };
 
-controller.process = function (conn, from, to, msg) {
+controller.process_req = function (conn, from, to, msg) {
 	var _d = $.Deferred ();
 	var log_ = conn.c.log;
 	var log  = log_.child ({ module : 'controller' });
@@ -47,19 +48,79 @@ controller.process = function (conn, from, to, msg) {
 
 	switch (_to.resource) {
 
-		case 'auth' :
+		case 'controller' :
 
-			handle_new_user (_d, conn, from, msg, log_);
+			handle_controller_req (_d, conn, from, to, msg, log);
+			break;
+
+		case 'user' :
+			/* Handle inter-user communication */
+
+			handle_user_to_user_req (_d, conn, from, to, msg, log_);
 			break;
 
 		default :
-			log.error ({ to:to.resource }, 'illegal to.resource');
+			log.error ({ 
+				pdu : msg,
+				from : from,
+				to : to,
+			}, 'illegal to.resource');
 			_d.reject ('illegal to.reource', 'controller');
 			return _d.promise ();
 	}
 
 	return _d.promise ();
 };
+
+controller.process_info = function (conn, from, to, msg) {
+	var log_ = conn.c.log;
+	var log  = log_.child ({ module : 'controller' });
+
+	/*
+	 * format of addresses (from/to):
+	 * 		resourceA[:instanceA][resourceB[:instanceB]] ... */
+
+	var _to = addr.inspect_top(to);
+
+	switch (_to.resource) {
+
+		case 'controller' :
+
+			log.error ({ from:from, to:to, pdu:msg }, 'info addressed to controller: NOT IMPLEMENTED YET');
+			break;
+
+		case 'user' :
+			/* Handle inter-user communication */
+
+			handle_user_to_user_info (conn, from, to, msg, log_);
+			break;
+
+		default :
+			log.error ({ 
+				pdu : msg,
+				from : from,
+				to : to,
+			}, 'illegal to.resource');
+			return;
+	}
+};
+
+function handle_controller_req (_d, conn, from, to, msg, log_) {
+	to = addr.pop(to);
+	var _to = addr.inspect_top(to);
+
+	switch (_to.resource) {
+
+		case 'auth' :
+			handle_new_user (_d, conn, from, msg, log_);
+			break;
+
+		default :
+			/*
+			 * This is most likely a resource */
+			return resources.route_command (_d, conn, from, to, msg, log_);
+	}
+}
 
 function handle_new_user (_d, conn, from, msg, log_) {
 
@@ -95,16 +156,59 @@ function handle_new_user (_d, conn, from, msg, log_) {
 	}
 }
 
+function handle_user_to_user_req (_d, conn, from, to, msg, log_) {
+	/* 
+	 * 1. Check perms
+	 * 2. Give the message to the resource and get approval
+	 * 3. Forward the message 
+	 * 4. Wait for reply
+	 * 5. Resolve so that ACK goes back */
+
+	users.relay_command (from, to, msg)
+		.then (
+				function (response) {
+					return _d.resolve (response);
+				},
+				function (err) {
+					log_.warn ({ err: err, from:from, to:to, m:msg }, 'relay command failed');
+					return _d.reject (err);
+				}
+			  );
+}
+
+function handle_user_to_user_info (conn, from, to, msg, log_) {
+	/* 
+	 * 1. Check perms
+	 * 2. Give the message to the resource and get approval
+	 * 3. Forward the message */
+
+	var relay = false;
+	var to_module = addr.pop(to).split(':')[0];
+
+	switch (to_module) {
+
+		case 'tab-controller':
+			relay = tab_controller.relay_info (from, to, msg, log_);
+			break;
+
+		default :
+			relay = resources.relay_info (from, to, msg);
+	}
+
+	if (relay)
+		users.relay_info (from, to, msg, log_);
+}
+
 function actually_join_user (user) {
 
 	users.activate (user.vc_id);
 
 	var sess_info = {
 		attendees : users.get_publishable_info (null, user.vc_id),
+		tab_controller : tab_controller.get_active_tab ()
 	};
 
 	users.send_info (user.vc_id, 'controller', 'framework', 'session-info', sess_info);
-	users.broadcast_info ('controller', 'framework', 'new-johnny', users.get_publishable_info(user.vc_id), user.vc_id);
 
 	/*
 	 * Set the ball rolling for resources init for the specific user. The per-resource
@@ -114,7 +218,6 @@ function actually_join_user (user) {
 
 function handle_user_remove (vc_id) {
 	users.remove_user (vc_id);
-	users.broadcast_info ('controller', 'framework', 'johnny-go-went-gone', vc_id, vc_id);
 }
 
 module.exports = controller;

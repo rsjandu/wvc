@@ -1,7 +1,9 @@
 define(function(require) {
 	var log = require('log')('protocol', 'info');
+	var identity = require('identity');
 
 	var prot = {};
+	var seq = 0;
 
 	prot.parse = function (e) {
 
@@ -10,41 +12,54 @@ define(function(require) {
 		if (message.v !== 1)
 			throw new Error ('illegal protocol v');
 
-		if (!message.to || !message.from)
-			throw new Error ('illegal protocol (from/to) address');
-
 		if ((message.type != 'auth') &&
 			(message.type != 'req') &&
 			(message.type != 'info') &&
+			(message.type != 'ping') &&
+			(message.type != 'pong') &&
 			(message.type != 'ack'))
 			throw new Error ('illegal protocol message type');
+
+		if (message.type != 'pong' && message.type != 'ping')
+			if (!message.to || !message.from)
+				throw new Error ('illegal protocol (from/to) address');
 
 		return message;
 	};
 
-	prot.command_pdu = function (to, sub_resource, op, from) {
+	prot.ping_pdu = function () {
 		var m = {};
 
-		if (!to || !sub_resource || !op || !from) {
+		m.v     = 1;
+		m.seq   = seq++;
+		m.type  = 'ping';
+
+		return m;
+	};
+
+	prot.command_pdu = function (from, to, command, data) {
+		var m = {};
+
+		if (!from || !to || !command) {
 			log.error ('command_pdu: null argument(s): ' +
+					   		'from = ' + from +
 					   		'to = ' + to +
-					   		', sub_resource = ' + sub_resource +
-					   		', op = ' + op +
-					   		', from = ' + from
+					   		', command = ' + command
 					  );
 
 			return null;
 		}
 
-		m.v     = '1';
+		m.v     = 1;
+		m.seq   = seq++;
 		m.type  = 'req';
 
 		m.to    = to;
 		m.from  = from;
 
 		m.msg  = {
-			target : sub_resource,
-			op     : op
+			command : command,
+			data    : data
 		};
 
 		return m;
@@ -65,6 +80,7 @@ define(function(require) {
 		}
 
 		m.v     = 1;
+		m.seq   = seq++;
 		m.type  = 'info';
 
 		m.to    = to;
@@ -82,10 +98,15 @@ define(function(require) {
 		var m = {};
 
 		m.v = 1;
+		m.seq = seq++;
 		m.type = 'req';
 		m.to = to;
 		m.from = from;
-		m.msg = data;
+		m.msg  = {
+			command : 'authenticate-me',
+			data    : data
+		};
+
 
 		return m;
 	};
@@ -96,12 +117,13 @@ define(function(require) {
 		m.v = 1;
 		m.type = 'ack';
 		m.to   = message.from;
-		m.from = message.to;
+		m.from = 'user:' + identity.vc_id + '.' + message.to;
 		m.msg  = {
 			status : status,
 			data   : data
 		};
 
+		return m;
 	};
 
 	return prot;

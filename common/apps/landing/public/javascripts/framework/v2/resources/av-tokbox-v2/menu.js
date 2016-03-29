@@ -46,6 +46,16 @@ define(function (require) {
 	var av_controls_handler = null;
 	var cam_state = 'unmute';
 
+	menu.local_media_changed = function (the_thing, _new) {
+		var target = the_thing === 'camera' ? 'video' : 'audio';
+		var action = _new ? 'unmute' : 'mute';
+		var inverse_action = (!_new) ? 'unmute' : 'mute';
+
+		$('#av-menu-' + target + '-' + action).removeClass('disabled');
+		$('#av-menu-' + target + '-' + action).css('display', 'none');
+		$('#av-menu-' + target + '-' + inverse_action).css('display', 'inline-block');
+	};
+
 	menu.av_controls = {
 		set_handler : function (handler) {
 
@@ -62,17 +72,24 @@ define(function (require) {
 			if (!av_controls_handler)
 				return;
 
+			if ($(ev.currentTarget).hasClass('disabled'))
+				return;
 			/*
 			 * The ids of the menu items are of the following syntax:
-			 *     #av-menu-(audio|video)-(mute|unmute) */
+			 *     #av-menu-(audio|video)-(mute|unmute)
+			 */
 			var target = curr_target.replace(/^av-menu-([^-]+)-.*$/g, "$1");
 			var action = curr_target.replace(/^.*-([^-]*mute)$/g, "$1");
 			var inverse_action = (action === 'mute' ? 'unmute' : 'mute');
 
-			log.info ('target = ' + target + ' action = ' + action);
 			av_controls_handler (target, action);
-			$('#av-menu-' + target + '-' + action).css('display', 'none');
-			$('#av-menu-' + target + '-' + inverse_action).css('display', 'inline-block');
+
+			/*
+			 * The menu icon's display to mute/unmute is done in "menu.local_media_changed"
+			 * which gets triggered on streamPropertyChanged. Disable it for now.
+			 */
+
+			$('#av-menu-' + target + '-' + action).addClass('disabled');
 
 			return;
 		},

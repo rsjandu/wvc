@@ -1,11 +1,11 @@
 /* 
- * every icon in controlsbar is called a control/key throughout this file */
+ * an 'icon' in controlsbar represents on/off state of a control(aka key) */
 
 define( function(require){
-	var $ = require('jquery');
+	var $ 		= require('jquery'),
+		_dom 	= require('./element');	/* provides the cached handles of elements */
 
 	var	log 	 	 = {},
-		cache 		 = {},
 		state 	 	 = {},				/* state of each control: initially 'undefined' then either 'set' or 'busy'. */
 		controls 	 = {},
 		attendee_api = {},
@@ -15,8 +15,8 @@ define( function(require){
 		var _d = $.Deferred();
 		
 		log = logger;
+		window.att_api = api; 	/* for testing purpose */
 		attendee_api = api;
-		cache.elements = {}; 			/* we will cache element DOM objects */
 		$('#atl-list').on('click', '.atl-control', control_clicked);
 	
 		_d.resolve();
@@ -24,42 +24,54 @@ define( function(require){
 	};
 
 	controls.change = function( vc_id, key, val){
-		switch( state[vc_id+key]){
+		state[vc_id] = state[vc_id] || {};
+		switch( state[vc_id][key]){
 			case undefined:							/* initial state of the control */
-				disable( vc_id, key, false);		/* disable false means 'enable' */
 				change_control( vc_id, key, val);	/* decides which icon to show (on/off) */
-				state[vc_id+key] = 'set';
+				change_state(vc_id, key);
 				break;
+
 			case 'set':
 				change_control( vc_id, key, val);	/* seems like someone else changed the value of some control */
 				break;
+
 			case 'busy':							/* this must be the ack/nack to our req. */
 				change_control( vc_id, key, val);	
-				state[vc_id+key] = 'set';
+				change_state(vc_id, key);
 				break;		
 		}
 	};
 
+	controls.forget = function( vc_id){
+		/* remove the things related to this user
+		 * i.e. states of the controls
+		 * and dom elements cache */
+		state[vc_id] = undefined;
+		_dom.forget(vc_id); 
+	}
+
 	/*
 	 * private methods */
 
-	function control_clicked( evt){
-		var att_id = $(this).parent().parent().parent().attr('id');//.find('.att_id');		/* there has to be a clean way to do this */
-		if( !att_id){
+	function control_clicked ( evt ) {
+		var id = $(this).closest('li').attr('id');
+		if( !id){
 			log.info('warn:::user id not found...did someone change the user template?');
 			return false; 
 		}
 	
-		var vc_id = att_id.replace( my_namespace, ''),
+		var vc_id = id.replace( my_namespace, ''),
 			ele   = $(this).attr('id'),
 			key	  = ele.replace('-slashed','');
 			val   = undefined;
 
-		if( state[vc_id+key] == 'busy'){
-			log.info('attempted to change while in \'busy\' state. Is a problem, control shouldn\'t be clickable');
+		state[vc_id] = state[vc_id] || {};
+		if( state[vc_id][key] == 'busy' || state[vc_id][key] == undefined ){
+			log.info('attempted to change while in \'busy/undef\' state. Is a problem, control shouldn\'t be clickable');
 			return false;
 		}
-		switch( ele){
+		
+		switch (ele) {
 			case 'microphone':
 				val = 'false';
 				break;
@@ -74,37 +86,63 @@ define( function(require){
 				break;
 			default:
 				log.info( key + " clicked____and is not handled");
+				return;
 		}
+
 		if( val){
 			attendee_api.set_meta( vc_id, key, val, true);			/* 'true' tells it is a request */
-			disable( vc_id, key, 'true');							/* disable until we get an ack/nack */
-			state[vc_id+key] = 'busy';
+			change_state(vc_id, key);
 		}
 		log.info(vc_id+ ' key: '+ key + ', to be val:'+val+', on_click');
 	}
 	
-	function disable( vc_id, key, val){						/* disables both 'on' and 'off' icons of the control */
-		_element(vc_id,key 			 ).prop('disabled', val);
-		_element(vc_id,key+'-slashed').prop('disabled', val);
+	function change_control( vc_id, key, val){				/* set value */
+		
+		if( key == 'audio-control'){
+			/* vu-meter is a special case */
+			var _ele = _dom.handle(vc_id, key);
+			_ele.css('width', val*100 + 'px');
+			return;	
+		}
+
+		/* ----------------------
+		 * all others are similar
+		 * ---------------------- */
+		var _ele_on = _dom.handle(vc_id, key),
+			_ele_off= _dom.handle(vc_id, key+'-slashed');
+	
+		( val) ? ( _ele_on.show().css('display','inline-block'), _ele_off.hide() )	
+			   : ( _ele_off.show().css('display','inline-block'), _ele_on.hide() );
 	}
 
+	function change_state( vc_id, key, val){
+		/* allowed state changes are:
+		 *		1. undefined ----> set
+		 *		2. set		 ----> busy
+		 *		3. busy 	 ----> set */
+		//handle audio -control wala case
+		var el_on = _dom.handle( vc_id, key),
+			el_off = _dom.handle( vc_id, key+'-slashed');
+		switch( state[vc_id][key]){
+			case undefined:
+			case 'busy':
+				/* change to set */
+				el_on.css('fill','green'); 
+				el_off.css('fill','red'); 
+				state[vc_id][key] = 'set';
+				break;
 
-	function change_control( vc_id, key, val){
-		/* set value */
-		var _ele_on = _element(vc_id, key),
-			_ele_off= _element(vc_id, key+'-slashed');
-		( val) ? ( _ele_on.show(), _ele_off.hide() )	: (	_ele_off.show(), _ele_on.hide() );
-	}
+			case 'set':
+				/* change to busy */
+				el_on.css('fill','yellow'); 
+				el_off.css('fill','yellow'); 
+				state[vc_id][key] = 'busy';
+				break;
 
-	function _element( vc_id, key){						
-		/* 
-		 * it is better to cache the searches here 
-		 * instead of accessing the DOM everytime */
-		var _ele = cache.elements[ vc_id + key];
-		if( !_ele)
-			 _ele = cache.elements[ vc_id + key] = $('#'+vc_id+my_namespace+' #'+key); /* assignment works right_to_left */
-
-		return _ele;
+			default:
+				log.info("element found in some unknown state");
+				state[vc_id][key] = undefined;				/* what else can i do here */
+		}
 	}
 
 	return controls;

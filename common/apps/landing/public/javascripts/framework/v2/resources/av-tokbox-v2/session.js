@@ -5,6 +5,7 @@ define(function(require) {
 	var local       = require('./local-media');
 	var layout      = require('./layout');
 	var tokbox      = require('./tokbox');
+	var menu        = require('./menu');
 
 	var session = {};
 	var sess_info_cached;
@@ -12,6 +13,7 @@ define(function(require) {
 	var handlers = {
 		/* Session related */
 		'sessionConnected'       : sessionConnected,
+		'sessionConnectFailed'   : sessionConnectFailed,
 		'sessionDisconnected'    : sessionDisconnected,
 		'sessionReconnecting'    : sessionReconnecting,
 		'sessionReconnected'     : sessionReconnected,
@@ -70,8 +72,13 @@ define(function(require) {
 	function sessionConnected (ev) {
 		log.info ('TODO : sessionConnected:', ev);
 	}
-	function sessionDisconnected (ev) {
 
+	function sessionConnectFailed (ev) {
+		log.error ('TODO : sessionConnectFailed:', ev);
+	}
+
+	function sessionDisconnected (ev) {
+		log.error ('TODO : sessionDisconnected:', ev);
 		f_handle_cached.notify.alert ('AV: Session Disconnected', ev.reason, 'danger', {
 			non_dismissable : true,
 			button : { }
@@ -273,7 +280,7 @@ define(function(require) {
 		 * we dont' handle the streamCreated event here (it is handled within local-media.js),
 		 * so our stream_map does not contain it's information. However, the connectionCreated
 		 * handler is still called, so we do have its information in our conn_map. */
-		var cont;
+		var cont, the_thing;
 		var meta = {};
 		var conn_id = stream.connection.connectionId;
 		var _local = conn_map[conn_id].local;
@@ -286,17 +293,22 @@ define(function(require) {
 
 		log.info ('stream property changed: ' + stream_id + ', property: ' + property + ', changed from (' + _old + ') --> (' + _new + ')');
 
-		if (property === 'hasAudio') {
-			f_handle_cached.attendees.set_meta ( vc_id, 'microphone', _new);
-			meta.has_audio = _new;
+		switch (property) {
+			case 'hasAudio' :
+				the_thing = 'microphone';
+				meta.has_audio = _new;
+				break;
+
+			case 'hasVideo' :
+				the_thing = 'camera';
+				meta.has_video = _new;
+				break;
 		}
 
-		if (property === 'hasVideo') {
-			f_handle_cached.attendees.set_meta ( vc_id, 'camera', _new);
-			meta.has_video = _new;
-		}
-
+		f_handle_cached.attendees.set_meta (vc_id, the_thing, _new);
 		cont.set_meta (meta);
+		if (_local)
+			menu.local_media_changed (the_thing, _new);
 	}
 
 	function get_subscriber_stats (subscriber, container) {
